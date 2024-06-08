@@ -17,7 +17,7 @@ router.get('/:id', getPosts);
 // router.get('/query/:qn', getFilteredPosts);
 
 // POST a new post for a particular bakery
-router.post('/:id', createPost);
+router.post('/', createPost);
 
 // DELETE a post??
 

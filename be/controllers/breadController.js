@@ -25,7 +25,7 @@ const getBakeryDetails = async (req, res) => {
 const getPosts = async (req, res) => {
     const { id } = req.params;
 
-    const posts = await Post.find({ bakeryID: id })
+    const posts = await Post.find({ bakeryId: id })
                             .sort( {createdAt: -1 })
                             // ignore the limits rn
     
@@ -34,6 +34,7 @@ const getPosts = async (req, res) => {
         return res.json({oops: "No posts for that bakery yet!"});
     }
     console.log(34);
+    console.log(posts.length);
     res.status(200).json(posts);
 }
 
