@@ -1,0 +1,35 @@
+{
+	"expo": {
+		"name": "cats4good",
+		"slug": "cats4good",
+		"version": "1.0.0",
+		"orientation": "portrait",
+		"icon": "./assets/icon.png",
+		"backgroundColor": "#577B77",
+		"userInterfaceStyle": "light",
+		"splash": {
+			"image": "./assets/splash.png",
+			"resizeMode": "contain"
+		},
+		"ios": {
+			"supportsTablet": true,
+			"config": {
+				"googleMapsApiKey": "API_GOOGLE"
+			}
+		},
+		"android": {
+			"adaptiveIcon": {
+				"foregroundImage": "./assets/adaptive-icon.png",
+				"backgroundColor": "#ffffff"
+			},
+			"config": {
+				"googleMaps": {
+					"apiKey": "API_GOOGLE"
+				}
+			}
+		},
+		"web": {
+			"favicon": "./assets/favicon.png"
+		}
+	}
+}

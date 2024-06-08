@@ -1,0 +1,6 @@
+fe/node_modules/
+fe/package.json
+fe/.vscode/
+fe/.expo/
+
+be/node_modules/
