@@ -1,8 +1,14 @@
 const express = require('express');
 
-const { !!!!! } = require('../controllers/breadController');
+const { getBakeries, getBakeryDetails, getPosts, createPost } = require('../controllers/breadController');
 
 const router = express.Router();
+
+// GET bakeries in the area
+router.get('/:location', getBakeries);
+
+// GET bakery information through Google API
+router.get('/:id', getBakeryDetails);
 
 // GET posts for particular bakery
 router.get('/:id', getPosts);
