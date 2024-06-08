@@ -5,10 +5,10 @@ const { getBakeries, getBakeryDetails, getPosts, createPost } = require('../cont
 const router = express.Router();
 
 // GET bakeries in the area
-router.get('/:location', getBakeries);
+router.get('/bakeries/:location', getBakeries);
 
 // GET bakery information through Google API
-router.get('/:id', getBakeryDetails);
+router.get('/bakery/:id', getBakeryDetails);
 
 // GET posts for particular bakery
 router.get('/:id', getPosts);

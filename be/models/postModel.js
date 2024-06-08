@@ -1,6 +1,10 @@
 const mongoose = require("mongoose");
 
 postSchema = new mongoose.Schema({
+    bakeryId: {
+        type: String,
+        required: true
+    },
     title: {
         type: String,
         required: true
@@ -19,4 +23,4 @@ postSchema = new mongoose.Schema({
     }
 }, { timestamps: true });
 
-module.exports = mongoose.model("Hint", hintSchema);
+module.exports = mongoose.model("Post", postSchema);
