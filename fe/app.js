@@ -1,6 +1,6 @@
 import { NavigationContainer } from "@react-navigation/native";
 
-import TabNavigator from "./components/TabNavigator";
+import TabNavigator from "./components/Tab/TabNavigator";
 
 export default function App() {
 	return (

@@ -1,4 +1,3 @@
-import React from "react";
 import { StyleSheet, View, TouchableOpacity } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 
@@ -35,7 +34,7 @@ export default function TabBar({ state, descriptors, navigation }) {
 				let iconName;
 				if (route.name === "HomeTab") {
 					iconName = "home";
-				} else if (route.name === "StarredTab") {
+				} else if (route.name === "FavouriteTab") {
 					iconName = "star";
 				} else if (route.name === "ProfileTab") {
 					iconName = "person";

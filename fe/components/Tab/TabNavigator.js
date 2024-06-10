@@ -1,15 +1,15 @@
-import React from "react";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { createStackNavigator } from "@react-navigation/stack";
 
 import { MaterialIcons } from "@expo/vector-icons";
 
-import HomeScreen from "../screens/HomeScreen";
-import BakeryScreen from "../screens/BakeryScreen";
-import ProfileScreen from "../screens/ProfileScreen";
-import NewPostScreen from "../screens/NewPostScreen";
-
 import TabBar from "./TabBar";
+
+import HomeScreen from "../../screens/HomeScreen";
+import BakeryScreen from "../../screens/BakeryScreen";
+import ProfileScreen from "../../screens/ProfileScreen";
+import FavouriteScreen from "../../screens/FavouriteScreen";
+import NewPostScreen from "../../screens/NewPostScreen";
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
@@ -28,8 +28,13 @@ function HomeStack() {
 	return (
 		<Stack.Navigator screenOptions={screenOptions}>
 			<Stack.Screen name="Home" component={HomeScreen} />
-			<Stack.Screen name="Bakery" component={BakeryScreen} />
+			<Stack.Screen
+				name="Bakery"
+				component={BakeryScreen}
+				options={({ route }) => ({ title: route.params.bakeryName })}
+			/>
 			<Stack.Screen name="New Post" component={NewPostScreen} />
+			<Stack.Screen name="User Profile" component={ProfileScreen} />
 		</Stack.Navigator>
 	);
 }
@@ -37,7 +42,15 @@ function HomeStack() {
 function ProfileStack() {
 	return (
 		<Stack.Navigator screenOptions={screenOptions}>
-			<Stack.Screen name="Profile" component={ProfileScreen} />
+			<Stack.Screen name="My Profile" component={ProfileScreen} />
+		</Stack.Navigator>
+	);
+}
+
+function FavouriteStack() {
+	return (
+		<Stack.Navigator screenOptions={screenOptions}>
+			<Stack.Screen name="Favourite" component={FavouriteScreen} />
 		</Stack.Navigator>
 	);
 }
@@ -45,7 +58,7 @@ function ProfileStack() {
 export default function TabNavigator() {
 	return (
 		<Tab.Navigator
-			initialRouteName="Home"
+			initialRouteName="HomeTab"
 			screenOptions={({ route }) => ({
 				headerShown: false,
 				activeTintColor: "#f4511e",
@@ -67,6 +80,7 @@ export default function TabNavigator() {
 			tabBar={(props) => <TabBar {...props} />}
 		>
 			<Tab.Screen name="HomeTab" component={HomeStack} />
+			<Tab.Screen name="FavouriteTab" component={FavouriteStack} />
 			<Tab.Screen name="ProfileTab" component={ProfileStack} />
 		</Tab.Navigator>
 	);
