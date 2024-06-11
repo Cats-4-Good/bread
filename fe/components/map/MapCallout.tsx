@@ -36,13 +36,13 @@ export default function MapCallout({ location }: MapCalloutProps) {
         router.navigate(`/(tabs)/bakery/${tempBakery.name}`);
       }}>
         <View style={styles.calloutContainer}>
-          <Text style={styles.calloutTitleText}>tempBakery.name</Text>
-          <Text style={styles.calloutAddressText}>tempBakery.location</Text>
+          <Text style={styles.calloutTitleText}>{tempBakery.name}</Text>
+          <Text style={styles.calloutAddressText}>{tempBakery.location}</Text>
           <TouchableOpacity
             accessibilityRole="button"
             style={styles.calloutButton}
             onPress={() => {
-              router.navigate(`/(tabs)/bakery/${"temp"}`);
+              router.navigate(`/(tabs)/bakery/${tempBakery.name}`);
             }}
           >
             <Text style={styles.calloutButtonText}>View bakery posts</Text>

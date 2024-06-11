@@ -1,13 +1,16 @@
+import { useEffect } from "react";
+import { useLocalSearchParams, useNavigation } from "expo-router";
 import BakeryList from "@/components/bakery/BakeryList";
-import { useLocalSearchParams } from 'expo-router';
-import { Text } from 'react-native';
 
 export default function BakeryScreen() {
-  const { slug } = useLocalSearchParams();
+	const { slug } = useLocalSearchParams();
+	const navigation = useNavigation();
 
-  return <Text>Blog post: {slug}</Text>;
-  // return (
-  //   <BakeryList />
-  // );
-};
+	useEffect(() => {
+		if (slug) {
+			navigation.setOptions({ title: decodeURIComponent(slug as string) });
+		}
+	}, [slug]);
 
+	return <BakeryList />;
+}
