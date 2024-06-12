@@ -45,7 +45,10 @@ export default function BakeryPost({ item }: { item: Listing }) {
           <Text style={styles.listItemPriceText}>{item.price}</Text>
           {item.quantity && (
             <Text style={styles.listItemText}>
-              {item.quantity.min.toString() + '-' + item.quantity.max.toString() + ' left'}
+              {item.quantity.min.toString() +
+                "-" +
+                item.quantity.max.toString() +
+                " left"}
             </Text>
           )}
         </View>

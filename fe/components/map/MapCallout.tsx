@@ -4,20 +4,20 @@ import { StyleSheet, View, Text, TouchableOpacity } from "react-native";
 import { Marker, Callout } from "react-native-maps";
 
 interface MapCalloutProps {
-  location: LocationObjectCoords
-};
+  location: LocationObjectCoords;
+}
 
 interface Bakery {
   id: number;
   name: string;
   location: string;
-};
+}
 
 const tempBakery: Bakery = {
   id: 1,
   name: "Justin's Buns",
-  location: "1 Sengkang Square, #B1-19, Singapore"
-}
+  location: "1 Sengkang Square, #B1-19, Singapore",
+};
 
 export default function MapCallout({ location }: MapCalloutProps) {
   return (
@@ -27,14 +27,17 @@ export default function MapCallout({ location }: MapCalloutProps) {
         longitude: location.longitude,
       }}
       style={{
-        position: 'absolute',
+        position: "absolute",
         bottom: 50,
         left: 50,
       }}
     >
-      <Callout style={styles.callout} onPress={() => {
-        router.navigate(`/(tabs)/bakery/${tempBakery.name}`);
-      }}>
+      <Callout
+        style={styles.callout}
+        onPress={() => {
+          router.push(`/${tempBakery.name}`);
+        }}
+      >
         <View style={styles.calloutContainer}>
           <Text style={styles.calloutTitleText}>{tempBakery.name}</Text>
           <Text style={styles.calloutAddressText}>{tempBakery.location}</Text>
@@ -42,14 +45,14 @@ export default function MapCallout({ location }: MapCalloutProps) {
             accessibilityRole="button"
             style={styles.calloutButton}
             onPress={() => {
-              router.navigate(`/(tabs)/bakery/${tempBakery.name}`);
+              router.push(`/${tempBakery.name}`);
             }}
           >
             <Text style={styles.calloutButtonText}>View bakery posts</Text>
           </TouchableOpacity>
         </View>
       </Callout>
-    </Marker >
+    </Marker>
   );
 }
 
