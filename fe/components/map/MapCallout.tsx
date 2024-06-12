@@ -35,7 +35,7 @@ export default function MapCallout({ location }: MapCalloutProps) {
       <Callout
         style={styles.callout}
         onPress={() => {
-          router.navigate(`/(tabs)/bakery/${tempBakery.name}`);
+          router.push(`/${tempBakery.name}`);
         }}
       >
         <View style={styles.calloutContainer}>
@@ -46,7 +46,7 @@ export default function MapCallout({ location }: MapCalloutProps) {
           <ThemedButton
             type="primary"
             onPress={() => {
-              router.navigate(`/(tabs)/bakery/${tempBakery.name}`);
+              router.push(`/${tempBakery.name}`);
             }}
             style={styles.calloutButton}
           >

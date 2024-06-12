@@ -1,10 +1,9 @@
 import { useState, useEffect, useRef } from "react";
-import { StyleSheet, View, Platform } from "react-native";
+import { StyleSheet, View, Text, Platform } from "react-native";
 import MapView, { Region } from "react-native-maps";
 import * as Location from "expo-location";
 import MapCentraliseButton from "@/components/map/MapCentraliseButton";
 import MapCallout from "@/components/map/MapCallout";
-import { ThemedText } from "@/components";
 
 export default function Map() {
   const mapRef = useRef(null);
@@ -24,7 +23,10 @@ export default function Map() {
       }
 
       let loc = await Location.getCurrentPositionAsync({
-        accuracy: Platform.OS == "android" ? Location.LocationAccuracy.Low : Location.LocationAccuracy.Lowest,
+        accuracy:
+          Platform.OS == "android"
+            ? Location.LocationAccuracy.Low
+            : Location.LocationAccuracy.Lowest,
       });
       console.log(loc);
 
@@ -52,7 +54,7 @@ export default function Map() {
   if (isError) {
     return (
       <View style={styles.container}>
-        <ThemedText type="default">Permission to access location was denied</ThemedText>
+        <Text>Permission to access location was denied</Text>
       </View>
     );
   }
@@ -66,11 +68,12 @@ export default function Map() {
           initialRegion={initialRegion}
           showsUserLocation={true}
           onRegionChangeComplete={handleRegionChangeComplete}
-          userInterfaceStyle={"light"}
         >
           {location && <MapCallout location={location} />}
         </MapView>
-        {location && <MapCentraliseButton mapRef={mapRef} location={location} />}
+        {location && (
+          <MapCentraliseButton mapRef={mapRef} location={location} />
+        )}
       </>
     </View>
   );
