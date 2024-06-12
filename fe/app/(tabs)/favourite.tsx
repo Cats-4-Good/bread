@@ -1,9 +1,11 @@
-import { StyleSheet, View, Text } from "react-native";
+import { StyleSheet, View } from "react-native";
+
+import { ThemedText } from "@/components";
 
 export default function FavouriteScreen() {
   return (
     <View>
-      <Text>This is my favourite page</Text>
+      <ThemedText type="default">This is my favourite page</ThemedText>
     </View>
   );
 }

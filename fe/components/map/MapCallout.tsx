@@ -1,9 +1,10 @@
 import { LocationObjectCoords } from "expo-location";
 import { router } from "expo-router";
-import { StyleSheet, View, Text, TouchableOpacity } from "react-native";
+import { StyleSheet, View } from "react-native";
 import { Marker, Callout } from "react-native-maps";
 
 import { ThemedButton } from "../ThemedButton";
+import { ThemedText } from "../ThemedText";
 
 interface MapCalloutProps {
   location: LocationObjectCoords;
@@ -28,11 +29,8 @@ export default function MapCallout({ location }: MapCalloutProps) {
         latitude: location.latitude,
         longitude: location.longitude,
       }}
-      style={{
-        position: "absolute",
-        bottom: 50,
-        left: 50,
-      }}
+      tracksViewChanges={false}
+      image={require("../../assets/images/map-icon-light.png")}
     >
       <Callout
         style={styles.callout}
@@ -41,15 +39,16 @@ export default function MapCallout({ location }: MapCalloutProps) {
         }}
       >
         <View style={styles.calloutContainer}>
-          <Text style={styles.calloutTitleText}>{tempBakery.name}</Text>
-          <Text style={styles.calloutAddressText}>{tempBakery.location}</Text>
+          <ThemedText type="defaultSemiBold">{tempBakery.name}</ThemedText>
+          <ThemedText type="default" style={styles.calloutAddressText}>
+            {tempBakery.location}
+          </ThemedText>
           <ThemedButton
             type="primary"
-            text="View bakery posts"
             onPress={() => {
               router.navigate(`/(tabs)/bakery/${tempBakery.name}`);
             }}
-            style={{ marginTop: 5 }}
+            style={styles.calloutButton}
           >
             View bakery posts
           </ThemedButton>
@@ -62,18 +61,17 @@ export default function MapCallout({ location }: MapCalloutProps) {
 const styles = StyleSheet.create({
   callout: {
     width: 300,
-    padding: 5,
+    padding: 3,
   },
   calloutContainer: {
     flexDirection: "column",
     alignItems: "flex-start",
   },
-  calloutTitleText: {
-    fontSize: 17,
-    fontWeight: "bold",
-  },
   calloutAddressText: {
-    fontSize: 14,
     marginVertical: 5,
+  },
+  calloutButton: {
+    marginTop: 5,
+    width: "100%",
   },
 });

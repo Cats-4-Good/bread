@@ -1,6 +1,8 @@
-import { StyleSheet, TouchableOpacity } from "react-native";
+import { StyleSheet } from "react-native";
 import { FontAwesome5 } from "@expo/vector-icons";
 import { LocationObjectCoords } from "expo-location";
+
+import { ThemedButton } from "../ThemedButton";
 
 interface Props {
   mapRef: any;
@@ -20,9 +22,9 @@ export default function MapCentraliseButton({ mapRef, location }: Props) {
   };
 
   return (
-    <TouchableOpacity style={styles.centerButton} onPress={handleCenterMap}>
+    <ThemedButton type="round" style={styles.centerButton} onPress={handleCenterMap}>
       <FontAwesome5 name="location-arrow" size={16} color="white" />
-    </TouchableOpacity>
+    </ThemedButton>
   );
 }
 
@@ -31,8 +33,5 @@ const styles = StyleSheet.create({
     position: "absolute",
     bottom: 14,
     right: 14,
-    backgroundColor: "#cf9c61",
-    padding: 18,
-    borderRadius: 25,
   },
 });

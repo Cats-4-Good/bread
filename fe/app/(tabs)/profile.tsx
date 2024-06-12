@@ -1,9 +1,11 @@
-import { StyleSheet, View, Text } from "react-native";
+import { StyleSheet, View } from "react-native";
+
+import { ThemedText } from "@/components";
 
 export default function ProfileScreen() {
   return (
     <View>
-      <Text>This is my profile page</Text>
+      <ThemedText type="default">This is my profile page</ThemedText>
     </View>
   );
 }

@@ -1,14 +1,12 @@
-import React from "react";
-import { TouchableOpacity, Text, StyleSheet, type TouchableOpacityProps, type TextProps } from "react-native";
-import { Colors } from "@/constants/Colors";
+import { TouchableOpacity, StyleSheet, type TouchableOpacityProps } from "react-native";
+
+import { ThemedText } from "./ThemedText";
 
 type ThemedButtonProps = TouchableOpacityProps & {
-  type?: "default" | "primary" | "secondary" | "link";
-  textProps?: TextProps;
-  text?: string;
+  type?: "default" | "primary" | "secondary" | "round";
 };
 
-export function ThemedButton({ type = "default", style, text, textProps, children, ...rest }: ThemedButtonProps) {
+export function ThemedButton({ type = "default", style, children, ...rest }: ThemedButtonProps) {
   return (
     <TouchableOpacity
       style={[
@@ -16,43 +14,28 @@ export function ThemedButton({ type = "default", style, text, textProps, childre
         type === "default" ? styles.default : undefined,
         type === "primary" ? styles.primary : undefined,
         type === "secondary" ? styles.secondary : undefined,
-        type === "link" ? styles.link : undefined,
+        type === "round" ? styles.round : undefined,
         style,
       ]}
       {...rest}
     >
-      {text ? (
-        <Text
-          style={[
-            styles.buttonText,
-            type === "default" ? styles.defaultText : undefined,
-            type === "primary" ? styles.primaryText : undefined,
-            type === "secondary" ? styles.secondaryText : undefined,
-            type === "link" ? styles.linkText : undefined,
-          ]}
-          {...textProps}
-        >
-          {text}
-        </Text>
-      ) : (
-        children
-      )}
+      <ThemedText style={styles.buttonText} type="default">
+        {children}
+      </ThemedText>
     </TouchableOpacity>
   );
 }
 
 const styles = StyleSheet.create({
   button: {
-    paddingVertical: 9,
-    paddingHorizontal: 5,
     borderRadius: 7,
+    padding: 9,
     alignItems: "center",
     justifyContent: "center",
-    width: "100%",
   },
   default: {
-    backgroundColor: "white",
-    color: "black",
+    backgroundColor: "#fff",
+    color: "#000",
   },
   primary: {
     backgroundColor: "#AE7531",
@@ -62,24 +45,26 @@ const styles = StyleSheet.create({
     backgroundColor: "#15803D",
     color: "#fff",
   },
-  link: {
-    backgroundColor: "transparent",
+  round: {
+    backgroundColor: "#AE7531",
+    padding: 18,
+    borderRadius: 25,
+    color: "#fff",
   },
   buttonText: {
-    fontSize: 14,
     textAlign: "center",
-    color: "white",
+    color: "#fff",
   },
   defaultText: {
     color: "#000",
   },
   primaryText: {
-    color: "white",
+    color: "#fff",
   },
   secondaryText: {
-    color: "white",
+    color: "#fff",
   },
-  linkText: {
-    color: "#0a7ea4",
+  roundText: {
+    color: "#fff",
   },
 });

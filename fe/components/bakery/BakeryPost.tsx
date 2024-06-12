@@ -1,5 +1,7 @@
-import { View, Text, StyleSheet, TouchableWithoutFeedback, Image } from "react-native";
+import { View, StyleSheet, TouchableWithoutFeedback, Image } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
+
+import { ThemedText } from "../ThemedText";
 
 export interface Listing {
   name: string;
@@ -28,19 +30,20 @@ export default function BakeryPost({ item }: { item: Listing }) {
               <MaterialIcons name="person" size={16} color="black" />
             </View>
           </TouchableWithoutFeedback>
-
-          <View>
-            <Text>{item.datetime}</Text>
-          </View>
+          <ThemedText type="default">{item.datetime}</ThemedText>
         </View>
-        <Text style={styles.listItemNameText}>{item.name}</Text>
-        <Text style={styles.listItemDescriptionText}>{item.description}</Text>
+
+        <ThemedText type="defaultSemiBold">{item.name}</ThemedText>
+        <ThemedText type="default" style={styles.listItemDescriptionText}>
+          {item.description}
+        </ThemedText>
+
         <View style={styles.listFooter}>
-          <Text style={styles.listItemPriceText}>{item.price}</Text>
+          <ThemedText type="defaultSemiBold">{item.price}</ThemedText>
           {item.quantity && (
-            <Text style={styles.listItemText}>
+            <ThemedText type="default">
               {item.quantity.min.toString() + "-" + item.quantity.max.toString() + " left"}
-            </Text>
+            </ThemedText>
           )}
         </View>
       </View>
@@ -76,23 +79,11 @@ const styles = StyleSheet.create({
     borderColor: "#eae9e9",
     borderWidth: 1,
   },
-  listItemText: {
-    fontSize: 16,
-  },
   listItemTextContainer: {
     width: "60%",
     padding: 2,
   },
-  listItemPriceText: {
-    fontSize: 16,
-    fontWeight: "bold",
-  },
-  listItemNameText: {
-    fontSize: 17,
-    fontWeight: "bold",
-  },
   listItemDescriptionText: {
-    fontSize: 16,
     paddingVertical: 4,
   },
   listFooter: {

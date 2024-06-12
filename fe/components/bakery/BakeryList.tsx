@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, TouchableOpacity, FlatList, Image } from "react-native";
+import { View, StyleSheet, FlatList, Image } from "react-native";
 import { Entypo } from "@expo/vector-icons";
 import BakeryPost from "./BakeryPost";
 import { listings } from "./temp-data";
@@ -15,15 +15,9 @@ export default function BakeryList() {
         style={styles.bakeryImage}
       />
       <View>
-        <ThemedButton type="primary" text="New Post" style={styles.newPostButton} onPress={() => {}}>
-          New Post <Entypo name="plus" size={16} color="white" /> 123
+        <ThemedButton type="primary" style={styles.newPostButton} onPress={() => {}}>
+          New Post <Entypo name="plus" size={16} color="white" />
         </ThemedButton>
-
-        <TouchableOpacity style={styles.newPostButton} onPress={() => {}}>
-          <Text style={styles.newPostButtonText}>
-            New Post <Entypo name="plus" size={16} color="white" />
-          </Text>
-        </TouchableOpacity>
       </View>
       <FlatList
         data={listings}
@@ -47,17 +41,9 @@ const styles = StyleSheet.create({
     maxHeight: 200,
   },
   newPostButton: {
-    backgroundColor: "#CF9C61",
     marginHorizontal: 20,
     marginVertical: 10,
-    padding: 10,
-    borderRadius: 15,
     alignSelf: "flex-start",
-    // width: "200px",
-  },
-  newPostButtonText: {
-    color: "white",
-    fontSize: 16,
   },
   list: {
     width: "auto",
