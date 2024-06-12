@@ -1,10 +1,4 @@
-import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableWithoutFeedback,
-  Image,
-} from "react-native";
+import { View, Text, StyleSheet, TouchableWithoutFeedback, Image } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 
 export interface Listing {
@@ -45,7 +39,7 @@ export default function BakeryPost({ item }: { item: Listing }) {
           <Text style={styles.listItemPriceText}>{item.price}</Text>
           {item.quantity && (
             <Text style={styles.listItemText}>
-              {item.quantity.min.toString() + '-' + item.quantity.max.toString() + ' left'}
+              {item.quantity.min.toString() + "-" + item.quantity.max.toString() + " left"}
             </Text>
           )}
         </View>

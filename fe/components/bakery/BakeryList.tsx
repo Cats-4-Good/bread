@@ -3,6 +3,8 @@ import { Entypo } from "@expo/vector-icons";
 import BakeryPost from "./BakeryPost";
 import { listings } from "./temp-data";
 
+import { ThemedButton } from "../ThemedButton";
+
 export default function BakeryList() {
   return (
     <View style={styles.content}>
@@ -13,7 +15,11 @@ export default function BakeryList() {
         style={styles.bakeryImage}
       />
       <View>
-        <TouchableOpacity style={styles.newPostButton} onPress={() => { }}>
+        <ThemedButton type="primary" text="New Post" style={styles.newPostButton} onPress={() => {}}>
+          New Post <Entypo name="plus" size={16} color="white" /> 123
+        </ThemedButton>
+
+        <TouchableOpacity style={styles.newPostButton} onPress={() => {}}>
           <Text style={styles.newPostButtonText}>
             New Post <Entypo name="plus" size={16} color="white" />
           </Text>
@@ -27,7 +33,7 @@ export default function BakeryList() {
       />
     </View>
   );
-};
+}
 
 const styles = StyleSheet.create({
   content: {
@@ -47,6 +53,7 @@ const styles = StyleSheet.create({
     padding: 10,
     borderRadius: 15,
     alignSelf: "flex-start",
+    // width: "200px",
   },
   newPostButtonText: {
     color: "white",
