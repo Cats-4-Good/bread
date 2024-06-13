@@ -29,7 +29,8 @@ export function ThemedButton({ type = "default", style, children, ...rest }: The
 const styles = StyleSheet.create({
   button: {
     borderRadius: 7,
-    padding: 9,
+    paddingVertical: 12,
+    paddingHorizontal: 14,
     alignItems: "center",
     justifyContent: "center",
   },
