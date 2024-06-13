@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { StyleSheet, View, TextInput, Alert } from "react-native";
 
+import { API_URL } from "@env";
 import storage from "@/components/storage/Storage";
 import { Colors } from "@/constants/Colors";
 import { ThemedButton } from "@/components/ThemedButton";
@@ -17,11 +18,8 @@ export default function LoginScreen() {
       return;
     }
 
-    // TODO
-    // request to get token from server
-
     try {
-      const response = await fetch("https://4b08-116-15-47-239.ngrok-free.app/api/users", {
+      const response = await fetch(`${API_URL}/users`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -30,66 +28,28 @@ export default function LoginScreen() {
       });
 
       if (!response.ok) {
-        console.log(response)
         throw new Error("Network response was not ok");
       }
 
       const data = await response.json();
-      console.log(data);
-      // const { token } = data;
 
-      // // Save user data to storage
-      // storage.save({
-      //   key: "user",
-      //   data: {
-      //     username,
-      //     email,
-      //     token,
-      //   },
-      // });
+      const { userId } = data;
 
-      // // Load user data from storage
-      // const userData = await storage.load({
-      //   key: "user",
-      //   autoSync: true,
-      //   syncInBackground: true,
-      // });
+      // Save user data to storage
+      storage.save({
+        key: "user",
+        data: {
+          username,
+          email,
+          userId,
+        },
+      });
 
-      // console.log(userData.username);
-
-      // Alert.alert("Success", `Logged in as ${username}`);
+      Alert.alert("Success", `Logged in as ${username}`);
     } catch (error) {
       console.error(error);
       Alert.alert("Error", "Failed to log in. Please check your username and email.");
     }
-
-    // save user data to storage
-    // storage.save({
-    //   key: "user",
-    //   data: {
-    //     username,
-    //     email,
-    //     token: "1234567890",
-    //   },
-    // });
-
-    // // load user data from storage
-    // storage.load({
-    //   key: "user",
-    //   autoSync: true,
-    //   syncInBackground: true,
-    // })
-    //   .then((ret) => {
-    //     // if found, return user data
-    //     // TODO
-    //     console.log(ret.username);
-    //   })
-    //   .catch((err) => {
-    //     console.warn(err.message);
-    //   });
-
-    // // TODO
-    // Alert.alert("Success", `Logged in as ${username}`);
   };
 
   return (
@@ -132,9 +92,9 @@ const styles = StyleSheet.create({
     padding: 9,
     marginVertical: 10,
     borderWidth: 1,
-    borderColor: "#ccc",
+    borderColor: Colors.grayLight,
     borderRadius: 5,
-    backgroundColor: "#fff",
+    backgroundColor: Colors.white,
   },
   loginButton: {
     width: "100%",

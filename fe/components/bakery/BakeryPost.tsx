@@ -1,6 +1,7 @@
 import { View, StyleSheet, TouchableWithoutFeedback, Image } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 
+import { Colors } from "@/constants/Colors";
 import { ThemedText } from "../ThemedText";
 
 export interface Listing {
@@ -56,7 +57,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     padding: 18,
     marginBottom: 10,
-    backgroundColor: "white",
+    backgroundColor: Colors.white,
     borderRadius: 15,
     shadowOffset: { height: 3, width: 1 },
     shadowOpacity: 0.1,
@@ -69,14 +70,13 @@ const styles = StyleSheet.create({
     width: 25,
     height: 25,
     borderRadius: 25,
-    backgroundColor: "#eee",
   },
   listItemImage: {
     width: "40%",
     aspectRatio: 1,
     marginRight: 10,
     borderRadius: 15,
-    borderColor: "#eae9e9",
+    borderColor: Colors.grayLight,
     borderWidth: 1,
   },
   listItemTextContainer: {

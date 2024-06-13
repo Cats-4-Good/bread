@@ -5,8 +5,6 @@ const { v4: uuidv4 } = require("uuid");
 const createUser = async (req, res) => {
   const { username, email } = req.body;
 
-  console.log({ username, email, userId: uuidv4() });
-
   try {
     const user = await User.create({ username, email, userId: uuidv4() });
     res.status(201).json(user);
