@@ -47,8 +47,8 @@ const styles = StyleSheet.create({
   },
   round: {
     backgroundColor: "#AE7531",
-    padding: 18,
-    borderRadius: 25,
+    padding: 20,
+    borderRadius: 30,
     color: "#fff",
   },
   buttonText: {
