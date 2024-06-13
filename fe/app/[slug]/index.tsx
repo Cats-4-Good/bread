@@ -22,8 +22,13 @@ export default function BakeryList() {
   const { slug } = useLocalSearchParams();
 
   const handlePress = (choice: boolean) => {
+    if (individualSelected !== null) return;
     setIndividualSelected(choice);
-    router.push(`/${slug}/new?choice=${choice}`);
+    setTimeout(() => {
+      setModalVisible(false);
+      setIndividualSelected(null);
+      router.push(`/${slug}/new?choice=${choice}`);
+    }, 500);
   };
 
   return (
