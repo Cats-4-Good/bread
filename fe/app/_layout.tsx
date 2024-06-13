@@ -41,10 +41,7 @@ export default function TabLayout() {
           options={{
             title: "Crumbs",
             tabBarIcon: ({ color, focused }) => (
-              <TabBarIcon
-                name={focused ? "home" : "home-outline"}
-                color={color}
-              />
+              <TabBarIcon name={focused ? "home" : "home-outline"} color={color} />
             ),
           }}
         />
@@ -53,10 +50,7 @@ export default function TabLayout() {
           options={{
             title: "Favourite",
             tabBarIcon: ({ color, focused }) => (
-              <TabBarIcon
-                name={focused ? "star" : "star-outline"}
-                color={color}
-              />
+              <TabBarIcon name={focused ? "star" : "star-outline"} color={color} />
             ),
           }}
         />
@@ -65,10 +59,16 @@ export default function TabLayout() {
           options={{
             title: "Profile",
             tabBarIcon: ({ color, focused }) => (
-              <TabBarIcon
-                name={focused ? "person" : "person-outline"}
-                color={color}
-              />
+              <TabBarIcon name={focused ? "person" : "person-outline"} color={color} />
+            ),
+          }}
+        />
+        <Tabs.Screen
+          name="login"
+          options={{
+            title: "Login",
+            tabBarIcon: ({ color, focused }) => (
+              <TabBarIcon name={focused ? "log-in" : "log-in-outline"} color={color} />
             ),
           }}
         />
