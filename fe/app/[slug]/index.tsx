@@ -1,11 +1,4 @@
-import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  FlatList,
-  Image,
-} from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity, FlatList, Image } from "react-native";
 import { Entypo } from "@expo/vector-icons";
 import BakeryPost from "@/components/bakery/BakeryPost";
 import { listings } from "@/components/bakery/temp-data";
@@ -16,9 +9,7 @@ import { router, useLocalSearchParams } from "expo-router";
 
 export default function BakeryList() {
   const [modalVisible, setModalVisible] = useState(false);
-  const [individualSelected, setIndividualSelected] = useState<boolean | null>(
-    null,
-  );
+  const [individualSelected, setIndividualSelected] = useState<boolean | null>(null);
   const { slug } = useLocalSearchParams();
 
   const handlePress = (choice: boolean) => {
@@ -40,10 +31,7 @@ export default function BakeryList() {
         style={styles.bakeryImage}
       />
       <View>
-        <TouchableOpacity
-          style={styles.newPostButton}
-          onPress={() => setModalVisible(true)}
-        >
+        <TouchableOpacity style={styles.newPostButton} onPress={() => setModalVisible(true)}>
           <Text style={styles.newPostButtonText}>
             New Post <Entypo name="plus" size={16} color="white" />
           </Text>
@@ -67,8 +55,7 @@ export default function BakeryList() {
         <View style={styles.modalView}>
           <Text style={styles.modalTitle}>Type of post</Text>
           <Text style={styles.modalText}>
-            If you are posting discounts w/ multiple items, please select
-            “Bakery-wide”
+            If you are posting discounts w/ multiple items, please select “Bakery-wide”
           </Text>
           <View style={styles.modalButtonsView}>
             <TouchableOpacity

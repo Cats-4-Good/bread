@@ -8,6 +8,7 @@ interface Props {
   mapRef: any;
   location: LocationObjectCoords;
 }
+
 export default function MapCentraliseButton({ mapRef, location }: Props) {
   const handleCenterMap = () => {
     if (mapRef.current && location) {
@@ -16,7 +17,8 @@ export default function MapCentraliseButton({ mapRef, location }: Props) {
           latitude: location.latitude,
           longitude: location.longitude,
         },
-        zoom: 15,
+        zoom: 1500,
+        altitude: 1500,
       });
     }
   };

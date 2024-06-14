@@ -24,7 +24,10 @@ export default function Map() {
       }
 
       let loc = await Location.getCurrentPositionAsync({
-        accuracy: Platform.OS == "android" ? Location.LocationAccuracy.Low : Location.LocationAccuracy.Lowest,
+        accuracy:
+          Platform.OS == "android"
+            ? Location.LocationAccuracy.Low
+            : Location.LocationAccuracy.Lowest,
       });
       console.log(loc);
 

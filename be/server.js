@@ -5,23 +5,26 @@ console.log(process.env.MONGO_URI);
 const express = require("express");
 const mongoose = require("mongoose");
 const breadRoutes = require("./routes/bread");
+const userRoutes = require("./routes/user");
 const cors = require("cors");
 
 const app = express();
 
 // middleware
 app.use(express.json());
-
 app.use(cors());
 
 app.use((req, res, next) => {
   console.log(req.path, req.method);
   res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
   next();
 });
 
 // routes
-app.use("/api/bread", breadRoutes);
+app.use("/api", breadRoutes);
+
+app.use("/api", userRoutes);
 
 // connect to DB, then begin listening
 mongoose
