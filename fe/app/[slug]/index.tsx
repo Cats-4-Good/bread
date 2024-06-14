@@ -1,7 +1,14 @@
-import { View, Text, StyleSheet, TouchableOpacity, FlatList, Image } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  FlatList,
+  Image,
+} from "react-native";
 import { Entypo, Ionicons } from "@expo/vector-icons";
 import BakeryPost, { Listing } from "@/components/bakery/BakeryPost";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Colors } from "@/constants/Colors";
 import Modal from "react-native-modal";
 import { router, useLocalSearchParams } from "expo-router";
@@ -9,10 +16,14 @@ import { ThemedButton } from "@/components";
 
 export default function BakeryList() {
   const [modalVisible, setModalVisible] = useState(false);
-  const [individualSelected, setIndividualSelected] = useState<boolean | null>(null);
-  const [isSubmit, setIsSubmit] = useState(true);
+  const [individualSelected, setIndividualSelected] = useState<boolean | null>(
+    null,
+  );
+  const [isSubmit, setIsSubmit] = useState(false);
   const { slug } = useLocalSearchParams();
   const [listings, setListings] = useState<Listing[]>([]);
+
+  useEffect(() => {}, []);
 
   const handlePress = (choice: boolean) => {
     if (individualSelected !== null) return;
@@ -24,6 +35,13 @@ export default function BakeryList() {
     }, 200);
   };
 
+  const refreshPage = () => {
+    // refetch
+    //
+    //
+    setIsSubmit(false);
+  };
+
   return (
     <View style={styles.content}>
       <Image
@@ -33,7 +51,10 @@ export default function BakeryList() {
         style={styles.bakeryImage}
       />
       <View>
-        <TouchableOpacity style={styles.newPostButton} onPress={() => setModalVisible(true)}>
+        <TouchableOpacity
+          style={styles.newPostButton}
+          onPress={() => setModalVisible(true)}
+        >
           <Text style={styles.newPostButtonText}>
             New Post <Entypo name="plus" size={16} color="white" />
           </Text>
@@ -46,36 +67,38 @@ export default function BakeryList() {
         style={styles.list}
       />
 
-
       <Modal
         isVisible={modalVisible}
         onBackdropPress={() => {
           setModalVisible(false);
           setIndividualSelected(null);
+          if (isSubmit) refreshPage();
         }}
         hasBackdrop
       >
-        {isSubmit
-          ? <View style={[styles.modalView, { alignItems: 'center', gap: 10 }]}>
+        {isSubmit ? (
+          <View style={[styles.modalView, { alignItems: "center", gap: 10 }]}>
             <Ionicons name="checkmark-circle" size={40} color={Colors.green} />
-            <View style={{ alignItems: 'center', gap: 6 }}>
+            <View style={{ alignItems: "center", gap: 6 }}>
               <Text style={styles.modalTitle}>Post published</Text>
-              <Text style={[styles.modalText, { fontWeight: '300' }]}>+20 points</Text>
+              <Text style={[styles.modalText, { fontWeight: "300" }]}>
+                +20 points
+              </Text>
             </View>
             <ThemedButton
               type="secondary"
-              style={{ width: '100%', marginTop: 10 }}
-              onPress={() => {
-                // call page useeffect to refetch latest
-              }}
+              style={{ width: "100%", marginTop: 10 }}
+              onPress={refreshPage}
             >
               View post
             </ThemedButton>
           </View>
-          : <View style={styles.modalView}>
+        ) : (
+          <View style={styles.modalView}>
             <Text style={styles.modalTitle}>Type of post</Text>
             <Text style={styles.modalText}>
-              If you are posting discounts w/ multiple items, please select “Bakery-wide”
+              If you are posting discounts w/ multiple items, please select
+              “Bakery-wide”
             </Text>
             <View style={styles.modalButtonsView}>
               <TouchableOpacity
@@ -117,7 +140,8 @@ export default function BakeryList() {
                 </Text>
               </TouchableOpacity>
             </View>
-          </View>}
+          </View>
+        )}
       </Modal>
     </View>
   );

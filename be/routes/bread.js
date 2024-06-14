@@ -1,9 +1,9 @@
-const multer = require('multer');
-const { GridFsStorage } = require('multer-gridfs-storage');
-const Grid = require('gridfs-stream');
-const crypto = require('crypto');
-const path = require('path');
-const mongoose = require('mongoose');
+const multer = require("multer");
+const { GridFsStorage } = require("multer-gridfs-storage");
+const Grid = require("gridfs-stream");
+const crypto = require("crypto");
+const path = require("path");
+const mongoose = require("mongoose");
 require("dotenv").config();
 
 const mongoURI = process.env.MONGO_URI;
@@ -19,7 +19,7 @@ const storage = new GridFsStorage({
       const filename = `${timestamp}-${file.originalname}`;
       const fileInfo = {
         filename: filename,
-        bucketName: 'uploads',
+        bucketName: "uploads",
       };
       resolve(fileInfo);
     });
@@ -51,7 +51,7 @@ router.get("/:id", getPosts);
 // router.get('/query/:qn', getFilteredPosts);
 
 // POST a new post for a particular bakery
-router.post("/", upload.single('file'), createPost);
+router.post("/", upload.single("file"), createPost);
 
 // DELETE a post??
 

@@ -14,7 +14,10 @@ export default function LoginScreen() {
 
   const loginHandler = async () => {
     // i did not do any advanced validation here. maybe will do next time
-    if (username.replaceAll(" ", "") === "" || email.replaceAll(" ", "") === "") {
+    if (
+      username.replaceAll(" ", "") === "" ||
+      email.replaceAll(" ", "") === ""
+    ) {
       Alert.alert("Whoops!", "Please fill in both fields");
       return;
     }
@@ -49,7 +52,10 @@ export default function LoginScreen() {
       Alert.alert("Success", `Logged in as ${username}`);
     } catch (error) {
       console.error(error);
-      Alert.alert("Error", "Failed to log in. Please check your username and email.");
+      Alert.alert(
+        "Error",
+        "Failed to log in. Please check your username and email.",
+      );
     }
   };
 
@@ -73,7 +79,11 @@ export default function LoginScreen() {
         placeholderTextColor={"black"}
         autoCorrect={false}
       />
-      <ThemedButton type="primary" onPress={loginHandler} style={styles.loginButton}>
+      <ThemedButton
+        type="primary"
+        onPress={loginHandler}
+        style={styles.loginButton}
+      >
         Login
       </ThemedButton>
     </View>
