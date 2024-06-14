@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { StyleSheet, View, TextInput, Alert } from "react-native";
 
-import { API_URL } from "@env";
+// import { API_URL } from "@env";
+const API_URL = "";
 import storage from "@/components/storage/Storage";
 import { Colors } from "@/constants/Colors";
 import { ThemedButton } from "@/components/ThemedButton";

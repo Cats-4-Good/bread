@@ -3,6 +3,7 @@ const { GridFsStorage } = require('multer-gridfs-storage');
 const Grid = require('gridfs-stream');
 const crypto = require('crypto');
 const path = require('path');
+const mongoose = require('mongoose');
 require("dotenv").config();
 
 const mongoURI = process.env.MONGO_URI;

@@ -1,13 +1,18 @@
 import { View, Text, StyleSheet, TouchableOpacity, Image, ScrollView, SafeAreaView, TextInput, Button } from "react-native";
 import { useLocalSearchParams } from "expo-router";
 import { Colors } from "@/constants/Colors";
-import { useEffect, useState } from "react";
+import { ReactChildren, useEffect, useState } from "react";
 import { ThemedButton } from "@/components/ThemedButton";
 import * as ImagePicker from 'expo-image-picker';
 import { Ionicons } from "@expo/vector-icons";
 import { Picker } from '@react-native-picker/picker';
 
 const discountTypes = [
+  {
+    label: "Type of discount",
+    value: "",
+    pricePlaceholder: "Select discount type first",
+  },
   {
     label: "Penis",
     value: "penis",
@@ -28,7 +33,7 @@ export default function NewPost() {
   const [image, setImage] = useState<string>();
   const [itemName, setItemName] = useState("");
   const [description, setDescription] = useState("");
-  const [discountType, setDiscountType] = useState();
+  const [discountType, setDiscountType] = useState("");
   const [price, setPrice] = useState("");
 
   const pickImage = async () => {
@@ -45,6 +50,10 @@ export default function NewPost() {
     if (!result.canceled) {
       setImage(result.assets[0].uri);
     }
+  };
+
+  const handleSubmit = () => {
+
   };
 
   if (individualSelected === null) return null;
@@ -100,22 +109,27 @@ export default function NewPost() {
                   : (
                     <View style={styles.uploadImageView}>
                       <Ionicons name="cloud-upload" size={60} color="gray" />
-                      <Text style={{ fontSize: 16, color: Colors.gray }}>Upload photo</Text>
+                      <View style={{ flexDirection: 'row', gap: 8, alignItems: 'center' }}>
+                        {individualSelected && <Text style={{ color: Colors.red }}>*</Text>}
+                        <Text style={{ fontSize: 16, color: Colors.gray }}>Upload photo</Text>
+                      </View>
                     </View>
                   )
                 }
               </View>
             </TouchableOpacity>
             {individualSelected &&
-              <TextInput
-                editable
-                maxLength={50}
-                onChangeText={text => setItemName(text)}
-                value={itemName}
-                placeholder="Item name"
-                placeholderTextColor={Colors.gray}
-                style={[styles.inputView, { height: 50 }]}
-              />}
+              <RequiredWrapper empty={!itemName}>
+                <TextInput
+                  editable
+                  maxLength={50}
+                  onChangeText={text => setItemName(text)}
+                  value={itemName}
+                  placeholder="Item name"
+                  placeholderTextColor={Colors.gray}
+                  style={[styles.inputView]}
+                />
+              </RequiredWrapper>}
             <TextInput
               editable
               multiline // this is still buggy need to restrict number of lines or do some parsing but don't want to waste time on this
@@ -129,6 +143,7 @@ export default function NewPost() {
             />
             <Picker
               selectedValue={discountType}
+              placeholder="Discount type"
               onValueChange={(itemValue, _itemIndex) => {
                 setDiscountType(itemValue);
                 setPrice("");
@@ -137,19 +152,17 @@ export default function NewPost() {
             >
               {discountTypes.map((e, i) => <Picker.Item {...e} key={i} />)}
             </Picker>
-            <TextInput
-              editable={!!discountType}
-              maxLength={50}
-              onChangeText={text => setPrice(text)}
-              value={price}
-              placeholder={
-                discountType
-                  ? discountTypes.find(e => e.value === discountType)?.pricePlaceholder
-                  : "Select discount type"
-              }
-              placeholderTextColor={Colors.gray}
-              style={styles.inputView}
-            />
+            <RequiredWrapper empty={!discountType}>
+              <TextInput
+                editable={!!discountType}
+                maxLength={50}
+                onChangeText={text => setPrice(text)}
+                value={price}
+                placeholder={discountTypes.find(e => e.value === discountType)?.pricePlaceholder}
+                placeholderTextColor={Colors.gray}
+                style={[styles.inputView, !discountType && { opacity: 0.5 }]}
+              />
+            </RequiredWrapper>
             <ThemedButton
               type="primary"
               style={{ alignSelf: 'center' }}
@@ -161,6 +174,16 @@ export default function NewPost() {
         </ScrollView>
       </SafeAreaView>
     </View >
+  );
+}
+
+
+const RequiredWrapper = ({ children, empty }: { children: React.ReactNode, empty: boolean }) => {
+  return (
+    <View style={{ position: 'relative' }}>
+      {children}
+      {empty && <Text style={{ color: Colors.red, position: 'absolute', left: 10, top: 20 }}>*</Text>}
+    </View>
   );
 }
 
