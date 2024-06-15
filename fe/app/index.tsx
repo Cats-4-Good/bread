@@ -5,11 +5,13 @@ import * as Location from "expo-location";
 import MapCentraliseButton from "@/components/map/MapCentraliseButton";
 import MapCallout from "@/components/map/MapCallout";
 import { ThemedText } from "@/components";
+import MapFilterButton from "@/components/map/MapFilterButton";
 
 export default function Map() {
   const mapRef = useRef(null);
 
   const [location, setLocation] = useState<Location.LocationObjectCoords>();
+  const [markers, setMarkers] = useState<Location.LocationObjectCoords[]>([]);
   const [isError, setIsError] = useState(false);
   const [initialRegion, setInitialRegion] = useState<Region>();
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -72,6 +74,7 @@ export default function Map() {
         >
           {location && <MapCallout location={location} />}
         </MapView>
+        {location && <MapFilterButton markers={markers} setMarkers={setMarkers} />}
         {location && <MapCentraliseButton mapRef={mapRef} location={location} />}
       </>
     </View>
