@@ -18,6 +18,7 @@ export const listings: Listing[] = [
     price: "$3.00",
     datetime: "3 hours ago",
     description: "Bread is my life. i will die 1 day without bread :3",
-    image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSOQpMd1VvFulMmL5eZzbby_LtusqbLCivDZA&s",
+    image:
+      "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSOQpMd1VvFulMmL5eZzbby_LtusqbLCivDZA&s",
   },
 ];

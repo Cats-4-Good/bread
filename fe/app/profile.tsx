@@ -20,7 +20,11 @@ export default function ProfileScreen() {
   return (
     <View>
       <ThemedText type="default">This is my profile page</ThemedText>
-      <ThemedButton type="primary" onPress={logoutHandler} style={{ marginTop: 20, width: 150 }}>
+      <ThemedButton
+        type="primary"
+        onPress={logoutHandler}
+        style={{ marginTop: 20, width: 150 }}
+      >
         Logout
       </ThemedButton>
     </View>

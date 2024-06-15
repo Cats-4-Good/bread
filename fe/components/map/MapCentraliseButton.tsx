@@ -24,7 +24,11 @@ export default function MapCentraliseButton({ mapRef, location }: Props) {
   };
 
   return (
-    <ThemedButton type="round" style={styles.centerButton} onPress={handleCenterMap}>
+    <ThemedButton
+      type="round"
+      style={styles.centerButton}
+      onPress={handleCenterMap}
+    >
       <FontAwesome5 name="location-arrow" size={20} color="white" />
     </ThemedButton>
   );

@@ -19,11 +19,11 @@ postSchema = new mongoose.Schema(
       required: true,
     },
     photo: {
-      type: Buffer,
+      type: mongoose.Types.ObjectId,
       required: true,
     },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 module.exports = mongoose.model("Post", postSchema);

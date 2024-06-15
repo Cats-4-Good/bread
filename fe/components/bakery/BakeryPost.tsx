@@ -1,4 +1,9 @@
-import { View, StyleSheet, TouchableWithoutFeedback, Image } from "react-native";
+import {
+  View,
+  StyleSheet,
+  TouchableWithoutFeedback,
+  Image,
+} from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 
 import { Colors } from "@/constants/Colors";
@@ -43,7 +48,10 @@ export default function BakeryPost({ item }: { item: Listing }) {
           <ThemedText type="defaultSemiBold">{item.price}</ThemedText>
           {item.quantity && (
             <ThemedText type="default">
-              {item.quantity.min.toString() + "-" + item.quantity.max.toString() + " left"}
+              {item.quantity.min.toString() +
+                "-" +
+                item.quantity.max.toString() +
+                " left"}
             </ThemedText>
           )}
         </View>
