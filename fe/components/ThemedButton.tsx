@@ -1,8 +1,4 @@
-import {
-  TouchableOpacity,
-  StyleSheet,
-  type TouchableOpacityProps,
-} from "react-native";
+import { TouchableOpacity, StyleSheet, type TouchableOpacityProps } from "react-native";
 
 import { ThemedText } from "./ThemedText";
 import { Colors } from "@/constants/Colors";
@@ -11,12 +7,7 @@ type ThemedButtonProps = TouchableOpacityProps & {
   type?: "default" | "primary" | "secondary" | "round" | "error";
 };
 
-export function ThemedButton({
-  type = "default",
-  style,
-  children,
-  ...rest
-}: ThemedButtonProps) {
+export function ThemedButton({ type = "default", style, children, ...rest }: ThemedButtonProps) {
   return (
     <TouchableOpacity
       style={[
@@ -46,41 +37,41 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   default: {
-    backgroundColor: "#fff",
-    color: "#000",
+    backgroundColor: Colors.white,
+    color: Colors.black,
   },
   primary: {
-    backgroundColor: "#AE7531",
-    color: "#fff",
+    backgroundColor: Colors.accent,
+    color: Colors.white,
   },
   secondary: {
-    backgroundColor: "#15803D",
-    color: "#fff",
+    backgroundColor: Colors.greenDark,
+    color: Colors.white,
   },
   error: {
     backgroundColor: Colors.red,
-    color: "#fff",
+    color: Colors.white,
   },
   round: {
-    backgroundColor: "#AE7531",
+    backgroundColor: Colors.accent,
     padding: 20,
     borderRadius: 30,
-    color: "#fff",
+    color: Colors.white,
   },
   buttonText: {
     textAlign: "center",
-    color: "#fff",
+    color: Colors.white,
   },
   defaultText: {
-    color: "#000",
+    color: Colors.black,
   },
   primaryText: {
-    color: "#fff",
+    color: Colors.white,
   },
   secondaryText: {
-    color: "#fff",
+    color: Colors.white,
   },
   roundText: {
-    color: "#fff",
+    color: Colors.white,
   },
 });

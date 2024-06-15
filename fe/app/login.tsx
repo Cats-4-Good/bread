@@ -2,7 +2,7 @@ import { useState } from "react";
 import { StyleSheet, View, TextInput, Alert } from "react-native";
 
 // import { API_URL } from "@env";
-const API_URL = "";
+const API_URL = "https://6eb3-128-106-75-173.ngrok-free.app/api";
 import storage from "@/components/storage/Storage";
 import { Colors } from "@/constants/Colors";
 import { ThemedButton } from "@/components/ThemedButton";
@@ -14,10 +14,7 @@ export default function LoginScreen() {
 
   const loginHandler = async () => {
     // i did not do any advanced validation here. maybe will do next time
-    if (
-      username.replaceAll(" ", "") === "" ||
-      email.replaceAll(" ", "") === ""
-    ) {
+    if (username.replaceAll(" ", "") === "" || email.replaceAll(" ", "") === "") {
       Alert.alert("Whoops!", "Please fill in both fields");
       return;
     }
@@ -30,6 +27,8 @@ export default function LoginScreen() {
         },
         body: JSON.stringify({ username, email }),
       });
+
+      console.log(response, API_URL);
 
       if (!response.ok) {
         throw new Error("Network response was not ok");
@@ -52,10 +51,7 @@ export default function LoginScreen() {
       Alert.alert("Success", `Logged in as ${username}`);
     } catch (error) {
       console.error(error);
-      Alert.alert(
-        "Error",
-        "Failed to log in. Please check your username and email.",
-      );
+      Alert.alert("Error", "Failed to log in. Please check your username and email.");
     }
   };
 
@@ -79,11 +75,7 @@ export default function LoginScreen() {
         placeholderTextColor={"black"}
         autoCorrect={false}
       />
-      <ThemedButton
-        type="primary"
-        onPress={loginHandler}
-        style={styles.loginButton}
-      >
+      <ThemedButton type="primary" onPress={loginHandler} style={styles.loginButton}>
         Login
       </ThemedButton>
     </View>

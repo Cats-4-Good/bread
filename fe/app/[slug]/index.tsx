@@ -1,11 +1,4 @@
-import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  FlatList,
-  Image,
-} from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity, FlatList, Image } from "react-native";
 import { Entypo, Ionicons } from "@expo/vector-icons";
 import BakeryPost, { Listing } from "@/components/bakery/BakeryPost";
 import { useEffect, useState } from "react";
@@ -16,14 +9,23 @@ import { ThemedButton } from "@/components";
 
 export default function BakeryList() {
   const [modalVisible, setModalVisible] = useState(false);
-  const [individualSelected, setIndividualSelected] = useState<boolean | null>(
-    null,
-  );
+  const [individualSelected, setIndividualSelected] = useState<boolean | null>(null);
   const [isSubmit, setIsSubmit] = useState(false);
-  const { slug } = useLocalSearchParams();
+  const { vicinity, slug, status, place_id } = useLocalSearchParams();
   const [listings, setListings] = useState<Listing[]>([]);
 
-  useEffect(() => {}, []);
+  useEffect(() => {
+    (async () => {
+      const API_URL = "xxx/api";
+
+      try {
+        const response = await fetch(`${API_URL}`);
+        console.log(response)
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    })();
+  }, []);
 
   const handlePress = (choice: boolean) => {
     if (individualSelected !== null) return;
@@ -51,10 +53,7 @@ export default function BakeryList() {
         style={styles.bakeryImage}
       />
       <View>
-        <TouchableOpacity
-          style={styles.newPostButton}
-          onPress={() => setModalVisible(true)}
-        >
+        <TouchableOpacity style={styles.newPostButton} onPress={() => setModalVisible(true)}>
           <Text style={styles.newPostButtonText}>
             New Post <Entypo name="plus" size={16} color="white" />
           </Text>
@@ -81,9 +80,7 @@ export default function BakeryList() {
             <Ionicons name="checkmark-circle" size={40} color={Colors.green} />
             <View style={{ alignItems: "center", gap: 6 }}>
               <Text style={styles.modalTitle}>Post published</Text>
-              <Text style={[styles.modalText, { fontWeight: "300" }]}>
-                +20 points
-              </Text>
+              <Text style={[styles.modalText, { fontWeight: "300" }]}>+20 points</Text>
             </View>
             <ThemedButton
               type="secondary"
@@ -97,8 +94,7 @@ export default function BakeryList() {
           <View style={styles.modalView}>
             <Text style={styles.modalTitle}>Type of post</Text>
             <Text style={styles.modalText}>
-              If you are posting discounts w/ multiple items, please select
-              “Bakery-wide”
+              If you are posting discounts w/ multiple items, please select “Bakery-wide”
             </Text>
             <View style={styles.modalButtonsView}>
               <TouchableOpacity

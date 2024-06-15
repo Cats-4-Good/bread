@@ -19,10 +19,19 @@ const getBakeries = async (req, res) => {
           type: "bakery",
           key: googleKey,
         },
-      },
+      }
     );
 
-    const bakeries = response.data.results;
+    const bakeries = response.data.results.map((bakery) => ({
+      status: bakery.business_status,
+      lat: bakery.geometry.location.lat,
+      lng: bakery.geometry.location.lng,
+      name: bakery.name,
+      place_id: bakery.place_id,
+      rating: bakery.rating,
+      user_ratings_total: bakery.user_ratings_total,
+      vicinity: bakery.vicinity,
+    }));
     res.json(bakeries);
   } catch (e) {
     console.error(e);
@@ -60,9 +69,7 @@ const getPosts = async (req, res) => {
       posts.map(async (post) => {
         if (post.photoId) {
           // Fetch photo details from GridFS based on photoId
-          const photoDetails = await gfs.files
-            .findOne({ _id: listing.photoId })
-            .exec();
+          const photoDetails = await gfs.files.findOne({ _id: listing.photoId }).exec();
           // Add photo details to listing object
           return { ...listing, photoDetails };
         } else {
@@ -72,7 +79,7 @@ const getPosts = async (req, res) => {
           });
           return listing;
         }
-      }),
+      })
     );
     res.status(200).json(populatedPosts);
   } catch (e) {

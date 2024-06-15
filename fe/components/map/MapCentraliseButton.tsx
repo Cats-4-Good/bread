@@ -7,28 +7,26 @@ import { ThemedButton } from "../ThemedButton";
 interface Props {
   mapRef: any;
   location: LocationObjectCoords;
+  getMarkers: (latitude: number, longitude: number) => void;
 }
 
-export default function MapCentraliseButton({ mapRef, location }: Props) {
-  const handleCenterMap = () => {
+export default function MapCentraliseButton({ mapRef, location, getMarkers }: Props) {
+  const handleCenterMap = async () => {
     if (mapRef.current && location) {
       mapRef.current.animateCamera({
         center: {
           latitude: location.latitude,
           longitude: location.longitude,
         },
-        zoom: 1500,
-        altitude: 1500,
+        zoom: 2000,
+        altitude: 2000,
       });
+      getMarkers(location.latitude, location.longitude);
     }
   };
 
   return (
-    <ThemedButton
-      type="round"
-      style={styles.centerButton}
-      onPress={handleCenterMap}
-    >
+    <ThemedButton type="round" style={styles.centerButton} onPress={handleCenterMap}>
       <FontAwesome5 name="location-arrow" size={20} color="white" />
     </ThemedButton>
   );
