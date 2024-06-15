@@ -104,7 +104,7 @@ export default function Map() {
           <Text
             style={[
               styles.buttonText,
-              selectedButton === "list" ? styles.buttonTextSelected : styles.buttonTextUnselected,
+              selectedButton === "list" && styles.buttonTextSelected,
             ]}
           >
             List
@@ -120,7 +120,7 @@ export default function Map() {
           <Text
             style={[
               styles.buttonText,
-              selectedButton === "map" ? styles.buttonTextSelected : styles.buttonTextUnselected,
+              selectedButton === "map" && styles.buttonTextSelected,
             ]}
           >
             Map
