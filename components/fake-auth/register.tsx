@@ -11,7 +11,7 @@ export default function RegisterScreen({ refresh }: { refresh: () => void }) {
 
   const register = async () => {
     if (!username.replaceAll(" ", "")) return Alert.alert("Error", "Invalid username");
-    const id = uuid.v4();
+    const id = uuid.v4().toString();
     await storage.save({
       key: "user",
       data: {

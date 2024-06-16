@@ -7,6 +7,7 @@ import { ThemedButton, ThemedText } from "@/components";
 import Modal from "react-native-modal";
 import { router } from "expo-router";
 import { Colors } from "@/constants/Colors";
+import axios from 'axios';
 
 interface Bakery {
   name: string;
@@ -33,14 +34,30 @@ export default function Map() {
   const [isError, setIsError] = useState(false);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  // const API_URL = "xxx/api";
-  const API_URL = "https://da75-116-15-47-239.ngrok-free.app/api";
-
   const getMarkers = async (latitude: number, longitude: number) => {
     try {
-      const response = await fetch(`${API_URL}/bakeries/${latitude}/${longitude}/${500}`);
-      const data = await response.json();
-      setMarkers(data);
+      const response = await axios.get(
+        "https://maps.googleapis.com/maps/api/place/nearbysearch/json",
+        {
+          params: {
+            location: `${latitude},${longitude}`,
+            radius: 500, // 1km radius
+            type: "bakery",
+            key: process.env.EXPO_PUBLIC_GOOGLE_API,
+          },
+        }
+      );
+      const bakeries = response.data.results.map((bakery: any) => ({
+        status: bakery.business_status,
+        lat: bakery.geometry.location.lat,
+        lng: bakery.geometry.location.lng,
+        name: bakery.name,
+        place_id: bakery.place_id,
+        rating: bakery.rating,
+        user_ratings_total: bakery.user_ratings_total,
+        vicinity: bakery.vicinity,
+      }));
+      setMarkers(bakeries);
     } catch (error) {
       console.error("Error fetching data:", error);
     }

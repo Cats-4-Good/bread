@@ -10,21 +10,60 @@ import { CameraView, useCameraPermissions } from 'expo-camera';
 import { ThemedButton } from "@/components";
 import { useRef, useState } from "react";
 import { Colors } from "@/constants/Colors";
+import { getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";
+import uuid from 'react-native-uuid';
+import { collection, addDoc, getFirestore } from "firebase/firestore";
+import { Post } from "@/types";
 
-export default function App() {
+export default function NewPost() {
   const [permission, requestPermission] = useCameraPermissions();
   const [description, setDescription] = useState("");
   const [uri, setUri] = useState<string | null>(null);
   const camera = useRef<CameraView | null>(null);
+  const storage = getStorage();
+  const db = getFirestore();
 
   const takePicture = async () => {
     const picture = await camera.current?.takePictureAsync();
-    if (!picture?.uri) return; // error
-    setUri(picture?.uri);
+    if (!picture?.uri) return;
+    setUri(picture.uri);
   };
 
   const createPost = async () => {
+    let image = null;
+    if (uri) {
+      const blob = await new Promise((resolve, reject) => {
+        const xhr = new XMLHttpRequest();
+        xhr.onload = function() {
+          resolve(xhr.response);
+        };
+        xhr.onerror = function(e) {
+          console.log(e);
+          reject(new TypeError("Network request failed"));
+        };
+        xhr.responseType = "blob";
+        xhr.open("GET", uri, true);
+        xhr.send(null);
+      }) as any;
 
+      const id = uuid.v4().toString();
+      const storageRef = ref(storage, id);
+      const result = await uploadBytes(storageRef, blob);
+      blob.close();
+      image = await getDownloadURL(storageRef);
+    }
+
+    const data: Omit<Post, "id"> = {
+      bakeryId: uuid.v4().toString(), // TODO: fix this
+      image,
+      description,
+      views: 0,
+      munches: 0,
+      foodSaved: 0,
+    };
+
+    const docRef = await addDoc(collection(db, "posts"), data);
+    console.log("Document written with ID: ", docRef.id);
   }
 
   if (!permission) {

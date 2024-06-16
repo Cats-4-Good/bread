@@ -1,3 +1,5 @@
+https://docs.expo.dev/guides/environment-variables/
+
 Replace `API_GOOGLE` with API key in app.json
 
 ![photo1717859243 (1)](https://github.com/Cats-4-Good/bread/assets/76832850/5badc8ee-e2d0-41fe-87a5-4a1ccb637809)
