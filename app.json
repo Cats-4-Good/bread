@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "cats4good",
-    "slug": "cats4good",
+    "name": "crumbs",
+    "slug": "crumbs",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
@@ -37,9 +37,11 @@
     "plugins": [
       "expo-router",
       [
-        "expo-image-picker",
+        "expo-camera",
         {
-          "photosPermission": "The app accesses your photos to let you share them with your friends."
+          "cameraPermission": "Allow $(PRODUCT_NAME) to access your camera",
+          "microphonePermission": "Allow $(PRODUCT_NAME) to access your microphone",
+          "recordAudioAndroid": true
         }
       ]
     ],

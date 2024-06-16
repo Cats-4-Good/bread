@@ -6,6 +6,7 @@ import { Colors } from "@/constants/Colors";
 import Modal from "react-native-modal";
 import { router, useLocalSearchParams } from "expo-router";
 import { ThemedButton } from "@/components";
+import { listings } from "@/components/bakery/temp-data";
 
 export default function BakeryList() {
   const [modalVisible, setModalVisible] = useState(false);
@@ -113,7 +114,7 @@ export default function BakeryList() {
                     individualSelected === false && { color: Colors.white },
                   ]}
                 >
-                  Bakery-wide
+                  Store-wide
                 </Text>
               </TouchableOpacity>
               <TouchableOpacity
@@ -132,7 +133,7 @@ export default function BakeryList() {
                     individualSelected === true && { color: Colors.white },
                   ]}
                 >
-                  Individual
+                  Single-product
                 </Text>
               </TouchableOpacity>
             </View>
@@ -176,7 +177,7 @@ const styles = StyleSheet.create({
   modalView: {
     marginVertical: "auto",
     marginHorizontal: "auto",
-    width: 320,
+    width: 350,
     gap: 18,
     backgroundColor: "white",
     borderRadius: 20,

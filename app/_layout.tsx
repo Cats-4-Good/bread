@@ -7,11 +7,29 @@ import { useFonts } from "expo-font";
 import * as SplashScreen from "expo-splash-screen";
 import { useEffect } from "react";
 import "react-native-reanimated";
+import { initializeApp } from "firebase/app";
+import { getAnalytics } from "firebase/analytics";
+import storage, { useUser } from "@/components/storage/Storage";
+import RegisterScreen from "@/components/fake-auth/register";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyBnyCgXhkgDBr0WXQWisQ1m6HRW00RN1Qg",
+  authDomain: "crumbs-31f1e.firebaseapp.com",
+  projectId: "crumbs-31f1e",
+  storageBucket: "crumbs-31f1e.appspot.com",
+  messagingSenderId: "640758945649",
+  appId: "1:640758945649:web:8d3803180c75c90eb108d0",
+  measurementId: "G-M3M7V2DBZ7"
+};
+
+const app = initializeApp(firebaseConfig);
+// const analytics = getAnalytics(app);
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
 
 export default function TabLayout() {
+  // load user data from storage
   const [loaded] = useFonts({
     Inter: require("@/assets/fonts/Inter-Regular.ttf"),
   });
@@ -22,8 +40,14 @@ export default function TabLayout() {
     }
   }, [loaded]);
 
+  const [user, refresh] = useUser();
+
   if (!loaded) {
     return null;
+  }
+
+  if (!user) {
+    return <RegisterScreen refresh={refresh} />;
   }
 
   return (
@@ -67,18 +91,6 @@ export default function TabLayout() {
             tabBarIcon: ({ color, focused }) => (
               <TabBarIcon
                 name={focused ? "person" : "person-outline"}
-                color={color}
-              />
-            ),
-          }}
-        />
-        <Tabs.Screen
-          name="login"
-          options={{
-            title: "Login",
-            tabBarIcon: ({ color, focused }) => (
-              <TabBarIcon
-                name={focused ? "log-in" : "log-in-outline"}
                 color={color}
               />
             ),

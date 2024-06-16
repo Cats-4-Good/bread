@@ -24,7 +24,7 @@ export interface Listing {
 export default function BakeryPost({ item }: { item: Listing }) {
   return (
     <View style={styles.listItem}>
-      <Image source={{ uri: item.image }} style={styles.listItemImage} />
+      <Image source={require("@/assets/images/croissant.jpg")} style={styles.listItemImage} />
       <View style={styles.listItemTextContainer}>
         <View style={styles.listHeader}>
           <TouchableWithoutFeedback
