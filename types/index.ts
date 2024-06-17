@@ -1,4 +1,5 @@
-export interface GoogleListing { // refers to google maps listing
+export interface GoogleListing {
+  // refers to google maps listing
   name: string;
   location: string;
   status: string;
@@ -11,8 +12,8 @@ export interface GoogleListing { // refers to google maps listing
   htmlAttributions: string[];
   photoReferences: string[];
   image?: string;
+  distance: number;
 }
-
 
 export interface Bakery {
   id: string; // this will be place id from google listing
@@ -43,7 +44,7 @@ export interface Post {
 export interface User {
   id: string;
   name: string;
-  totalViews: number;  // (all these total are the aggregate amounts they've received from all posts)
+  totalViews: number; // (all these total are the aggregate amounts they've received from all posts)
   totalMunches: number;
   totalFoodSaved: number;
   lastMunch: {
@@ -51,5 +52,3 @@ export interface User {
     time: string;
   } | null;
 }
-
-

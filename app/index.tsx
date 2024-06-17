@@ -7,12 +7,14 @@ import { ThemedButton, ThemedText } from "@/components";
 import Modal from "react-native-modal";
 import { router } from "expo-router";
 import { Colors } from "@/constants/Colors";
-import axios from 'axios';
+import axios from "axios";
 import { Bakery, BakeryStats, GoogleListing } from "@/types";
 import { doc, getDoc, getFirestore, setDoc } from "firebase/firestore";
 import BakeryView from "@/components/bakery/BakeryView";
 
 export default function Map() {
+  const GOOGLE_API = "AIzaSyBo-YlhvMVibmBKfXKXuDVf--a92s3yGpY";
+
   const mapRef = useRef(null);
 
   const [selectedListing, setSelectedListing] = useState<GoogleListing | null>(null);
@@ -35,35 +37,64 @@ export default function Map() {
             location: `${latitude},${longitude}`,
             radius: 500, // 1km radius
             type: "bakery",
-            key: process.env.EXPO_PUBLIC_GOOGLE_API,
+            key: GOOGLE_API,
           },
         }
       );
-      const listings: GoogleListing[] = response.data.results.map((listing: any) => ({ // LOL imagine me choosing to use typescript but still being lazy xD
-        status: listing.business_status,
-        lat: listing.geometry.location.lat,
-        lng: listing.geometry.location.lng,
-        name: listing.name,
-        place_id: listing.place_id,
-        rating: listing.rating,
-        user_ratings_total: listing.user_ratings_total,
-        vicinity: listing.vicinity,
-        htmlAttributions: listing.photos ? listing.photos.map((obj: any) => obj.html_attributrions) : [],
-        photoReferences: listing.photos ? listing.photos.map((obj: any) => obj.photo_reference) : [],
-        image: undefined,
-      })) ?? [];
+      const listings: GoogleListing[] =
+        response.data.results.map((listing: any) => ({
+          // LOL imagine me choosing to use typescript but still being lazy xD
+          status: listing.business_status,
+          lat: listing.geometry.location.lat,
+          lng: listing.geometry.location.lng,
+          name: listing.name,
+          place_id: listing.place_id,
+          rating: listing.rating,
+          user_ratings_total: listing.user_ratings_total,
+          vicinity: listing.vicinity,
+          htmlAttributions: listing.photos
+            ? listing.photos.map((obj: any) => obj.html_attributrions)
+            : [],
+          photoReferences: listing.photos
+            ? listing.photos.map((obj: any) => obj.photo_reference)
+            : [],
+          image: undefined,
+        })) ?? [];
 
       // apparently need to include html attributions in image, but dc for now
-      await Promise.all(listings.map(listing => {
-        return async () => {
+      await Promise.all(
+        listings.map(async (listing) => {
           listing.image = await getGooglePicture(listing);
-        }
-      }));
+          listing.distance = haversineDistance(latitude, longitude, listing.lat, listing.lng);
+        })
+      );
       setListings(listings);
     } catch (error) {
       console.error("Error fetching data:", error);
     }
   };
+
+  function haversineDistance(lat1: number, lon1: number, lat2: number, lon2: number): number {
+    const R = 6371; // Radius of the Earth in kilometers
+    const dLat = toRadians(lat2 - lat1);
+    const dLon = toRadians(lon2 - lon1);
+    const a =
+      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos(toRadians(lat1)) *
+        Math.cos(toRadians(lat2)) *
+        Math.sin(dLon / 2) *
+        Math.sin(dLon / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    let distance = R * c; // in kilometers
+
+    distance = distance * 1000;
+    distance = Math.round(distance / 100) * 100;
+    return distance;
+  }
+
+  function toRadians(degrees: number): number {
+    return degrees * (Math.PI / 180);
+  }
 
   //* Convert blob to base64 for image
   const blobToData = (blob: Blob): Promise<string | ArrayBuffer | null> => {
@@ -72,27 +103,29 @@ export default function Map() {
       reader.onloadend = () => resolve(reader.result);
       reader.onerror = () => reject("fml");
       reader.readAsDataURL(blob);
-    })
-  }
+    });
+  };
 
   const getGooglePicture = async (listing: GoogleListing) => {
     if (listing.photoReferences.length === 0) return undefined;
-    const response = await fetch(`https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photo_reference=${listing.photoReferences[0]}&key=${process.env.EXPO_PUBLIC_GOOGLE_API}`);
+    const response = await fetch(
+      `https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photo_reference=${listing.photoReferences[0]}&key=${GOOGLE_API}`
+    );
     const blob = await response.blob();
-    return await blobToData(blob) as string;
+    return (await blobToData(blob)) as string;
   };
 
   const getBakeryStats = async (bakeryId: string): Promise<BakeryStats | undefined> => {
     const docRef = doc(db, "bakeries", bakeryId);
     return getDoc(docRef)
-      .then(async res => {
+      .then(async (res) => {
         if (!res.exists()) {
           const defaultBakery: BakeryStats = {
             livePostsCount: 0,
             totalPosts: 0,
           };
           try {
-            await setDoc(docRef, defaultBakery)
+            await setDoc(docRef, defaultBakery);
             return await getBakeryStats(bakeryId);
           } catch (err) {
             console.error("failed to set default bakery", err);
@@ -100,21 +133,23 @@ export default function Map() {
         }
         return res.data() as BakeryStats;
       })
-      .catch(err => {
-        console.error("failed to get bakery", err)
+      .catch((err) => {
+        console.error("failed to get bakery", err);
         return undefined;
       });
   };
 
   const getBakeriesStats = async () => {
     const idsToFetch = listings
-      .filter(listing => !(listing.place_id in bakeriesStats))
-      .map(listing => listing.place_id);
-    const bakeriesStatsArray = await Promise.all(idsToFetch.map(newId => getBakeryStats(newId)));
-    const newBakeriesStats = Object.fromEntries(idsToFetch.map((k, i) => [k, bakeriesStatsArray[i]]));
+      .filter((listing) => !(listing.place_id in bakeriesStats))
+      .map((listing) => listing.place_id);
+    const bakeriesStatsArray = await Promise.all(idsToFetch.map((newId) => getBakeryStats(newId)));
+    const newBakeriesStats = Object.fromEntries(
+      idsToFetch.map((k, i) => [k, bakeriesStatsArray[i]])
+    );
     setBakeriesStats({
       ...bakeriesStats,
-      ...newBakeriesStats
+      ...newBakeriesStats,
     });
   };
 
@@ -139,7 +174,7 @@ export default function Map() {
       // Get bakeries
       await getListings(loc.coords.latitude, loc.coords.longitude);
       await getBakeriesStats();
-      const finalBakeries = listings.map(listing => {
+      const finalBakeries = listings.map((listing) => {
         const id = listing.place_id;
         const stats = bakeriesStats[id];
         const bakery: Bakery = { id, listing, stats };
@@ -152,7 +187,10 @@ export default function Map() {
   const handleRegionChangeComplete = (region: Region) => {
     // run after 500ms to prevent excessive api calls
     if (timeoutRef.current) clearTimeout(timeoutRef.current);
-    timeoutRef.current = setTimeout(async () => getListings(region.latitude, region.longitude), 500);
+    timeoutRef.current = setTimeout(
+      async () => getListings(region.latitude, region.longitude),
+      500
+    );
   };
 
   if (isError) {
@@ -173,12 +211,7 @@ export default function Map() {
           ]}
           onPress={() => setSelectedButton("list")}
         >
-          <Text
-            style={[
-              styles.buttonText,
-              selectedButton === "list" && styles.buttonTextSelected,
-            ]}
-          >
+          <Text style={[styles.buttonText, selectedButton === "list" && styles.buttonTextSelected]}>
             List
           </Text>
         </TouchableOpacity>
@@ -189,12 +222,7 @@ export default function Map() {
           ]}
           onPress={() => setSelectedButton("map")}
         >
-          <Text
-            style={[
-              styles.buttonText,
-              selectedButton === "map" && styles.buttonTextSelected,
-            ]}
-          >
+          <Text style={[styles.buttonText, selectedButton === "map" && styles.buttonTextSelected]}>
             Map
           </Text>
         </TouchableOpacity>
@@ -231,14 +259,18 @@ export default function Map() {
       {selectedButton === "list" && (
         <View style={styles.listContainer}>
           <FlatList
-            data={bakeries}
+            data={listings}
             renderItem={({ item }) => <BakeryView item={item} />}
             keyExtractor={(_, index) => index.toString()}
           />
         </View>
       )}
 
-      <Modal isVisible={!!selectedListing} onBackdropPress={() => setSelectedListing(null)} hasBackdrop>
+      <Modal
+        isVisible={!!selectedListing}
+        onBackdropPress={() => setSelectedListing(null)}
+        hasBackdrop
+      >
         <View style={styles.modalView}>
           <Text style={styles.modalTitle}>{selectedListing?.name}</Text>
           <Text style={styles.modalText}>{selectedListing?.vicinity}</Text>
@@ -277,8 +309,9 @@ const styles = StyleSheet.create({
   },
   listContainer: {
     flex: 12,
-    justifyContent: "center",
-    alignItems: "center",
+    marginHorizontal: 20,
+    width: "auto",
+    marginTop: 20,
   },
   map: {
     ...StyleSheet.absoluteFillObject,

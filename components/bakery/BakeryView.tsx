@@ -1,42 +1,48 @@
-// called info because its google listing + bakery stats 
-import {
-  View,
-  StyleSheet,
-  TouchableWithoutFeedback,
-  Image,
-} from "react-native";
-import { MaterialIcons } from "@expo/vector-icons";
+import { View, StyleSheet, Image, TouchableOpacity } from "react-native";
 import { Colors } from "@/constants/Colors";
 import { ThemedText } from "../ThemedText";
-import { Bakery } from "@/types";
+import { GoogleListing } from "@/types";
+import { router } from "expo-router";
 
-export default function BakeryView({ item }: { item: Bakery }) {
+export default function BakeryView({ item }: { item: GoogleListing }) {
   return (
-    <View style={styles.listItem}>
-      <Image source={require("@/assets/images/croissant.jpg")} style={styles.listItemImage} />
-      <View style={styles.listItemTextContainer}>
-        <View style={styles.listHeader}>
-          <TouchableWithoutFeedback
-            onPress={() => {
-              // todo
-            }}
-          >
-            <View style={styles.listItemProfile}>
-              <MaterialIcons name="person" size={16} color="black" />
-            </View>
-          </TouchableWithoutFeedback>
-          <ThemedText type="default">{item.listing.name}</ThemedText>
+    <TouchableOpacity
+      onPress={() => {
+        router.push({
+          pathname: `/${item?.name}`,
+          params: { ...item },
+        });
+      }}
+    >
+      <View style={styles.listItem}>
+        <Image
+          source={{
+            uri: `${
+              item.image
+                ? item.image
+                : "https://www.shutterstock.com/image-photo/3d-render-cafe-bar-restaurant-600nw-1415138246.jpg"
+            }`,
+          }}
+          style={styles.listItemImage}
+        />
+        <View style={styles.listItemTextContainer}>
+          <ThemedText type="defaultSemiBold">{item.name}</ThemedText>
+          <ThemedText type="default">{item.vicinity}</ThemedText>
+          <ThemedText type="default">{item.status}</ThemedText>
+          <ThemedText type="default">
+            {"~"}
+            {item.distance}m away
+          </ThemedText>
         </View>
-        <Image source={{ uri: item.listing.image ?? "https://htmlcolorcodes.com/assets/images/colors/gray-color-solid-background-1920x1080.png" }} width={50} height={50} />
       </View>
-    </View>
+    </TouchableOpacity>
   );
 }
 
 const styles = StyleSheet.create({
   listItem: {
     flexDirection: "row",
-    padding: 18,
+    padding: 13,
     marginBottom: 10,
     backgroundColor: Colors.white,
     borderRadius: 15,
@@ -45,15 +51,8 @@ const styles = StyleSheet.create({
     shadowRadius: 1,
     elevation: 3,
   },
-  listItemProfile: {
-    justifyContent: "center",
-    alignItems: "center",
-    width: 25,
-    height: 25,
-    borderRadius: 25,
-  },
   listItemImage: {
-    width: "40%",
+    width: "35%",
     aspectRatio: 1,
     marginRight: 10,
     borderRadius: 15,
@@ -61,21 +60,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
   },
   listItemTextContainer: {
-    width: "60%",
+    width: "65%",
     padding: 2,
-  },
-  listItemDescriptionText: {
-    paddingVertical: 4,
-  },
-  listFooter: {
-    flexDirection: "row",
-    alignItems: "flex-end",
-    justifyContent: "space-between",
-  },
-  listHeader: {
-    alignItems: "center",
-    flexDirection: "row",
-    justifyContent: "space-between",
-    marginBottom: 5,
   },
 });

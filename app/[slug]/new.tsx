@@ -1,22 +1,18 @@
-import {
-  View,
-  Text,
-  StyleSheet,
-  Image,
-  TextInput,
-  TouchableOpacity,
-} from "react-native";
-import { CameraView, useCameraPermissions } from 'expo-camera';
+import { View, Text, StyleSheet, Image, TextInput, TouchableOpacity } from "react-native";
+import { CameraView, useCameraPermissions } from "expo-camera";
 import { ThemedButton } from "@/components";
 import { useRef, useState } from "react";
 import { Colors } from "@/constants/Colors";
 import { getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";
-import uuid from 'react-native-uuid';
+import uuid from "react-native-uuid";
 import { collection, addDoc, getFirestore } from "firebase/firestore";
 import { Post } from "@/types";
 import { useUser } from "@/components/storage/Storage";
+import { useLocalSearchParams } from "expo-router";
 
 export default function NewPost() {
+  const params = useLocalSearchParams();
+
   const [permission, requestPermission] = useCameraPermissions();
   const [description, setDescription] = useState("");
   const [uri, setUri] = useState<string | null>(null);
@@ -34,19 +30,19 @@ export default function NewPost() {
   const createPost = async () => {
     let image = null;
     if (uri) {
-      const blob = await new Promise((resolve, reject) => {
+      const blob = (await new Promise((resolve, reject) => {
         const xhr = new XMLHttpRequest();
-        xhr.onload = function() {
+        xhr.onload = function () {
           resolve(xhr.response);
         };
-        xhr.onerror = function(e) {
+        xhr.onerror = function (e) {
           console.log(e);
           reject(new TypeError("Network request failed"));
         };
         xhr.responseType = "blob";
         xhr.open("GET", uri, true);
         xhr.send(null);
-      }) as any;
+      })) as any;
 
       const id = uuid.v4().toString();
       const storageRef = ref(storage, id);
@@ -59,7 +55,7 @@ export default function NewPost() {
     const data: Omit<Post, "id"> = {
       uid: user.id,
       username: user.username,
-      bakeryId: uuid.v4().toString(), // TODO: fix this
+      bakeryId: params.place_id as string,
       createdAt: new Date().getTime().toString(),
       isLive: true,
       image,
@@ -71,7 +67,7 @@ export default function NewPost() {
 
     const docRef = await addDoc(collection(db, "posts"), data);
     console.log("Document written with ID: ", docRef.id);
-  }
+  };
 
   if (!permission) {
     return <View />;
@@ -79,14 +75,19 @@ export default function NewPost() {
   if (!permission.granted) {
     return (
       <View style={styles.container}>
-        <Text style={{ textAlign: 'center' }}>We need your permission to show the camera</Text>
+        <Text style={{ textAlign: "center" }}>We need your permission to show the camera</Text>
         <ThemedButton onPress={requestPermission}>Grant Permission</ThemedButton>
       </View>
     );
   }
   return (
     <View style={styles.container}>
-      <CameraView style={styles.camera} ref={(ref) => camera.current = ref} mode="picture" facing="back">
+      <CameraView
+        style={styles.camera}
+        ref={(ref) => (camera.current = ref)}
+        mode="picture"
+        facing="back"
+      >
         <View style={styles.buttonContainer}>
           <TouchableOpacity style={styles.button} onPress={takePicture}>
             <Text style={styles.text}>Take picture</Text>
@@ -104,7 +105,9 @@ export default function NewPost() {
         placeholderTextColor={Colors.gray}
         style={styles.description}
       />
-      <ThemedButton type="primary" onPress={createPost}>Submit</ThemedButton>
+      <ThemedButton type="primary" onPress={createPost}>
+        Submit
+      </ThemedButton>
     </View>
   );
 }
@@ -112,27 +115,27 @@ export default function NewPost() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
-    backgroundColor: Colors.primary
+    justifyContent: "center",
+    backgroundColor: Colors.primary,
   },
   camera: {
     flex: 1,
   },
   buttonContainer: {
     flex: 1,
-    flexDirection: 'row',
-    backgroundColor: 'transparent',
+    flexDirection: "row",
+    backgroundColor: "transparent",
     margin: 64,
   },
   button: {
     flex: 1,
-    alignSelf: 'flex-end',
-    alignItems: 'center',
+    alignSelf: "flex-end",
+    alignItems: "center",
   },
   text: {
     fontSize: 24,
-    fontWeight: 'bold',
-    color: 'white',
+    fontWeight: "bold",
+    color: "white",
   },
   description: {
     borderRadius: 10,

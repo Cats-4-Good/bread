@@ -1,52 +1,86 @@
-import { View, Text, StyleSheet, TouchableOpacity, FlatList, Image } from "react-native";
+import { View, Text, StyleSheet, FlatList, Image } from "react-native";
 import { Entypo, Ionicons } from "@expo/vector-icons";
 import BakeryPost from "@/components/bakery/BakeryPost";
 import { useEffect, useState } from "react";
 import { Colors } from "@/constants/Colors";
 import Modal from "react-native-modal";
 import { router, useLocalSearchParams } from "expo-router";
-import { ThemedButton } from "@/components";
+import { query, where, getDocs, getFirestore, collection, orderBy } from "firebase/firestore";
+import { ThemedButton, ThemedText } from "@/components";
 import { Post } from "@/types";
 
 export default function BakeryPosts() {
   const [modalVisible, setModalVisible] = useState(false);
-  const { vicinity, slug, status, place_id } = useLocalSearchParams();
+  const params = useLocalSearchParams();
+
   const [posts, setPosts] = useState<Post[]>([]);
+
+  const db = getFirestore();
+
+  const getBakeryPosts = async (bakeryId: string): Promise<Post[]> => {
+    try {
+      const posts: Post[] = [];
+      const q = query(
+        collection(db, "posts"),
+        where("bakeryId", "==", bakeryId),
+        orderBy("createdAt", "desc")
+      );
+      const querySnapshot = await getDocs(q);
+
+      querySnapshot.forEach((doc) => {
+        posts.push(doc.data() as Post);
+      });
+      return posts;
+    } catch (err) {
+      console.error("Failed to get posts of bakery", err);
+      return [];
+    }
+  };
 
   useEffect(() => {
     (async () => {
-      const API_URL = "xxx/api";
-
       try {
-        const response = await fetch(`${API_URL}`);
-        console.log(response)
+        setPosts([]);
+        const posts = await getBakeryPosts(params.place_id as string);
+        setPosts(posts);
       } catch (error) {
         console.error("Error fetching data:", error);
       }
     })();
-  }, []);
+  }, [params.place_id]);
 
   return (
     <View style={styles.content}>
       <Image
         source={{
-          uri: "https://www.shutterstock.com/image-photo/3d-render-cafe-bar-restaurant-600nw-1415138246.jpg",
+          uri: `${
+            params.image
+              ? params.image
+              : "https://www.shutterstock.com/image-photo/3d-render-cafe-bar-restaurant-600nw-1415138246.jpg"
+          }`,
         }}
         style={styles.bakeryImage}
       />
-      <View>
-        <TouchableOpacity style={styles.newPostButton} onPress={() => setModalVisible(true)}>
-          <Text style={styles.newPostButtonText}>
-            New Post <Entypo name="plus" size={16} color="white" />
-          </Text>
-        </TouchableOpacity>
+      <View style={{ paddingRight: 18, paddingVertical: 5 }}>
+        <ThemedText type="defaultSemiBold" style={{ textAlign: "right" }}>
+          {params.vicinity}
+        </ThemedText>
+        <ThemedText type="default" style={{ textAlign: "right" }}>
+          {params.status}
+        </ThemedText>
       </View>
-      <FlatList
-        data={posts}
-        renderItem={({ item }) => <BakeryPost item={item} />}
-        keyExtractor={(_, index) => index.toString()}
-        style={styles.list}
-      />
+      {posts.length > 0 ? (
+        <FlatList
+          data={posts}
+          renderItem={({ item }) => <BakeryPost item={item} />}
+          keyExtractor={(_, index) => index.toString()}
+          style={styles.list}
+        />
+      ) : (
+        <ThemedText style={styles.noPostFoundText}>
+          No posts found... Be the first to make a difference!
+        </ThemedText>
+      )}
 
       <Modal
         isVisible={modalVisible}
@@ -64,13 +98,26 @@ export default function BakeryPosts() {
           <ThemedButton
             type="secondary"
             style={{ width: "100%", marginTop: 10 }}
-            onPress={() => { }}
+            onPress={() => {}}
           >
             View post
           </ThemedButton>
         </View>
-      </Modal >
-    </View >
+      </Modal>
+
+      <ThemedButton
+        type="round"
+        style={styles.addPostButton}
+        onPress={() => {
+          router.push({
+            pathname: `/${params.name}/new`,
+            params: { place_id: params.place_id },
+          });
+        }}
+      >
+        <Entypo name="plus" size={20} color="white" />
+      </ThemedButton>
+    </View>
   );
 }
 
@@ -85,11 +132,6 @@ const styles = StyleSheet.create({
     maxHeight: 200,
   },
   newPostButton: {
-    backgroundColor: "#CF9C61",
-    marginHorizontal: 20,
-    marginVertical: 10,
-    padding: 10,
-    borderRadius: 15,
     alignSelf: "flex-start",
   },
   newPostButtonText: {
@@ -100,7 +142,6 @@ const styles = StyleSheet.create({
     width: "auto",
     marginHorizontal: 20,
   },
-
   modalBackdrop: {
     backgroundColor: "black",
   },
@@ -157,5 +198,15 @@ const styles = StyleSheet.create({
   modalButtonText: {
     fontSize: 18,
     fontWeight: "500",
+  },
+  addPostButton: {
+    position: "absolute",
+    bottom: 14,
+    left: 14,
+    backgroundColor: Colors.secondary,
+  },
+  noPostFoundText: {
+    textAlign: "center",
+    marginTop: 40,
   },
 });
