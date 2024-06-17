@@ -1,3 +1,4 @@
+// called info because its google listing + bakery stats 
 import {
   View,
   StyleSheet,
@@ -5,12 +6,11 @@ import {
   Image,
 } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
-
 import { Colors } from "@/constants/Colors";
 import { ThemedText } from "../ThemedText";
-import { Post } from "@/types";
+import { Bakery } from "@/types";
 
-export default function BakeryPost({ item }: { item: Post }) {
+export default function BakeryView({ item }: { item: Bakery }) {
   return (
     <View style={styles.listItem}>
       <Image source={require("@/assets/images/croissant.jpg")} style={styles.listItemImage} />
@@ -23,16 +23,11 @@ export default function BakeryPost({ item }: { item: Post }) {
           >
             <View style={styles.listItemProfile}>
               <MaterialIcons name="person" size={16} color="black" />
-              <ThemedText type="default">{item.username}</ThemedText>
             </View>
           </TouchableWithoutFeedback>
-          <ThemedText type="default">{item.createdAt}</ThemedText>
+          <ThemedText type="default">{item.listing.name}</ThemedText>
         </View>
-        {/* add image 0 ui rn*/}
-        <ThemedText type="defaultSemiBold">{item.description}</ThemedText>
-        <ThemedText type="default" style={styles.listItemDescriptionText}>
-          {item.description}
-        </ThemedText>
+        <Image source={{ uri: item.listing.image ?? "https://htmlcolorcodes.com/assets/images/colors/gray-color-solid-background-1920x1080.png" }} width={50} height={50} />
       </View>
     </View>
   );

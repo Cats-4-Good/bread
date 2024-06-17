@@ -13,16 +13,17 @@ export interface GoogleListing { // refers to google maps listing
   image?: string;
 }
 
-// BELOW ARE SIMILAR SCHEMAS FOR FIRESTORE
 
-// bakery includes listing details + stats --> stored in firestore
 export interface Bakery {
   id: string; // this will be place id from google listing
   listing: GoogleListing;
+  stats?: BakeryStats;
+}
+
+// BELOW ARE SIMILAR SCHEMAS FOR FIRESTORE
+export interface BakeryStats {
   livePostsCount: number;
   totalPosts: number;
-  totalMunches: number;
-  totalFoodSaved: number;
 }
 
 export interface Post {

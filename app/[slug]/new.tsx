@@ -14,12 +14,14 @@ import { getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";
 import uuid from 'react-native-uuid';
 import { collection, addDoc, getFirestore } from "firebase/firestore";
 import { Post } from "@/types";
+import { useUser } from "@/components/storage/Storage";
 
 export default function NewPost() {
   const [permission, requestPermission] = useCameraPermissions();
   const [description, setDescription] = useState("");
   const [uri, setUri] = useState<string | null>(null);
   const camera = useRef<CameraView | null>(null);
+  const [user, refresh] = useUser();
   const storage = getStorage();
   const db = getFirestore();
 
@@ -53,8 +55,13 @@ export default function NewPost() {
       image = await getDownloadURL(storageRef);
     }
 
+    if (!user) return console.log("wtf");
     const data: Omit<Post, "id"> = {
+      uid: user.id,
+      username: user.username,
       bakeryId: uuid.v4().toString(), // TODO: fix this
+      createdAt: new Date().getTime().toString(),
+      isLive: true,
       image,
       description,
       views: 0,
