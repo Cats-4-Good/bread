@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { StyleSheet, View, Platform, Text, TouchableOpacity } from "react-native";
+import { StyleSheet, View, Platform, Text, TouchableOpacity, Image, FlatList } from "react-native";
 import MapView, { Marker, Region } from "react-native-maps";
 import * as Location from "expo-location";
 import MapCentraliseButton from "@/components/map/MapCentraliseButton";
@@ -8,33 +8,23 @@ import Modal from "react-native-modal";
 import { router } from "expo-router";
 import { Colors } from "@/constants/Colors";
 import axios from 'axios';
-
-interface Bakery {
-  name: string;
-  location: string;
-  status: string;
-  lat: number;
-  lng: number;
-  place_id: string;
-  rating: number;
-  user_ratings_total: number;
-  vicinity: string;
-}
+import { Bakery, GoogleListing } from "@/types";
+import BakeryListing from "@/components/bakery/BakeryListing";
+import { doc, getDoc, getFirestore, setDoc } from "firebase/firestore";
 
 export default function Map() {
   const mapRef = useRef(null);
 
-  const [bakery, setBakery] = useState<Bakery | null>(null);
+  const [selectedListing, setSelectedListing] = useState<GoogleListing | null>(null);
+  const [listings, setListings] = useState<GoogleListing[]>([]);
   const [location, setLocation] = useState<Location.LocationObjectCoords>();
   const [initialRegion, setInitialRegion] = useState<Region>();
   const [selectedButton, setSelectedButton] = useState<"map" | "list">("list");
-
-  const [markers, setMarkers] = useState<Bakery[]>([]);
-
   const [isError, setIsError] = useState(false);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const db = getFirestore();
 
-  const getMarkers = async (latitude: number, longitude: number) => {
+  const getListings = async (latitude: number, longitude: number) => {
     try {
       const response = await axios.get(
         "https://maps.googleapis.com/maps/api/place/nearbysearch/json",
@@ -47,31 +37,83 @@ export default function Map() {
           },
         }
       );
-      const bakeries = response.data.results.map((bakery: any) => ({
-        status: bakery.business_status,
-        lat: bakery.geometry.location.lat,
-        lng: bakery.geometry.location.lng,
-        name: bakery.name,
-        place_id: bakery.place_id,
-        rating: bakery.rating,
-        user_ratings_total: bakery.user_ratings_total,
-        vicinity: bakery.vicinity,
+      const listings: GoogleListing[] = response.data.results.map((listing: any) => ({ // LOL imagine me choosing to use typescript but still being lazy xD
+        status: listing.business_status,
+        lat: listing.geometry.location.lat,
+        lng: listing.geometry.location.lng,
+        name: listing.name,
+        place_id: listing.place_id,
+        rating: listing.rating,
+        user_ratings_total: listing.user_ratings_total,
+        vicinity: listing.vicinity,
+        htmlAttributions: listing.photos ? listing.photos.map((obj: any) => obj.html_attributrions) : [],
+        photoReferences: listing.photos ? listing.photos.map((obj: any) => obj.photo_reference) : [],
+        image: undefined,
+      })) ?? [];
+
+      // apparently need to include html attributions in image, but dc for now
+      await Promise.all(listings.map(listing => {
+        return async () => {
+          listing.image = await getGooglePicture(listing);
+        }
       }));
-      setMarkers(bakeries);
+      setListings(listings);
     } catch (error) {
       console.error("Error fetching data:", error);
     }
   };
 
+  //* Convert blob to base64 for image
+  const blobToData = (blob: Blob): Promise<string | ArrayBuffer | null> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onloadend = () => resolve(reader.result);
+      reader.onerror = () => reject("fml");
+      reader.readAsDataURL(blob);
+    })
+  }
+
+  const getGooglePicture = async (listing: GoogleListing) => {
+    if (listing.photoReferences.length === 0) return undefined;
+    const response = await fetch(`https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photo_reference=${listing.photoReferences[0]}&key=${process.env.EXPO_PUBLIC_GOOGLE_API}`);
+    const blob = await response.blob();
+    return await blobToData(blob) as string;
+  };
+
+  const getBakery = async (bakeryId: string, listing: GoogleListing): Promise<Bakery | void> => {
+    const docRef = doc(db, "bakeries", bakeryId);
+    getDoc(docRef)
+      .then(async res => {
+        if (!res.exists()) {
+          const defaultBakery: Omit<Bakery, "id" | "listing"> = {
+            livePostsCount: 0,
+            totalPosts: 0,
+            totalMunches: 0,
+            totalFoodSaved: 0,
+          };
+          try {
+            await setDoc(docRef, defaultBakery)
+            return await getBakery(bakeryId, listing);
+          } catch (err) {
+            console.error("failed to set default bakery", err);
+          }
+        }
+        const data = {
+          id: res.id,
+          listing,
+          ...res.data(),
+        } as Bakery;
+        return data;
+      })
+      .catch(err => {
+        console.error("failed to get bakery", err);
+      });
+  };
+
   useEffect(() => {
     (async () => {
       let { status } = await Location.requestForegroundPermissionsAsync();
-
-      if (status !== "granted") {
-        setIsError(true);
-        return;
-      }
-
+      if (status !== "granted") return setIsError(true);
       let loc = await Location.getCurrentPositionAsync({
         accuracy:
           Platform.OS == "android"
@@ -85,7 +127,7 @@ export default function Map() {
         latitudeDelta: 0.005,
         longitudeDelta: 0.005,
       });
-      getMarkers(loc.coords.latitude, loc.coords.longitude);
+      getListings(loc.coords.latitude, loc.coords.longitude);
     })();
   }, []);
 
@@ -94,9 +136,9 @@ export default function Map() {
       clearTimeout(timeoutRef.current);
     }
 
-    // run every 500ms to prevent excessive api calls
+    // run after 500ms to prevent excessive api calls
     timeoutRef.current = setTimeout(async () => {
-      getMarkers(region.latitude, region.longitude);
+      getListings(region.latitude, region.longitude);
     }, 500);
   };
 
@@ -154,8 +196,8 @@ export default function Map() {
             onRegionChangeComplete={handleRegionChangeComplete}
             userInterfaceStyle="dark"
           >
-            {markers.length > 0 &&
-              markers.map((marker) => (
+            {listings.length > 0 &&
+              listings.map((marker) => (
                 <Marker
                   coordinate={{
                     latitude: marker.lat,
@@ -164,32 +206,37 @@ export default function Map() {
                   key={marker.place_id}
                   tracksViewChanges={false}
                   image={require("@/assets/images/map-icon-light.png")}
-                  onPress={() => setBakery(marker)}
+                  onPress={() => setSelectedListing(marker)}
                 />
               ))}
           </MapView>
           {location && (
-            <MapCentraliseButton mapRef={mapRef} location={location} getMarkers={getMarkers} />
+            <MapCentraliseButton mapRef={mapRef} location={location} getMarkers={getListings} />
           )}
         </View>
       )}
       {selectedButton === "list" && (
         <View style={styles.listContainer}>
-          <ThemedText type="default">List View (to be completed)</ThemedText>
+          <FlatList
+            data={listings}
+            renderItem={({ item }) => <BakeryListing() item={item} />}
+          keyExtractor={(_, index) => index.toString()}
+          style={styles.list}
+          />
         </View>
       )}
-      <Modal isVisible={!!bakery} onBackdropPress={() => setBakery(null)} hasBackdrop>
+      <Modal isVisible={!!selectedListing} onBackdropPress={() => setSelectedListing(null)} hasBackdrop>
         <View style={styles.modalView}>
-          <Text style={styles.modalTitle}>{bakery?.name}</Text>
-          <Text style={styles.modalText}>{bakery?.vicinity}</Text>
+          <Text style={styles.modalTitle}>{selectedListing?.name}</Text>
+          <Text style={styles.modalText}>{selectedListing?.vicinity}</Text>
           <ThemedButton
             type="primary"
             style={{ paddingVertical: 16 }}
             onPress={() => {
-              setBakery(null);
+              setSelectedListing(null);
               router.push({
-                pathname: `/${bakery?.name}`,
-                params: { ...bakery },
+                pathname: `/${selectedListing?.name}`,
+                params: { ...selectedListing },
               });
             }}
           >

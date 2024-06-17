@@ -1,19 +1,17 @@
 import { View, Text, StyleSheet, TouchableOpacity, FlatList, Image } from "react-native";
 import { Entypo, Ionicons } from "@expo/vector-icons";
-import BakeryPost, { Listing } from "@/components/bakery/BakeryPost";
+import BakeryPost from "@/components/bakery/BakeryPost";
 import { useEffect, useState } from "react";
 import { Colors } from "@/constants/Colors";
 import Modal from "react-native-modal";
 import { router, useLocalSearchParams } from "expo-router";
 import { ThemedButton } from "@/components";
-import { listings } from "@/components/bakery/temp-data";
+import { Post } from "@/types";
 
-export default function BakeryList() {
+export default function BakeryPosts() {
   const [modalVisible, setModalVisible] = useState(false);
-  const [individualSelected, setIndividualSelected] = useState<boolean | null>(null);
-  const [isSubmit, setIsSubmit] = useState(false);
   const { vicinity, slug, status, place_id } = useLocalSearchParams();
-  const [listings, setListings] = useState<Listing[]>([]);
+  const [posts, setPosts] = useState<Post[]>([]);
 
   useEffect(() => {
     (async () => {
@@ -27,23 +25,6 @@ export default function BakeryList() {
       }
     })();
   }, []);
-
-  const handlePress = (choice: boolean) => {
-    if (individualSelected !== null) return;
-    setIndividualSelected(choice);
-    setTimeout(() => {
-      setModalVisible(false);
-      setIndividualSelected(null);
-      router.push(`/${slug}/new?choice=${choice}`);
-    }, 200);
-  };
-
-  const refreshPage = () => {
-    // refetch
-    //
-    //
-    setIsSubmit(false);
-  };
 
   return (
     <View style={styles.content}>
@@ -61,7 +42,7 @@ export default function BakeryList() {
         </TouchableOpacity>
       </View>
       <FlatList
-        data={listings}
+        data={posts}
         renderItem={({ item }) => <BakeryPost item={item} />}
         keyExtractor={(_, index) => index.toString()}
         style={styles.list}
@@ -71,76 +52,25 @@ export default function BakeryList() {
         isVisible={modalVisible}
         onBackdropPress={() => {
           setModalVisible(false);
-          setIndividualSelected(null);
-          if (isSubmit) refreshPage();
         }}
         hasBackdrop
       >
-        {isSubmit ? (
-          <View style={[styles.modalView, { alignItems: "center", gap: 10 }]}>
-            <Ionicons name="checkmark-circle" size={40} color={Colors.green} />
-            <View style={{ alignItems: "center", gap: 6 }}>
-              <Text style={styles.modalTitle}>Post published</Text>
-              <Text style={[styles.modalText, { fontWeight: "300" }]}>+20 points</Text>
-            </View>
-            <ThemedButton
-              type="secondary"
-              style={{ width: "100%", marginTop: 10 }}
-              onPress={refreshPage}
-            >
-              View post
-            </ThemedButton>
+        <View style={[styles.modalView, { alignItems: "center", gap: 10 }]}>
+          <Ionicons name="checkmark-circle" size={40} color={Colors.green} />
+          <View style={{ alignItems: "center", gap: 6 }}>
+            <Text style={styles.modalTitle}>Post published</Text>
+            <Text style={[styles.modalText, { fontWeight: "300" }]}>+20 points</Text>
           </View>
-        ) : (
-          <View style={styles.modalView}>
-            <Text style={styles.modalTitle}>Type of post</Text>
-            <Text style={styles.modalText}>
-              If you are posting discounts w/ multiple items, please select “Bakery-wide”
-            </Text>
-            <View style={styles.modalButtonsView}>
-              <TouchableOpacity
-                style={[
-                  styles.modalButtonLeft,
-                  individualSelected === false && {
-                    backgroundColor: Colors.accent,
-                    borderColor: Colors.accent,
-                  },
-                ]}
-                onPress={() => handlePress(false)}
-              >
-                <Text
-                  style={[
-                    styles.modalButtonText,
-                    individualSelected === false && { color: Colors.white },
-                  ]}
-                >
-                  Store-wide
-                </Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={[
-                  styles.modalButtonRight,
-                  individualSelected === true && {
-                    backgroundColor: Colors.accent,
-                    borderColor: Colors.accent,
-                  },
-                ]}
-                onPress={() => handlePress(true)}
-              >
-                <Text
-                  style={[
-                    styles.modalButtonText,
-                    individualSelected === true && { color: Colors.white },
-                  ]}
-                >
-                  Single-product
-                </Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        )}
-      </Modal>
-    </View>
+          <ThemedButton
+            type="secondary"
+            style={{ width: "100%", marginTop: 10 }}
+            onPress={() => { }}
+          >
+            View post
+          </ThemedButton>
+        </View>
+      </Modal >
+    </View >
   );
 }
 

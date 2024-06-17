@@ -8,20 +8,9 @@ import { MaterialIcons } from "@expo/vector-icons";
 
 import { Colors } from "@/constants/Colors";
 import { ThemedText } from "../ThemedText";
+import { Post } from "@/types";
 
-export interface Listing {
-  name: string;
-  price: string;
-  datetime: string;
-  description: string;
-  quantity?: {
-    min: number;
-    max: number;
-  };
-  image?: string;
-}
-
-export default function BakeryPost({ item }: { item: Listing }) {
+export default function BakeryPost({ item }: { item: Post }) {
   return (
     <View style={styles.listItem}>
       <Image source={require("@/assets/images/croissant.jpg")} style={styles.listItemImage} />
@@ -44,17 +33,7 @@ export default function BakeryPost({ item }: { item: Listing }) {
           {item.description}
         </ThemedText>
 
-        <View style={styles.listFooter}>
-          <ThemedText type="defaultSemiBold">{item.price}</ThemedText>
-          {item.quantity && (
-            <ThemedText type="default">
-              {item.quantity.min.toString() +
-                "-" +
-                item.quantity.max.toString() +
-                " left"}
-            </ThemedText>
-          )}
-        </View>
+        <Image source={{ uri: item.image ?? "https://htmlcolorcodes.com/assets/images/colors/gray-color-solid-background-1920x1080.png" }} width={50} height={50} />
       </View>
     </View>
   );
