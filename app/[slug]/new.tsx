@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   TouchableWithoutFeedback,
   Keyboard,
+  Image,
 } from "react-native";
 import { CameraView, useCameraPermissions } from "expo-camera";
 import { ThemedButton } from "@/components";
@@ -104,18 +105,22 @@ export default function NewPost() {
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
       <View style={styles.container}>
-        <CameraView
-          style={styles.camera}
-          ref={(ref) => (camera.current = ref)}
-          mode="picture"
-          facing="back"
-        >
-          <View style={styles.buttonContainer}>
-            <TouchableOpacity style={styles.button} onPress={takePicture}>
-              <Text style={styles.text}>Take picture</Text>
-            </TouchableOpacity>
-          </View>
-        </CameraView>
+        {uri ? (
+          <Image source={{ uri }} style={styles.camera} />
+        ) : (
+          <CameraView
+            style={styles.camera}
+            ref={(ref) => (camera.current = ref)}
+            mode="picture"
+            facing="back"
+          >
+            <View style={styles.buttonContainer}>
+              <TouchableOpacity style={styles.button} onPress={takePicture}>
+                <Text style={styles.text}>Take picture</Text>
+              </TouchableOpacity>
+            </View>
+          </CameraView>
+        )}
         <TextInput
           editable
           multiline // this is still buggy need to restrict number of lines or do some parsing but don't want to waste time on this
