@@ -39,10 +39,10 @@ export default function NewPost() {
     if (uri) {
       const blob = (await new Promise((resolve, reject) => {
         const xhr = new XMLHttpRequest();
-        xhr.onload = function () {
+        xhr.onload = function() {
           resolve(xhr.response);
         };
-        xhr.onerror = function (e) {
+        xhr.onerror = function(e) {
           console.log(e);
           reject(new TypeError("Network request failed"));
         };
@@ -69,6 +69,7 @@ export default function NewPost() {
       description,
       views: 0,
       munches: 0,
+      foodSaved: 0,
     };
 
     const docRef = await addDoc(collection(db, "posts"), data);

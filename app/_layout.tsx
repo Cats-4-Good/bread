@@ -5,11 +5,14 @@ import { Colors } from "@/constants/Colors";
 import { DefaultTheme, ThemeProvider } from "@react-navigation/native";
 import { useFonts } from "expo-font";
 import * as SplashScreen from "expo-splash-screen";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import "react-native-reanimated";
 import { initializeApp } from "firebase/app";
 import RegisterScreen from "@/components/fake-auth/register";
 import { useUser } from "@/hooks";
+import { View, Text, StyleSheet } from "react-native";
+import { ThemedButton } from "@/components";
+import Modal from "react-native-modal";
 
 const firebaseConfig = {
   apiKey: "AIzaSyBnyCgXhkgDBr0WXQWisQ1m6HRW00RN1Qg",
@@ -28,26 +31,32 @@ const app = initializeApp(firebaseConfig);
 SplashScreen.preventAutoHideAsync();
 
 export default function TabLayout() {
-  // load user data from storage
-  const [loaded] = useFonts({
-    Inter: require("@/assets/fonts/Inter-Regular.ttf"),
-  });
+  // this font shit still doesn't work
+  const [loaded] = useFonts({ Inter: require("@/assets/fonts/Inter-Regular.ttf") });
+  const [user, _setUser] = useUser();
+  const [showMunchResponse, setShowMunchResponse] = useState(false);
 
   useEffect(() => {
-    if (loaded) {
-      SplashScreen.hideAsync();
-    }
+    if (loaded) SplashScreen.hideAsync();
   }, [loaded]);
 
-  const [user, _setUser] = useUser();
+  useEffect(() => {
+    // check every 10 seconds if their last munch time was at least 15 mins ago
+    const interval = setInterval(() => {
+      if (!user?.lastMunch?.time) return;
+      const curTime = Date.now();
+      const elapsed = curTime - parseInt(user.lastMunch.time);
+      const secondsElapsed = Math.floor(elapsed / 1000);
+      const minMinutesAgo = 15;
+      if (minMinutesAgo * 60 <= secondsElapsed) {
+        setShowMunchResponse(true);
+      }
+    }, 1000 * 10);
+    return () => clearInterval(interval);
+  }, []);
 
-  if (!loaded) {
-    return null;
-  }
-
-  if (!user) {
-    return <RegisterScreen />;
-  }
+  if (!loaded) return null;
+  if (!user) return <RegisterScreen />;
 
   return (
     <ThemeProvider value={DefaultTheme}>
@@ -103,6 +112,86 @@ export default function TabLayout() {
           }}
         />
       </Tabs>
-    </ThemeProvider>
+
+
+      <Modal
+        isVisible={showMunchResponse}
+        onBackdropPress={() => setShowMunchResponse(false)}
+        hasBackdrop
+      >
+        <View style={[styles.modalView, { alignItems: "center", gap: 10 }]}>
+          <View style={{ alignItems: "center", gap: 6 }}>
+            <Text style={styles.modalTitle}>Post published</Text>
+            <Text style={[styles.modalText, { fontWeight: "300" }]}> </Text>
+          </View>
+          <View style={styles.topContainer}>
+            <TouchableOpacity
+              style={[
+                styles.button,
+                selectedButton === "list"
+                  ? styles.buttonSelected
+                  : styles.buttonUnselected,
+              ]}
+              onPress={() => setSelectedButton("list")}
+            >
+              <Text
+                style={[
+                  styles.buttonText,
+                  selectedButton === "list" && styles.buttonTextSelected,
+                ]}
+              >
+                List
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[
+                styles.button,
+                selectedButton === "map"
+                  ? styles.buttonSelected
+                  : styles.buttonUnselected,
+              ]}
+              onPress={() => setSelectedButton("map")}
+            >
+              <Text
+                style={[
+                  styles.buttonText,
+                  selectedButton === "map" && styles.buttonTextSelected,
+                ]}
+              >
+                Map
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+    </ThemeProvider >
   );
-}
+};
+
+const styles = StyleSheet.create({
+  modalView: {
+    marginVertical: "auto",
+    marginHorizontal: "auto",
+    width: 340,
+    gap: 14,
+    backgroundColor: "white",
+    borderRadius: 20,
+    paddingVertical: 20,
+    paddingHorizontal: 25,
+    shadowColor: Colors.black,
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: "bold",
+  },
+  modalText: {
+    fontSize: 16,
+  },
+});

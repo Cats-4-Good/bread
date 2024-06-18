@@ -42,5 +42,12 @@ export const useUserStorage = (): [
     setUserStorage(null);
   };
 
+  const logOut = async () => {
+    // remove user data from storage
+    await storage.remove({
+      key: "user",
+    });
+  };
+
   return [userStorage, updateUserStorage];
 };

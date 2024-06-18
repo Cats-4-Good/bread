@@ -24,41 +24,29 @@ export default function BakeryPost({ post }: { post: Post }) {
   const [hasMunchedBefore, setHasMunchedBefore] = useState(false);
   const db = getFirestore();
 
-  const checkMunch = async () => {
+  const checkHasMunchedBefore = () => {
     if (!user) return false;
     const foundPostInMunches = !!user.munchedPostIds.find((e) => e === post.id);
     if (foundPostInMunches) return true;
 
-    const userMunchedPostIdsDocRef = doc(
-      db,
-      "users",
-      user.id,
-      "munchedPostIds",
-      post.id,
-    );
-    try {
-      const res = await getDoc(userMunchedPostIdsDocRef); // add to collection
-      if (res.exists()) {
-        setUser({
-          ...user,
-          munchedPostIds: [...user.munchedPostIds, post.id],
-        });
-        return true;
-      }
-      console.log("Checked munch in firestore");
-    } catch (err) {
-      console.error(
-        "Failed trying to find postId in user's munchedPostIds",
-        err,
-      );
-    }
+    const userMunchedPostIdsDocRef = doc(db, "users", user.id, "munchedPostIds", post.id);
+    getDoc(userMunchedPostIdsDocRef)
+      .then(res => {
+        if (res.exists()) {
+          setUser({
+            ...user,
+            munchedPostIds: [...user.munchedPostIds, post.id],
+          });
+          return true;
+        }
+        console.log("Checked munch in firestore");
+      })
+      .catch(err => console.error("Failed finding postId in user's munchedPostIds", err));
     return false;
   };
 
   useEffect(() => {
-    (async () => {
-      setHasMunchedBefore(await checkMunch());
-    })();
+    setHasMunchedBefore(checkHasMunchedBefore());
   }, [user]);
 
   if (!user) return null;
@@ -103,15 +91,16 @@ export default function BakeryPost({ post }: { post: Post }) {
     );
     const userRef = doc(db, "users", user.id);
     try {
-      await updateDoc(postRef, { munches: increment(1) });
-      await updateDoc(posterRef, { totalMunches: increment(1) });
-
       const lastMunch: User["lastMunch"] = {
         postId: post.id,
         time: new Date().getTime().toString(),
       };
-      await setDoc(userRef, { lastMunch });
-      await setDoc(userMunchedPostIdsDocRef, {}); // add to collection
+      await Promise.all([
+        updateDoc(postRef, { munches: increment(1) }),
+        updateDoc(posterRef, { totalMunches: increment(1) }),
+        setDoc(userRef, { lastMunch }),
+        setDoc(userMunchedPostIdsDocRef, {}), // add to collection
+      ]);
       setUser({
         ...user,
         munchedPostIds: [...user.munchedPostIds, post.id],
@@ -125,30 +114,36 @@ export default function BakeryPost({ post }: { post: Post }) {
   return (
     <View style={styles.listItem}>
       <View style={styles.listHeader}>
-        <View style={styles.profileAndTimeContainer}>
-          <TouchableWithoutFeedback
-            onPress={() => {
-              // todo
-            }}
+        <View>
+          <View style={styles.profileAndTimeContainer}>
+            <TouchableWithoutFeedback
+              onPress={() => {
+                // todo
+              }}
+            >
+              <View style={styles.listItemProfile}>
+                <ThemedText type="small">
+                  {post.username.slice(0, 2).toUpperCase()}
+                </ThemedText>
+              </View>
+            </TouchableWithoutFeedback>
+            <ThemedText type="default" style={styles.timeText}>
+              {getTimeAgo(post.createdAt)}
+            </ThemedText>
+          </View>
+          <ThemedButton
+            type={hasMunchedBefore ? "secondary" : "primary"}
+            style={styles.munchButton}
+            disabled={hasMunchedBefore}
+            onPress={updateMunch}
           >
-            <View style={styles.listItemProfile}>
-              <ThemedText type="small">
-                {post.username.slice(0, 2).toUpperCase()}
-              </ThemedText>
-            </View>
-          </TouchableWithoutFeedback>
-          <ThemedText type="default" style={styles.timeText}>
-            {getTimeAgo(post.createdAt)}
-          </ThemedText>
+            {hasMunchedBefore ? "Maybe icon here? No idea" : "Munch!"}
+          </ThemedButton>
         </View>
-        <ThemedButton
-          type={hasMunchedBefore ? "secondary" : "primary"}
-          style={styles.munchButton}
-          disabled={hasMunchedBefore}
-          onPress={updateMunch}
-        >
-          {hasMunchedBefore ? "Maybe icon here? No idea" : "Munch!"}
-        </ThemedButton>
+        <View>
+          <ThemedText>{post.munches}</ThemedText>
+          <ThemedText>{post.foodSaved}</ThemedText>
+        </View>
       </View>
       {post.image && (
         <Image source={{ uri: `${post.image}` }} style={styles.listItemImage} />

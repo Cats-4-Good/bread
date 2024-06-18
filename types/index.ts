@@ -38,6 +38,7 @@ export interface Post {
   description?: string | null;
   views: number;
   munches: number;
+  foodSaved: number;
 }
 
 export interface UserStorage {
@@ -50,6 +51,7 @@ export interface User {
   username: string;
   totalViews: number; // (all these total are the aggregate amounts they've received from all posts)
   totalMunches: number;
+  totalMovement: number;
   lastMunch: {
     postId: string;
     time: string;

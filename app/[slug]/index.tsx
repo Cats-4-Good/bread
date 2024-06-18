@@ -36,7 +36,10 @@ export default function BakeryPosts() {
       const querySnapshot = await getDocs(q);
 
       querySnapshot.forEach((doc) => {
-        posts.push(doc.data() as Post);
+        posts.push({
+          id: doc.id,
+          ...doc.data()
+        } as Post);
       });
       return posts;
     } catch (err) {
@@ -111,7 +114,7 @@ export default function BakeryPosts() {
           <ThemedButton
             type="secondary"
             style={{ width: "100%", marginTop: 10 }}
-            onPress={() => {}}
+            onPress={() => { }}
           >
             View post
           </ThemedButton>

@@ -103,9 +103,9 @@ export default function Map() {
     const a =
       Math.sin(dLat / 2) * Math.sin(dLat / 2) +
       Math.cos(toRadians(lat1)) *
-        Math.cos(toRadians(lat2)) *
-        Math.sin(dLon / 2) *
-        Math.sin(dLon / 2);
+      Math.cos(toRadians(lat2)) *
+      Math.sin(dLon / 2) *
+      Math.sin(dLon / 2);
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
     let distance = R * c; // in kilometers
 
@@ -169,7 +169,7 @@ export default function Map() {
       .map((listing) => listing.place_id);
     const bakeriesStatsArray = await Promise.all(
       idsToFetch.map((newId) => getBakeryStats(newId)),
-    );
+    ); // this is to prevent repeated calls on same bakeries when moving map around
     const newBakeriesStats = Object.fromEntries(
       idsToFetch.map((k, i) => [k, bakeriesStatsArray[i]]),
     );
