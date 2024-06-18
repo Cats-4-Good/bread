@@ -10,36 +10,31 @@ import {
   orderBy,
   limit,
 } from "firebase/firestore";
-import { useUser } from "@/hooks";
 import { useEffect, useState } from "react";
-import { ThemedText } from "@/components";
-import { ThemedButton } from "@/components";
+import { ThemedText, ThemedButton } from "@/components";
 import BakeryPost from "@/components/bakery/BakeryPost";
+import { useLocalSearchParams } from "expo-router";
+import { useUser } from "@/hooks";
 
 export default function ProfileScreen() {
-  const [user, setUser] = useUser();
+  const params = useLocalSearchParams();
+  const [currentUser, setCurrentUser] = useUser();
+  const [user, setUser] = useState<{ id: string; username: string } | null>(null);
   const [posts, setPosts] = useState<Post[]>([]);
 
   const db = getFirestore();
 
-  console.log(user);
-
   const logoutHandler = () => {
     console.log("Logging out...");
-    // TODO
-    // redirect to login screen
+    // TODO: redirect to login screen
   };
 
-  const getBakeryPostsByUser = async (): Promise<Post[]> => {
+  const getBakeryPostsByUser = async (userId: string): Promise<Post[]> => {
     try {
-      if (!user) {
-        return [];
-      }
-
       const posts: Post[] = [];
       const q = query(
         collection(db, "posts"),
-        where("uid", "==", user.id),
+        where("uid", "==", userId),
         orderBy("createdAt", "desc"),
         limit(10)
       );
@@ -61,23 +56,33 @@ export default function ProfileScreen() {
   useEffect(() => {
     (async () => {
       try {
-        setPosts([]);
-        const posts = await getBakeryPostsByUser();
+        const userId = (params.userId as string) || currentUser?.id;
+        if (!userId) {
+          return;
+        }
+        setUser({ id: userId, username: currentUser?.username ?? "User's Name" }); // Fetch the username based on userId if needed
+        const posts = await getBakeryPostsByUser(userId);
         setPosts(posts);
       } catch (error) {
         console.error("Error fetching data:", error);
       }
     })();
-  }, [user?.id]);
+  }, [params.userId, currentUser]);
 
   return (
     <View style={styles.content}>
-      <View style={{ alignItems: "center", marginVertical: 40 }}>
-        <ThemedText type="title">{user?.username}</ThemedText>
-        <ThemedButton type="primary" onPress={logoutHandler} style={{ marginTop: 10, width: 150 }}>
-          Logout
-        </ThemedButton>
-      </View>
+      {user && (
+        <View style={{ alignItems: "center", marginVertical: 40 }}>
+          <ThemedText type="title">{user.username}</ThemedText>
+          <ThemedButton
+            type="primary"
+            onPress={logoutHandler}
+            style={{ marginTop: 10, width: 150 }}
+          >
+            Logout
+          </ThemedButton>
+        </View>
+      )}
 
       {posts.length > 0 ? (
         <FlatList
@@ -99,18 +104,6 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
     backgroundColor: Colors.primary,
-  },
-  bakeryImage: {
-    width: "100%",
-    aspectRatio: 2,
-    maxHeight: 200,
-  },
-  newPostButton: {
-    alignSelf: "flex-start",
-  },
-  newPostButtonText: {
-    color: "white",
-    fontSize: 16,
   },
   list: {
     width: "auto",

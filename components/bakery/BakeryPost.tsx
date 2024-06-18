@@ -6,6 +6,7 @@ import { ThemedButton } from "../ThemedButton";
 import { doc, getDoc, getFirestore, increment, setDoc, updateDoc } from "firebase/firestore";
 import { useUser } from "@/hooks";
 import { useEffect, useState } from "react";
+import { router } from "expo-router";
 
 const getTimeAgo = (epochTime: string): string => {
   const currentTime = Date.now();
@@ -99,7 +100,10 @@ export default function BakeryPost({ post, showBakeryName }: { post: Post, showB
         <View style={styles.profileAndTimeContainer}>
           <TouchableWithoutFeedback
             onPress={() => {
-              // todo
+              router.push({
+                pathname: "/profile",
+                params: { userId: post.uid },
+              });
             }}
           >
             <View style={styles.listItemProfile}>
