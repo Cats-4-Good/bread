@@ -13,7 +13,11 @@ export default function MapFilterButton({ markers, setMarkers }: Props) {
   const handleFilterMarkers = () => {};
 
   return (
-    <ThemedButton type="round" style={styles.centerButton} onPress={handleFilterMarkers}>
+    <ThemedButton
+      type="round"
+      style={styles.centerButton}
+      onPress={handleFilterMarkers}
+    >
       <FontAwesome5 name="filter" size={20} color="white" />
     </ThemedButton>
   );

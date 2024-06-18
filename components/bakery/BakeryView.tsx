@@ -17,10 +17,11 @@ export default function BakeryView({ item }: { item: GoogleListing }) {
       <View style={styles.listItem}>
         <Image
           source={{
-            uri: `${item.image
-              ? item.image
-              : "https://www.shutterstock.com/image-photo/3d-render-cafe-bar-restaurant-600nw-1415138246.jpg"
-              }`,
+            uri: `${
+              item.image
+                ? item.image
+                : "https://www.shutterstock.com/image-photo/3d-render-cafe-bar-restaurant-600nw-1415138246.jpg"
+            }`,
           }}
           style={styles.listItemImage}
         />

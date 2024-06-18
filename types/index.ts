@@ -55,4 +55,5 @@ export interface User {
     time: string;
   } | null;
   munchedPostIds: string[]; // in firestore this will be a collection of all postIds, but in state will be empty array that will be populated with postids whenever user munches
+  // also can use set for this but nah
 }

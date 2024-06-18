@@ -5,7 +5,14 @@ import { useEffect, useState } from "react";
 import { Colors } from "@/constants/Colors";
 import Modal from "react-native-modal";
 import { router, useLocalSearchParams } from "expo-router";
-import { query, where, getDocs, getFirestore, collection, orderBy } from "firebase/firestore";
+import {
+  query,
+  where,
+  getDocs,
+  getFirestore,
+  collection,
+  orderBy,
+} from "firebase/firestore";
 import { ThemedButton, ThemedText } from "@/components";
 import { Post } from "@/types";
 
@@ -20,10 +27,11 @@ export default function BakeryPosts() {
   const getBakeryPosts = async (bakeryId: string): Promise<Post[]> => {
     try {
       const posts: Post[] = [];
-      const q = query( // in future use collection of post ids in each bakery, then fetch posts that way for scalability
+      const q = query(
+        // in future use collection of post ids in each bakery, then fetch posts that way for scalability
         collection(db, "posts"),
         where("bakeryId", "==", bakeryId),
-        orderBy("createdAt", "desc")
+        orderBy("createdAt", "desc"),
       );
       const querySnapshot = await getDocs(q);
 
@@ -54,7 +62,7 @@ export default function BakeryPosts() {
       {posts.length > 0 ? (
         <FlatList
           data={posts}
-          renderItem={({ item }) => <BakeryPost item={item} />}
+          renderItem={({ item }) => <BakeryPost post={item} />}
           keyExtractor={(_, index) => index.toString()}
           style={styles.list}
           ListHeaderComponent={
@@ -66,7 +74,10 @@ export default function BakeryPosts() {
                 style={styles.bakeryImage}
               />
               <View style={{ paddingRight: 18, paddingVertical: 5 }}>
-                <ThemedText type="defaultSemiBold" style={{ textAlign: "right" }}>
+                <ThemedText
+                  type="defaultSemiBold"
+                  style={{ textAlign: "right" }}
+                >
                   {params.vicinity}
                 </ThemedText>
                 <ThemedText type="default" style={{ textAlign: "right" }}>
@@ -93,12 +104,14 @@ export default function BakeryPosts() {
           <Ionicons name="checkmark-circle" size={40} color={Colors.green} />
           <View style={{ alignItems: "center", gap: 6 }}>
             <Text style={styles.modalTitle}>Post published</Text>
-            <Text style={[styles.modalText, { fontWeight: "300" }]}>+20 points</Text>
+            <Text style={[styles.modalText, { fontWeight: "300" }]}>
+              +20 points
+            </Text>
           </View>
           <ThemedButton
             type="secondary"
             style={{ width: "100%", marginTop: 10 }}
-            onPress={() => { }}
+            onPress={() => {}}
           >
             View post
           </ThemedButton>

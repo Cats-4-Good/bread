@@ -1,4 +1,8 @@
-import { TouchableOpacity, StyleSheet, type TouchableOpacityProps } from "react-native";
+import {
+  TouchableOpacity,
+  StyleSheet,
+  type TouchableOpacityProps,
+} from "react-native";
 
 import { ThemedText } from "./ThemedText";
 import { Colors } from "@/constants/Colors";
@@ -7,7 +11,12 @@ type ThemedButtonProps = TouchableOpacityProps & {
   type?: "default" | "primary" | "secondary" | "round" | "error";
 };
 
-export function ThemedButton({ type = "default", style, children, ...rest }: ThemedButtonProps) {
+export function ThemedButton({
+  type = "default",
+  style,
+  children,
+  ...rest
+}: ThemedButtonProps) {
   return (
     <TouchableOpacity
       style={[

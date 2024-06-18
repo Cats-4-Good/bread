@@ -1,15 +1,67 @@
-import { View, StyleSheet, TouchableWithoutFeedback, Image } from "react-native";
-
+import {
+  View,
+  StyleSheet,
+  TouchableWithoutFeedback,
+  Image,
+} from "react-native";
 import { Colors } from "@/constants/Colors";
 import { ThemedText } from "../ThemedText";
-import { Post } from "@/types";
+import { Post, User } from "@/types";
 import { ThemedButton } from "../ThemedButton";
-import { doc, getFirestore, increment, updateDoc } from "firebase/firestore";
+import {
+  doc,
+  getDoc,
+  getFirestore,
+  increment,
+  setDoc,
+  updateDoc,
+} from "firebase/firestore";
 import { useUser } from "@/hooks";
+import { useEffect, useState } from "react";
 
-export default function BakeryPost({ item }: { item: Post }) {
+export default function BakeryPost({ post }: { post: Post }) {
   const [user, setUser] = useUser();
+  const [hasMunchedBefore, setHasMunchedBefore] = useState(false);
   const db = getFirestore();
+
+  const checkMunch = async () => {
+    if (!user) return false;
+    const foundPostInMunches = !!user.munchedPostIds.find((e) => e === post.id);
+    if (foundPostInMunches) return true;
+
+    const userMunchedPostIdsDocRef = doc(
+      db,
+      "users",
+      user.id,
+      "munchedPostIds",
+      post.id,
+    );
+    try {
+      const res = await getDoc(userMunchedPostIdsDocRef); // add to collection
+      if (res.exists()) {
+        setUser({
+          ...user,
+          munchedPostIds: [...user.munchedPostIds, post.id],
+        });
+        return true;
+      }
+      console.log("Checked munch in firestore");
+    } catch (err) {
+      console.error(
+        "Failed trying to find postId in user's munchedPostIds",
+        err,
+      );
+    }
+    return false;
+  };
+
+  useEffect(() => {
+    (async () => {
+      setHasMunchedBefore(await checkMunch());
+    })();
+  }, [user]);
+
+  if (!user) return null;
 
   const getTimeAgo = (epochTime: string): string => {
     const currentTime = Date.now();
@@ -31,14 +83,43 @@ export default function BakeryPost({ item }: { item: Post }) {
     }
   };
 
-  const handlePress = () => {
-    const postRef = doc(db, 'posts', item.id);
-    const posterRef = doc(db, 'users', item.uid);
-    const userRef = doc(db, 'users', user)
-    await updateDoc(postRef, { munches: increment() });
-    await updateDoc(posterRef, { totalMunches: increment() });
-    await updateDoc()
-    item.id
+  // designed munch with no undo in mind
+
+  const updateMunch = async () => {
+    // +1 to
+    //   - post's munches
+    //   - poster's totalMunches
+    // for user
+    //   - update last munch
+    //   - add post id to user's munchedPostIds collection to keep track of what's munched before
+    const postRef = doc(db, "posts", post.id);
+    const posterRef = doc(db, "users", post.uid);
+    const userMunchedPostIdsDocRef = doc(
+      db,
+      "users",
+      user.id,
+      "munchedPostIds",
+      post.id,
+    );
+    const userRef = doc(db, "users", user.id);
+    try {
+      await updateDoc(postRef, { munches: increment(1) });
+      await updateDoc(posterRef, { totalMunches: increment(1) });
+
+      const lastMunch: User["lastMunch"] = {
+        postId: post.id,
+        time: new Date().getTime().toString(),
+      };
+      await setDoc(userRef, { lastMunch });
+      await setDoc(userMunchedPostIdsDocRef, {}); // add to collection
+      setUser({
+        ...user,
+        munchedPostIds: [...user.munchedPostIds, post.id],
+      }); // update state
+      console.log("Munch success");
+    } catch (err) {
+      console.error("Everything just broke when munch", err);
+    }
   };
 
   return (
@@ -51,22 +132,31 @@ export default function BakeryPost({ item }: { item: Post }) {
             }}
           >
             <View style={styles.listItemProfile}>
-              <ThemedText type="small">{item.username.slice(0, 2).toUpperCase()}</ThemedText>
+              <ThemedText type="small">
+                {post.username.slice(0, 2).toUpperCase()}
+              </ThemedText>
             </View>
           </TouchableWithoutFeedback>
           <ThemedText type="default" style={styles.timeText}>
-            {getTimeAgo(item.createdAt)}
+            {getTimeAgo(post.createdAt)}
           </ThemedText>
         </View>
-        <ThemedButton type="primary" style={styles.munchButton} onPress={handlePress}>
-          Munch!
+        <ThemedButton
+          type={hasMunchedBefore ? "secondary" : "primary"}
+          style={styles.munchButton}
+          disabled={hasMunchedBefore}
+          onPress={updateMunch}
+        >
+          {hasMunchedBefore ? "Maybe icon here? No idea" : "Munch!"}
         </ThemedButton>
       </View>
-      {item.image && <Image source={{ uri: `${item.image}` }} style={styles.listItemImage} />}
+      {post.image && (
+        <Image source={{ uri: `${post.image}` }} style={styles.listItemImage} />
+      )}
       <ThemedText type="defaultSemiBold" style={styles.munches}>
-        {item.munches} bread lovers have munched this
+        {post.munches} bread lovers have munched this
       </ThemedText>
-      <ThemedText type="default">{item.description}</ThemedText>
+      <ThemedText type="default">{post.description}</ThemedText>
     </View>
   );
 }

@@ -1,4 +1,11 @@
-import { View, Text, StyleSheet, Image, TextInput, TouchableOpacity } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  Image,
+  TextInput,
+  TouchableOpacity,
+} from "react-native";
 import { CameraView, useCameraPermissions } from "expo-camera";
 import { ThemedButton } from "@/components";
 import { useRef, useState } from "react";
@@ -32,10 +39,10 @@ export default function NewPost() {
     if (uri) {
       const blob = (await new Promise((resolve, reject) => {
         const xhr = new XMLHttpRequest();
-        xhr.onload = function() {
+        xhr.onload = function () {
           resolve(xhr.response);
         };
-        xhr.onerror = function(e) {
+        xhr.onerror = function (e) {
           console.log(e);
           reject(new TypeError("Network request failed"));
         };
@@ -74,8 +81,12 @@ export default function NewPost() {
   if (!permission.granted) {
     return (
       <View style={styles.container}>
-        <Text style={{ textAlign: "center" }}>We need your permission to show the camera</Text>
-        <ThemedButton onPress={requestPermission}>Grant Permission</ThemedButton>
+        <Text style={{ textAlign: "center" }}>
+          We need your permission to show the camera
+        </Text>
+        <ThemedButton onPress={requestPermission}>
+          Grant Permission
+        </ThemedButton>
       </View>
     );
   }

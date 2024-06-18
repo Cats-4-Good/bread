@@ -10,7 +10,11 @@ interface Props {
   getMarkers: (latitude: number, longitude: number) => void;
 }
 
-export default function MapCentraliseButton({ mapRef, location, getMarkers }: Props) {
+export default function MapCentraliseButton({
+  mapRef,
+  location,
+  getMarkers,
+}: Props) {
   const handleCenterMap = async () => {
     if (mapRef.current && location) {
       mapRef.current.animateCamera({
@@ -26,7 +30,11 @@ export default function MapCentraliseButton({ mapRef, location, getMarkers }: Pr
   };
 
   return (
-    <ThemedButton type="round" style={styles.centerButton} onPress={handleCenterMap}>
+    <ThemedButton
+      type="round"
+      style={styles.centerButton}
+      onPress={handleCenterMap}
+    >
       <FontAwesome5 name="location-arrow" size={20} color="white" />
     </ThemedButton>
   );

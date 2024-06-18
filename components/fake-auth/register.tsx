@@ -3,7 +3,7 @@ import { StyleSheet, View, TextInput, Alert } from "react-native";
 import { Colors } from "@/constants/Colors";
 import { ThemedButton } from "@/components/ThemedButton";
 import { ThemedText } from "@/components";
-import uuid from 'react-native-uuid';
+import uuid from "react-native-uuid";
 import { useUserStorage } from "@/hooks";
 
 export default function RegisterScreen() {
@@ -11,7 +11,8 @@ export default function RegisterScreen() {
   const [username, setUsername] = useState<string>("");
 
   const register = async () => {
-    if (!username.replaceAll(" ", "")) return Alert.alert("Error", "Invalid username");
+    if (!username.replaceAll(" ", ""))
+      return Alert.alert("Error", "Invalid username");
     const id = uuid.v4().toString();
     updateUserStorage(id, username);
     console.log("Registered");

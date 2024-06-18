@@ -3,14 +3,17 @@ import { User } from "@/types";
 import { doc, getFirestore, onSnapshot, setDoc } from "firebase/firestore";
 import { useUserStorage } from "./useUserStorage";
 
-export const useUser = (): [User | null, Dispatch<SetStateAction<User | null>>] => {
+export const useUser = (): [
+  User | null,
+  Dispatch<SetStateAction<User | null>>,
+] => {
   const [userStorage, _updateUserStorage] = useUserStorage();
   const [user, setUser] = useState<User | null>(null);
   const db = getFirestore();
 
   useEffect(() => {
     if (!userStorage) return;
-    const userRef = doc(db, 'users', userStorage.id);
+    const userRef = doc(db, "users", userStorage.id);
     const unsubscribe = onSnapshot(userRef, async (doc) => {
       if (!doc.exists()) {
         // create user if don't exist
@@ -29,8 +32,8 @@ export const useUser = (): [User | null, Dispatch<SetStateAction<User | null>>] 
         // sync user hook with firestore
         const data = {
           id: doc.id,
-          munchedPostIds: user?.munchedPostIds ?? [], // keep existing munches
-          ...doc.data() as Omit<User, "id" | "munchedPostIds">,
+          munchedPostIds: user?.munchedPostIds ?? new Set(), // keep existing munches
+          ...(doc.data() as Omit<User, "id" | "munchedPostIds">),
         } as User;
         setUser(data);
       }
@@ -39,4 +42,4 @@ export const useUser = (): [User | null, Dispatch<SetStateAction<User | null>>] 
   }, [userStorage, user]);
 
   return [user, setUser];
-}
+};

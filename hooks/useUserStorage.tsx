@@ -11,7 +11,10 @@ const storage = new Storage({
   sync: {},
 });
 
-export const useUserStorage = (): [UserStorage | null, (id: string, username: string) => Promise<void>] => {
+export const useUserStorage = (): [
+  UserStorage | null,
+  (id: string, username: string) => Promise<void>,
+] => {
   const [userStorage, setUserStorage] = useState<UserStorage | null>(null);
 
   useEffect(() => {

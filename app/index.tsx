@@ -1,5 +1,13 @@
 import { useState, useEffect, useRef } from "react";
-import { StyleSheet, View, Platform, Text, TouchableOpacity, Image, FlatList } from "react-native";
+import {
+  StyleSheet,
+  View,
+  Platform,
+  Text,
+  TouchableOpacity,
+  Image,
+  FlatList,
+} from "react-native";
 import MapView, { Marker, Region } from "react-native-maps";
 import * as Location from "expo-location";
 import MapCentraliseButton from "@/components/map/MapCentraliseButton";
@@ -17,9 +25,13 @@ export default function Map() {
 
   const mapRef = useRef(null);
 
-  const [selectedListing, setSelectedListing] = useState<GoogleListing | null>(null);
+  const [selectedListing, setSelectedListing] = useState<GoogleListing | null>(
+    null,
+  );
   const [listings, setListings] = useState<GoogleListing[]>([]);
-  const [bakeriesStats, setBakeriesStats] = useState<{ [id: string]: BakeryStats | undefined }>({});
+  const [bakeriesStats, setBakeriesStats] = useState<{
+    [id: string]: BakeryStats | undefined;
+  }>({});
   const [bakeries, setBakeries] = useState<Bakery[]>([]);
   const [location, setLocation] = useState<Location.LocationObjectCoords>();
   const [initialRegion, setInitialRegion] = useState<Region>();
@@ -39,7 +51,7 @@ export default function Map() {
             type: "bakery",
             key: GOOGLE_API,
           },
-        }
+        },
       );
       const listings: GoogleListing[] =
         response.data.results.map((listing: any) => ({
@@ -65,8 +77,13 @@ export default function Map() {
       await Promise.all(
         listings.map(async (listing) => {
           listing.image = await getGooglePicture(listing);
-          listing.distance = haversineDistance(latitude, longitude, listing.lat, listing.lng);
-        })
+          listing.distance = haversineDistance(
+            latitude,
+            longitude,
+            listing.lat,
+            listing.lng,
+          );
+        }),
       );
       setListings(listings);
     } catch (error) {
@@ -74,16 +91,21 @@ export default function Map() {
     }
   };
 
-  function haversineDistance(lat1: number, lon1: number, lat2: number, lon2: number): number {
+  function haversineDistance(
+    lat1: number,
+    lon1: number,
+    lat2: number,
+    lon2: number,
+  ): number {
     const R = 6371; // Radius of the Earth in kilometers
     const dLat = toRadians(lat2 - lat1);
     const dLon = toRadians(lon2 - lon1);
     const a =
       Math.sin(dLat / 2) * Math.sin(dLat / 2) +
       Math.cos(toRadians(lat1)) *
-      Math.cos(toRadians(lat2)) *
-      Math.sin(dLon / 2) *
-      Math.sin(dLon / 2);
+        Math.cos(toRadians(lat2)) *
+        Math.sin(dLon / 2) *
+        Math.sin(dLon / 2);
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
     let distance = R * c; // in kilometers
 
@@ -109,13 +131,15 @@ export default function Map() {
   const getGooglePicture = async (listing: GoogleListing) => {
     if (listing.photoReferences.length === 0) return undefined;
     const response = await fetch(
-      `https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photo_reference=${listing.photoReferences[0]}&key=${GOOGLE_API}`
+      `https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photo_reference=${listing.photoReferences[0]}&key=${GOOGLE_API}`,
     );
     const blob = await response.blob();
     return (await blobToData(blob)) as string;
   };
 
-  const getBakeryStats = async (bakeryId: string): Promise<BakeryStats | undefined> => {
+  const getBakeryStats = async (
+    bakeryId: string,
+  ): Promise<BakeryStats | undefined> => {
     const docRef = doc(db, "bakeries", bakeryId);
     return getDoc(docRef)
       .then(async (res) => {
@@ -143,9 +167,11 @@ export default function Map() {
     const idsToFetch = listings
       .filter((listing) => !(listing.place_id in bakeriesStats))
       .map((listing) => listing.place_id);
-    const bakeriesStatsArray = await Promise.all(idsToFetch.map((newId) => getBakeryStats(newId)));
+    const bakeriesStatsArray = await Promise.all(
+      idsToFetch.map((newId) => getBakeryStats(newId)),
+    );
     const newBakeriesStats = Object.fromEntries(
-      idsToFetch.map((k, i) => [k, bakeriesStatsArray[i]])
+      idsToFetch.map((k, i) => [k, bakeriesStatsArray[i]]),
     );
     setBakeriesStats({
       ...bakeriesStats,
@@ -189,14 +215,16 @@ export default function Map() {
     if (timeoutRef.current) clearTimeout(timeoutRef.current);
     timeoutRef.current = setTimeout(
       async () => getListings(region.latitude, region.longitude),
-      500
+      500,
     );
   };
 
   if (isError) {
     return (
       <View style={styles.container}>
-        <ThemedText type="default">Permission to access location was denied</ThemedText>
+        <ThemedText type="default">
+          Permission to access location was denied
+        </ThemedText>
       </View>
     );
   }
@@ -207,22 +235,36 @@ export default function Map() {
         <TouchableOpacity
           style={[
             styles.button,
-            selectedButton === "list" ? styles.buttonSelected : styles.buttonUnselected,
+            selectedButton === "list"
+              ? styles.buttonSelected
+              : styles.buttonUnselected,
           ]}
           onPress={() => setSelectedButton("list")}
         >
-          <Text style={[styles.buttonText, selectedButton === "list" && styles.buttonTextSelected]}>
+          <Text
+            style={[
+              styles.buttonText,
+              selectedButton === "list" && styles.buttonTextSelected,
+            ]}
+          >
             List
           </Text>
         </TouchableOpacity>
         <TouchableOpacity
           style={[
             styles.button,
-            selectedButton === "map" ? styles.buttonSelected : styles.buttonUnselected,
+            selectedButton === "map"
+              ? styles.buttonSelected
+              : styles.buttonUnselected,
           ]}
           onPress={() => setSelectedButton("map")}
         >
-          <Text style={[styles.buttonText, selectedButton === "map" && styles.buttonTextSelected]}>
+          <Text
+            style={[
+              styles.buttonText,
+              selectedButton === "map" && styles.buttonTextSelected,
+            ]}
+          >
             Map
           </Text>
         </TouchableOpacity>
@@ -252,7 +294,11 @@ export default function Map() {
               ))}
           </MapView>
           {location && (
-            <MapCentraliseButton mapRef={mapRef} location={location} getMarkers={getListings} />
+            <MapCentraliseButton
+              mapRef={mapRef}
+              location={location}
+              getMarkers={getListings}
+            />
           )}
         </View>
       )}
