@@ -38,17 +38,21 @@ export interface Post {
   description?: string | null;
   views: number;
   munches: number;
-  foodSaved: number;
+}
+
+export interface UserStorage {
+  id: string;
+  username: string;
 }
 
 export interface User {
   id: string;
-  name: string;
+  username: string;
   totalViews: number; // (all these total are the aggregate amounts they've received from all posts)
   totalMunches: number;
-  totalFoodSaved: number;
   lastMunch: {
     postId: string;
     time: string;
   } | null;
+  munchedPostIds: string[]; // in firestore this will be a collection of all postIds, but in state will be empty array that will be populated with postids whenever user munches
 }

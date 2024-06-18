@@ -20,7 +20,7 @@ export default function BakeryPosts() {
   const getBakeryPosts = async (bakeryId: string): Promise<Post[]> => {
     try {
       const posts: Post[] = [];
-      const q = query(
+      const q = query( // in future use collection of post ids in each bakery, then fetch posts that way for scalability
         collection(db, "posts"),
         where("bakeryId", "==", bakeryId),
         orderBy("createdAt", "desc")
@@ -40,7 +40,7 @@ export default function BakeryPosts() {
   useEffect(() => {
     (async () => {
       try {
-        setPosts([]);
+        setPosts([]); // for when change posts
         const posts = await getBakeryPosts(params.place_id as string);
         setPosts(posts);
       } catch (error) {
@@ -51,30 +51,30 @@ export default function BakeryPosts() {
 
   return (
     <View style={styles.content}>
-      <Image
-        source={{
-          uri: `${
-            params.image
-              ? params.image
-              : "https://www.shutterstock.com/image-photo/3d-render-cafe-bar-restaurant-600nw-1415138246.jpg"
-          }`,
-        }}
-        style={styles.bakeryImage}
-      />
-      <View style={{ paddingRight: 18, paddingVertical: 5 }}>
-        <ThemedText type="defaultSemiBold" style={{ textAlign: "right" }}>
-          {params.vicinity}
-        </ThemedText>
-        <ThemedText type="default" style={{ textAlign: "right" }}>
-          {params.status}
-        </ThemedText>
-      </View>
       {posts.length > 0 ? (
         <FlatList
           data={posts}
           renderItem={({ item }) => <BakeryPost item={item} />}
           keyExtractor={(_, index) => index.toString()}
           style={styles.list}
+          ListHeaderComponent={
+            <View>
+              <Image
+                source={{
+                  uri: `${params.image ?? "https://www.shutterstock.com/image-photo/3d-render-cafe-bar-restaurant-600nw-1415138246.jpg"}`,
+                }}
+                style={styles.bakeryImage}
+              />
+              <View style={{ paddingRight: 18, paddingVertical: 5 }}>
+                <ThemedText type="defaultSemiBold" style={{ textAlign: "right" }}>
+                  {params.vicinity}
+                </ThemedText>
+                <ThemedText type="default" style={{ textAlign: "right" }}>
+                  {params.status}
+                </ThemedText>
+              </View>
+            </View>
+          }
         />
       ) : (
         <ThemedText style={styles.noPostFoundText}>
@@ -98,7 +98,7 @@ export default function BakeryPosts() {
           <ThemedButton
             type="secondary"
             style={{ width: "100%", marginTop: 10 }}
-            onPress={() => {}}
+            onPress={() => { }}
           >
             View post
           </ThemedButton>
@@ -140,7 +140,6 @@ const styles = StyleSheet.create({
   },
   list: {
     width: "auto",
-    marginHorizontal: 20,
   },
   modalBackdrop: {
     backgroundColor: "black",
@@ -202,8 +201,16 @@ const styles = StyleSheet.create({
   addPostButton: {
     position: "absolute",
     bottom: 14,
-    left: 14,
+    right: 14,
     backgroundColor: Colors.secondary,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 3,
   },
   noPostFoundText: {
     textAlign: "center",

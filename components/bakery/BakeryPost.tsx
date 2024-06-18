@@ -4,8 +4,13 @@ import { Colors } from "@/constants/Colors";
 import { ThemedText } from "../ThemedText";
 import { Post } from "@/types";
 import { ThemedButton } from "../ThemedButton";
+import { doc, getFirestore, increment, updateDoc } from "firebase/firestore";
+import { useUser } from "@/hooks";
 
 export default function BakeryPost({ item }: { item: Post }) {
+  const [user, setUser] = useUser();
+  const db = getFirestore();
+
   const getTimeAgo = (epochTime: string): string => {
     const currentTime = Date.now();
     const elapsed = currentTime - parseInt(epochTime);
@@ -26,6 +31,16 @@ export default function BakeryPost({ item }: { item: Post }) {
     }
   };
 
+  const handlePress = () => {
+    const postRef = doc(db, 'posts', item.id);
+    const posterRef = doc(db, 'users', item.uid);
+    const userRef = doc(db, 'users', user)
+    await updateDoc(postRef, { munches: increment() });
+    await updateDoc(posterRef, { totalMunches: increment() });
+    await updateDoc()
+    item.id
+  };
+
   return (
     <View style={styles.listItem}>
       <View style={styles.listHeader}>
@@ -43,7 +58,7 @@ export default function BakeryPost({ item }: { item: Post }) {
             {getTimeAgo(item.createdAt)}
           </ThemedText>
         </View>
-        <ThemedButton type="primary" style={styles.munchButton}>
+        <ThemedButton type="primary" style={styles.munchButton} onPress={handlePress}>
           Munch!
         </ThemedButton>
       </View>
@@ -60,6 +75,7 @@ const styles = StyleSheet.create({
   listItem: {
     padding: 15,
     marginBottom: 10,
+    marginHorizontal: 20,
     backgroundColor: Colors.white,
     borderRadius: 15,
     shadowOffset: { height: 3, width: 1 },

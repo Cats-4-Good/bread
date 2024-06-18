@@ -35,7 +35,7 @@ export default function Map() {
         {
           params: {
             location: `${latitude},${longitude}`,
-            radius: 500, // 1km radius
+            radius: 1000, // 1km radius
             type: "bakery",
             key: GOOGLE_API,
           },
@@ -81,9 +81,9 @@ export default function Map() {
     const a =
       Math.sin(dLat / 2) * Math.sin(dLat / 2) +
       Math.cos(toRadians(lat1)) *
-        Math.cos(toRadians(lat2)) *
-        Math.sin(dLon / 2) *
-        Math.sin(dLon / 2);
+      Math.cos(toRadians(lat2)) *
+      Math.sin(dLon / 2) *
+      Math.sin(dLon / 2);
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
     let distance = R * c; // in kilometers
 

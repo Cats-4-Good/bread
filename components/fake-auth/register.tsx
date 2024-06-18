@@ -4,23 +4,17 @@ import { Colors } from "@/constants/Colors";
 import { ThemedButton } from "@/components/ThemedButton";
 import { ThemedText } from "@/components";
 import uuid from 'react-native-uuid';
-import storage from "@/components/storage/Storage";
+import { useUserStorage } from "@/hooks";
 
-export default function RegisterScreen({ refresh }: { refresh: () => void }) {
+export default function RegisterScreen() {
+  const [_userStorage, updateUserStorage] = useUserStorage();
   const [username, setUsername] = useState<string>("");
 
   const register = async () => {
     if (!username.replaceAll(" ", "")) return Alert.alert("Error", "Invalid username");
     const id = uuid.v4().toString();
-    await storage.save({
-      key: "user",
-      data: {
-        username,
-        id,
-      },
-    });
+    updateUserStorage(id, username);
     console.log("Registered");
-    refresh();
   };
 
   return (

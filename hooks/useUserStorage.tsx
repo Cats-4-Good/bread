@@ -1,6 +1,7 @@
 import Storage from "react-native-storage";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useEffect, useState } from "react";
+import { UserStorage } from "@/types";
 
 const storage = new Storage({
   size: 1,
@@ -10,17 +11,10 @@ const storage = new Storage({
   sync: {},
 });
 
-interface User {
-  username: string;
-  id: string;
-};
-
-export const useUser = (): [User | undefined, () => void] => {
-  const [user, setUser] = useState<User>();
-  const [shouldRefresh, setShouldRefresh] = useState(true);
+export const useUserStorage = (): [UserStorage | null, (id: string, username: string) => Promise<void>] => {
+  const [userStorage, setUserStorage] = useState<UserStorage | null>(null);
 
   useEffect(() => {
-    if (!shouldRefresh) return;
     storage
       .load({
         key: "user",
@@ -28,19 +22,22 @@ export const useUser = (): [User | undefined, () => void] => {
         syncInBackground: true,
       })
       .then((res) => {
-        setUser(res);
-        setShouldRefresh(false);
+        setUserStorage(res);
         console.log(res.username);
       })
       .catch((err) => {
         console.log(err.message);
-        setShouldRefresh(false);
       });
-  }, [shouldRefresh]);
+  }, [userStorage]);
 
-  const refresh = () => setShouldRefresh(true);
+  const updateUserStorage = async (id: string, username: string) => {
+    const data: UserStorage = { id, username };
+    await storage.save({
+      key: "user",
+      data,
+    });
+    setUserStorage(null);
+  };
 
-  return [user, refresh];
-}
-
-export default storage;
+  return [userStorage, updateUserStorage];
+};

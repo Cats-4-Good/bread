@@ -7,8 +7,8 @@ import { getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";
 import uuid from "react-native-uuid";
 import { collection, addDoc, getFirestore } from "firebase/firestore";
 import { Post } from "@/types";
-import { useUser } from "@/components/storage/Storage";
 import { useLocalSearchParams } from "expo-router";
+import { useUser } from "@/hooks";
 
 export default function NewPost() {
   const params = useLocalSearchParams();
@@ -17,7 +17,7 @@ export default function NewPost() {
   const [description, setDescription] = useState("");
   const [uri, setUri] = useState<string | null>(null);
   const camera = useRef<CameraView | null>(null);
-  const [user, refresh] = useUser();
+  const [user, _setUser] = useUser();
   const storage = getStorage();
   const db = getFirestore();
 
@@ -32,10 +32,10 @@ export default function NewPost() {
     if (uri) {
       const blob = (await new Promise((resolve, reject) => {
         const xhr = new XMLHttpRequest();
-        xhr.onload = function () {
+        xhr.onload = function() {
           resolve(xhr.response);
         };
-        xhr.onerror = function (e) {
+        xhr.onerror = function(e) {
           console.log(e);
           reject(new TypeError("Network request failed"));
         };
@@ -62,7 +62,6 @@ export default function NewPost() {
       description,
       views: 0,
       munches: 0,
-      foodSaved: 0,
     };
 
     const docRef = await addDoc(collection(db, "posts"), data);

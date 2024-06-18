@@ -8,9 +8,8 @@ import * as SplashScreen from "expo-splash-screen";
 import { useEffect } from "react";
 import "react-native-reanimated";
 import { initializeApp } from "firebase/app";
-import { getAnalytics } from "firebase/analytics";
-import storage, { useUser } from "@/components/storage/Storage";
 import RegisterScreen from "@/components/fake-auth/register";
+import { useUser } from "@/hooks";
 
 const firebaseConfig = {
   apiKey: "AIzaSyBnyCgXhkgDBr0WXQWisQ1m6HRW00RN1Qg",
@@ -40,14 +39,14 @@ export default function TabLayout() {
     }
   }, [loaded]);
 
-  const [user, refresh] = useUser();
+  const [user, _setUser] = useUser();
 
   if (!loaded) {
     return null;
   }
 
   if (!user) {
-    return <RegisterScreen refresh={refresh} />;
+    return <RegisterScreen />;
   }
 
   return (
