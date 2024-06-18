@@ -5,14 +5,7 @@ import { useEffect, useState } from "react";
 import { Colors } from "@/constants/Colors";
 import Modal from "react-native-modal";
 import { router, useLocalSearchParams } from "expo-router";
-import {
-  query,
-  where,
-  getDocs,
-  getFirestore,
-  collection,
-  orderBy,
-} from "firebase/firestore";
+import { query, where, getDocs, getFirestore, collection, orderBy } from "firebase/firestore";
 import { ThemedButton, ThemedText } from "@/components";
 import { Post } from "@/types";
 
@@ -31,14 +24,14 @@ export default function BakeryPosts() {
         // in future use collection of post ids in each bakery, then fetch posts that way for scalability
         collection(db, "posts"),
         where("bakeryId", "==", bakeryId),
-        orderBy("createdAt", "desc"),
+        orderBy("createdAt", "desc")
       );
       const querySnapshot = await getDocs(q);
 
       querySnapshot.forEach((doc) => {
         posts.push({
           id: doc.id,
-          ...doc.data()
+          ...doc.data(),
         } as Post);
       });
       return posts;
@@ -65,22 +58,22 @@ export default function BakeryPosts() {
       {posts.length > 0 ? (
         <FlatList
           data={posts}
-          renderItem={({ item }) => <BakeryPost post={item} />}
+          renderItem={({ item }) => <BakeryPost post={item} showBakeryName={false} />}
           keyExtractor={(_, index) => index.toString()}
           style={styles.list}
           ListHeaderComponent={
             <View>
               <Image
                 source={{
-                  uri: `${params.image ?? "https://www.shutterstock.com/image-photo/3d-render-cafe-bar-restaurant-600nw-1415138246.jpg"}`,
+                  uri: `${
+                    params.image ??
+                    "https://www.shutterstock.com/image-photo/3d-render-cafe-bar-restaurant-600nw-1415138246.jpg"
+                  }`,
                 }}
                 style={styles.bakeryImage}
               />
               <View style={{ paddingRight: 18, paddingVertical: 5 }}>
-                <ThemedText
-                  type="defaultSemiBold"
-                  style={{ textAlign: "right" }}
-                >
+                <ThemedText type="defaultSemiBold" style={{ textAlign: "right" }}>
                   {params.vicinity}
                 </ThemedText>
                 <ThemedText type="default" style={{ textAlign: "right" }}>
@@ -107,14 +100,12 @@ export default function BakeryPosts() {
           <Ionicons name="checkmark-circle" size={40} color={Colors.green} />
           <View style={{ alignItems: "center", gap: 6 }}>
             <Text style={styles.modalTitle}>Post published</Text>
-            <Text style={[styles.modalText, { fontWeight: "300" }]}>
-              +20 points
-            </Text>
+            <Text style={[styles.modalText, { fontWeight: "300" }]}>+20 points</Text>
           </View>
           <ThemedButton
             type="secondary"
             style={{ width: "100%", marginTop: 10 }}
-            onPress={() => { }}
+            onPress={() => {}}
           >
             View post
           </ThemedButton>
@@ -127,7 +118,7 @@ export default function BakeryPosts() {
         onPress={() => {
           router.push({
             pathname: `/${params.name}/new`,
-            params: { place_id: params.place_id },
+            params: { place_id: params.place_id, name: params.name },
           });
         }}
       >

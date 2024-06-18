@@ -10,9 +10,7 @@ import "react-native-reanimated";
 import { initializeApp } from "firebase/app";
 import RegisterScreen from "@/components/fake-auth/register";
 import { useUser } from "@/hooks";
-import { View, Text, StyleSheet } from "react-native";
-import { ThemedButton } from "@/components";
-import Modal from "react-native-modal";
+import { StyleSheet } from "react-native";
 
 const firebaseConfig = {
   apiKey: "AIzaSyBnyCgXhkgDBr0WXQWisQ1m6HRW00RN1Qg",
@@ -112,58 +110,6 @@ export default function TabLayout() {
           }}
         />
       </Tabs>
-
-
-      <Modal
-        isVisible={showMunchResponse}
-        onBackdropPress={() => setShowMunchResponse(false)}
-        hasBackdrop
-      >
-        <View style={[styles.modalView, { alignItems: "center", gap: 10 }]}>
-          <View style={{ alignItems: "center", gap: 6 }}>
-            <Text style={styles.modalTitle}>Post published</Text>
-            <Text style={[styles.modalText, { fontWeight: "300" }]}> </Text>
-          </View>
-          <View style={styles.topContainer}>
-            <TouchableOpacity
-              style={[
-                styles.button,
-                selectedButton === "list"
-                  ? styles.buttonSelected
-                  : styles.buttonUnselected,
-              ]}
-              onPress={() => setSelectedButton("list")}
-            >
-              <Text
-                style={[
-                  styles.buttonText,
-                  selectedButton === "list" && styles.buttonTextSelected,
-                ]}
-              >
-                List
-              </Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={[
-                styles.button,
-                selectedButton === "map"
-                  ? styles.buttonSelected
-                  : styles.buttonUnselected,
-              ]}
-              onPress={() => setSelectedButton("map")}
-            >
-              <Text
-                style={[
-                  styles.buttonText,
-                  selectedButton === "map" && styles.buttonTextSelected,
-                ]}
-              >
-                Map
-              </Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </Modal>
     </ThemeProvider >
   );
 };

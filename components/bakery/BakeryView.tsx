@@ -29,10 +29,7 @@ export default function BakeryView({ item }: { item: GoogleListing }) {
           <ThemedText type="defaultSemiBold">{item.name}</ThemedText>
           <ThemedText type="default">{item.vicinity}</ThemedText>
           <ThemedText type="default">{item.status}</ThemedText>
-          <ThemedText type="default">
-            {"~"}
-            {item.distance}m away
-          </ThemedText>
+          <ThemedText type="default">~{item.distance}m away</ThemedText>
         </View>
       </View>
     </TouchableOpacity>

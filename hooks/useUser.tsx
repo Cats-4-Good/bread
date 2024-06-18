@@ -34,10 +34,10 @@ export const useUser = (): [
         // sync user hook with firestore
         const data = {
           id: doc.id,
+          username: userStorage.username,
           munchedPostIds: user?.munchedPostIds ?? [], // keep existing munches
-          ...(doc.data() as Omit<User, "id" | "munchedPostIds">),
+          ...(doc.data() as Omit<User, "id" | "munchedPostIds" | "username">),
         } as User;
-        console.log(data);
         setUser(data);
       }
     });

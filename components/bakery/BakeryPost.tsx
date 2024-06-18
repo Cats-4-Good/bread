@@ -1,25 +1,33 @@
-import {
-  View,
-  StyleSheet,
-  TouchableWithoutFeedback,
-  Image,
-} from "react-native";
+import { View, StyleSheet, TouchableWithoutFeedback, Image } from "react-native";
 import { Colors } from "@/constants/Colors";
 import { ThemedText } from "../ThemedText";
 import { Post, User } from "@/types";
 import { ThemedButton } from "../ThemedButton";
-import {
-  doc,
-  getDoc,
-  getFirestore,
-  increment,
-  setDoc,
-  updateDoc,
-} from "firebase/firestore";
+import { doc, getDoc, getFirestore, increment, setDoc, updateDoc } from "firebase/firestore";
 import { useUser } from "@/hooks";
 import { useEffect, useState } from "react";
 
-export default function BakeryPost({ post }: { post: Post }) {
+const getTimeAgo = (epochTime: string): string => {
+  const currentTime = Date.now();
+  const elapsed = currentTime - parseInt(epochTime);
+
+  const seconds = Math.floor(elapsed / 1000);
+  const minutes = Math.floor(seconds / 60);
+  const hours = Math.floor(minutes / 60);
+  const days = Math.floor(hours / 24);
+
+  if (days > 0) {
+    return `${days} day${days > 1 ? "s" : ""} ago`;
+  } else if (hours > 0) {
+    return `${hours} hour${hours > 1 ? "s" : ""} ago`;
+  } else if (minutes > 0) {
+    return `${minutes} minute${minutes > 1 ? "s" : ""} ago`;
+  } else {
+    return `${seconds} second${seconds > 1 ? "s" : ""} ago`;
+  }
+};
+
+export default function BakeryPost({ post, showBakeryName }: { post: Post, showBakeryName: boolean }) {
   const [user, setUser] = useUser();
   const [hasMunchedBefore, setHasMunchedBefore] = useState(false);
   const db = getFirestore();
@@ -31,7 +39,7 @@ export default function BakeryPost({ post }: { post: Post }) {
 
     const userMunchedPostIdsDocRef = doc(db, "users", user.id, "munchedPostIds", post.id);
     getDoc(userMunchedPostIdsDocRef)
-      .then(res => {
+      .then((res) => {
         if (res.exists()) {
           setUser({
             ...user,
@@ -41,7 +49,7 @@ export default function BakeryPost({ post }: { post: Post }) {
         }
         console.log("Checked munch in firestore");
       })
-      .catch(err => console.error("Failed finding postId in user's munchedPostIds", err));
+      .catch((err) => console.error("Failed finding postId in user's munchedPostIds", err));
     return false;
   };
 
@@ -50,26 +58,6 @@ export default function BakeryPost({ post }: { post: Post }) {
   }, [user]);
 
   if (!user) return null;
-
-  const getTimeAgo = (epochTime: string): string => {
-    const currentTime = Date.now();
-    const elapsed = currentTime - parseInt(epochTime);
-
-    const seconds = Math.floor(elapsed / 1000);
-    const minutes = Math.floor(seconds / 60);
-    const hours = Math.floor(minutes / 60);
-    const days = Math.floor(hours / 24);
-
-    if (days > 0) {
-      return `${days} day${days > 1 ? "s" : ""} ago`;
-    } else if (hours > 0) {
-      return `${hours} hour${hours > 1 ? "s" : ""} ago`;
-    } else if (minutes > 0) {
-      return `${minutes} minute${minutes > 1 ? "s" : ""} ago`;
-    } else {
-      return `${seconds} second${seconds > 1 ? "s" : ""} ago`;
-    }
-  };
 
   // designed munch with no undo in mind
 
@@ -82,13 +70,7 @@ export default function BakeryPost({ post }: { post: Post }) {
     //   - add post id to user's munchedPostIds collection to keep track of what's munched before
     const postRef = doc(db, "posts", post.id);
     const posterRef = doc(db, "users", post.uid);
-    const userMunchedPostIdsDocRef = doc(
-      db,
-      "users",
-      user.id,
-      "munchedPostIds",
-      post.id,
-    );
+    const userMunchedPostIdsDocRef = doc(db, "users", user.id, "munchedPostIds", post.id);
     const userRef = doc(db, "users", user.id);
     try {
       const lastMunch: User["lastMunch"] = {
@@ -114,44 +96,37 @@ export default function BakeryPost({ post }: { post: Post }) {
   return (
     <View style={styles.listItem}>
       <View style={styles.listHeader}>
-        <View>
-          <View style={styles.profileAndTimeContainer}>
-            <TouchableWithoutFeedback
-              onPress={() => {
-                // todo
-              }}
-            >
-              <View style={styles.listItemProfile}>
-                <ThemedText type="small">
-                  {post.username.slice(0, 2).toUpperCase()}
-                </ThemedText>
-              </View>
-            </TouchableWithoutFeedback>
-            <ThemedText type="default" style={styles.timeText}>
-              {getTimeAgo(post.createdAt)}
-            </ThemedText>
-          </View>
-          <ThemedButton
-            type={hasMunchedBefore ? "secondary" : "primary"}
-            style={styles.munchButton}
-            disabled={hasMunchedBefore}
-            onPress={updateMunch}
+        <View style={styles.profileAndTimeContainer}>
+          <TouchableWithoutFeedback
+            onPress={() => {
+              // todo
+            }}
           >
-            {hasMunchedBefore ? "Maybe icon here? No idea" : "Munch!"}
-          </ThemedButton>
+            <View style={styles.listItemProfile}>
+              <ThemedText type="small">{post.username.slice(0, 2).toUpperCase()}</ThemedText>
+            </View>
+          </TouchableWithoutFeedback>
+          <ThemedText type="default" style={styles.timeText}>
+            {getTimeAgo(post.createdAt)}
+          </ThemedText>
         </View>
-        <View>
-          <ThemedText>{post.munches}</ThemedText>
-          <ThemedText>{post.foodSaved}</ThemedText>
-        </View>
+        <ThemedButton
+          type={hasMunchedBefore ? "secondary" : "primary"}
+          style={styles.munchButton}
+          disabled={hasMunchedBefore}
+          onPress={updateMunch}
+        >
+          {hasMunchedBefore ? "Munched!" : "Munch!"}
+        </ThemedButton>
       </View>
-      {post.image && (
-        <Image source={{ uri: `${post.image}` }} style={styles.listItemImage} />
-      )}
+      {post.image && <Image source={{ uri: `${post.image}` }} style={styles.listItemImage} />}
       <ThemedText type="defaultSemiBold" style={styles.munches}>
         {post.munches} bread lovers have munched this
       </ThemedText>
       <ThemedText type="default">{post.description}</ThemedText>
+      <ThemedText type="default">Munches: {post.munches}</ThemedText>
+      <ThemedText type="default">Food saved: {post.foodSaved}</ThemedText>
+      {showBakeryName && <ThemedText type="default">Bakery Name: {post.bakeryName}</ThemedText>}
     </View>
   );
 }

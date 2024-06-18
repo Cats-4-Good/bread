@@ -43,7 +43,15 @@ export default function MapCentraliseButton({
 const styles = StyleSheet.create({
   centerButton: {
     position: "absolute",
-    bottom: 14,
+    bottom: 80,
     right: 14,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 3,
   },
 });

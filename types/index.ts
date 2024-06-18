@@ -29,6 +29,7 @@ export interface BakeryStats {
 
 export interface Post {
   id: string;
+  bakeryName: string; // when view user profile, should show bakery name of each post
   bakeryId: string; // so this is place id
   uid: string; // uid here for future when want to click to go to poster's profile
   username: string; // will be inaccurate if user can change name but dc

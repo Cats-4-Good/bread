@@ -2,9 +2,10 @@ import {
   View,
   Text,
   StyleSheet,
-  Image,
   TextInput,
   TouchableOpacity,
+  TouchableWithoutFeedback,
+  Keyboard,
 } from "react-native";
 import { CameraView, useCameraPermissions } from "expo-camera";
 import { ThemedButton } from "@/components";
@@ -16,6 +17,7 @@ import { collection, addDoc, getFirestore } from "firebase/firestore";
 import { Post } from "@/types";
 import { useLocalSearchParams } from "expo-router";
 import { useUser } from "@/hooks";
+import { router } from "expo-router";
 
 export default function NewPost() {
   const params = useLocalSearchParams();
@@ -39,10 +41,10 @@ export default function NewPost() {
     if (uri) {
       const blob = (await new Promise((resolve, reject) => {
         const xhr = new XMLHttpRequest();
-        xhr.onload = function() {
+        xhr.onload = function () {
           resolve(xhr.response);
         };
-        xhr.onerror = function(e) {
+        xhr.onerror = function (e) {
           console.log(e);
           reject(new TypeError("Network request failed"));
         };
@@ -63,6 +65,7 @@ export default function NewPost() {
       uid: user.id,
       username: user.username,
       bakeryId: params.place_id as string,
+      bakeryName: params.name as string,
       createdAt: new Date().getTime().toString(),
       isLive: true,
       image,
@@ -74,6 +77,17 @@ export default function NewPost() {
 
     const docRef = await addDoc(collection(db, "posts"), data);
     console.log("Document written with ID: ", docRef.id);
+
+    setDescription("");
+
+    // Redirect to the bakery posts page with the updated listing
+    router.push({
+      pathname: `/${params.slug}`,
+      params: {
+        place_id: params.place_id,
+        name: params.slug,
+      },
+    });
   };
 
   if (!permission) {
@@ -82,44 +96,42 @@ export default function NewPost() {
   if (!permission.granted) {
     return (
       <View style={styles.container}>
-        <Text style={{ textAlign: "center" }}>
-          We need your permission to show the camera
-        </Text>
-        <ThemedButton onPress={requestPermission}>
-          Grant Permission
-        </ThemedButton>
+        <Text style={{ textAlign: "center" }}>We need your permission to show the camera</Text>
+        <ThemedButton onPress={requestPermission}>Grant Permission</ThemedButton>
       </View>
     );
   }
   return (
-    <View style={styles.container}>
-      <CameraView
-        style={styles.camera}
-        ref={(ref) => (camera.current = ref)}
-        mode="picture"
-        facing="back"
-      >
-        <View style={styles.buttonContainer}>
-          <TouchableOpacity style={styles.button} onPress={takePicture}>
-            <Text style={styles.text}>Take picture</Text>
-          </TouchableOpacity>
-        </View>
-      </CameraView>
-      <TextInput
-        editable
-        multiline // this is still buggy need to restrict number of lines or do some parsing but don't want to waste time on this
-        textAlignVertical="top"
-        maxLength={100}
-        onChangeText={(text) => setDescription(text)}
-        value={description}
-        placeholder="Description"
-        placeholderTextColor={Colors.gray}
-        style={styles.description}
-      />
-      <ThemedButton type="primary" onPress={createPost}>
-        Submit
-      </ThemedButton>
-    </View>
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+      <View style={styles.container}>
+        <CameraView
+          style={styles.camera}
+          ref={(ref) => (camera.current = ref)}
+          mode="picture"
+          facing="back"
+        >
+          <View style={styles.buttonContainer}>
+            <TouchableOpacity style={styles.button} onPress={takePicture}>
+              <Text style={styles.text}>Take picture</Text>
+            </TouchableOpacity>
+          </View>
+        </CameraView>
+        <TextInput
+          editable
+          multiline // this is still buggy need to restrict number of lines or do some parsing but don't want to waste time on this
+          textAlignVertical="top"
+          maxLength={100}
+          onChangeText={(text) => setDescription(text)}
+          value={description}
+          placeholder="Description"
+          placeholderTextColor={Colors.gray}
+          style={styles.description}
+        />
+        <ThemedButton type="primary" onPress={createPost}>
+          Submit
+        </ThemedButton>
+      </View>
+    </TouchableWithoutFeedback>
   );
 }
 
