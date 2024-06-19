@@ -45,28 +45,32 @@ export default function TabLayout() {
     if (loaded) SplashScreen.hideAsync();
   }, [loaded]);
 
-  useEffect(() => {
-    // check if their last munch time was at least 15 mins ago
-    (async () => {
-      if (!user?.lastMunch || lastMunchPost || rejected) return;
-      const curTime = Date.now();
-      const elapsed = curTime - parseInt(user.lastMunch.time);
-      const secondsElapsed = Math.floor(elapsed / 1000);
-      const minMinutesAgo = 15;
-      if (minMinutesAgo * 60 <= secondsElapsed) {
-        const postRef = doc(db, "posts", user.lastMunch.postId);
-        try {
-          const res = await getDoc(postRef);
-          const data = {
-            id: res.id,
-            ...res.data(),
-          } as Post;
-          setLastMunchPost(data);
-        } catch (err) {
-          console.log("Failed to get last munch post", err);
-        }
+  const checkLastMunch = async () => {
+    if (!user?.lastMunch || lastMunchPost || rejected) return;
+    const curTime = Date.now();
+    const elapsed = curTime - parseInt(user.lastMunch.time);
+    const secondsElapsed = Math.floor(elapsed / 1000);
+    const minMinutesAgo = 0.1; // CHANGE THIS IN FUTURE
+    if (minMinutesAgo * 60 <= secondsElapsed) {
+      const postRef = doc(db, "posts", user.lastMunch.postId);
+      try {
+        const res = await getDoc(postRef);
+        const data = {
+          id: res.id,
+          ...res.data(),
+        } as Post;
+        setLastMunchPost(data);
+      } catch (err) {
+        console.log("Failed to get last munch post", err);
       }
-    })();
+    }
+  };
+
+  useEffect(() => {
+    // check if their last munch time was at least some mins ago
+    // interval used for case when user is on app the entire time
+    const interval = setInterval(checkLastMunch, 1000);
+    return () => clearInterval(interval);
   }, [user?.lastMunch]);
 
   const handleSuccess = async () => {
@@ -74,7 +78,7 @@ export default function TabLayout() {
     if (!user?.lastMunch) return;
     const postRef = doc(db, "posts", user.lastMunch.postId);
     const userRef = doc(db, "users", user.id);
-    const posterRef = doc(db, "users", user.lastMunch.postId)
+    const posterRef = doc(db, "users", user.lastMunch.posterId);
     try {
       await Promise.all([
         updateDoc(postRef, { foodSaved: increment(1) }), // update post

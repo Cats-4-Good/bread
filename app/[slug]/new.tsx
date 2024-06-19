@@ -14,7 +14,7 @@ import { useRef, useState } from "react";
 import { Colors } from "@/constants/Colors";
 import { getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";
 import uuid from "react-native-uuid";
-import { collection, addDoc, getFirestore } from "firebase/firestore";
+import { collection, addDoc, getFirestore, updateDoc, doc, increment } from "firebase/firestore";
 import { Post } from "@/types";
 import { useLocalSearchParams } from "expo-router";
 import { useUser } from "@/hooks";
@@ -79,6 +79,12 @@ export default function NewPost() {
 
     const docRef = await addDoc(collection(db, "posts"), data);
     console.log("Document written with ID: ", docRef.id);
+
+    const bakeryRef = doc(db, "bakeries", data.bakeryId);
+    await updateDoc(bakeryRef, {
+      livePostsCount: increment(1),
+      totalPosts: increment(1),
+    });
 
     setDescription("");
 
