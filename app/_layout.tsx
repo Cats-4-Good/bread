@@ -12,7 +12,6 @@ import RegisterScreen from "@/components/fake-auth/register";
 import { useUser } from "@/hooks";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import Modal from "react-native-modal";
-import { ThemedButton } from "@/components";
 import { Post } from "@/types";
 import { doc, getDoc, getFirestore, increment, updateDoc } from "firebase/firestore";
 import BakeryPost from "@/components/bakery/BakeryPost";
@@ -27,7 +26,7 @@ const firebaseConfig = {
   measurementId: "G-M3M7V2DBZ7",
 };
 
-const app = initializeApp(firebaseConfig);
+const _app = initializeApp(firebaseConfig);
 // const analytics = getAnalytics(app);
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.

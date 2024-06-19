@@ -18,7 +18,7 @@ import { useUser } from "@/hooks";
 
 export default function ProfileScreen() {
   const params = useLocalSearchParams();
-  const [currentUser, setCurrentUser] = useUser();
+  const [currentUser, _setCurrentUser] = useUser();
   const [user, setUser] = useState<{ id: string; username: string } | null>(null);
   const [posts, setPosts] = useState<Post[]>([]);
 

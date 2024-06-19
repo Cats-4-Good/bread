@@ -1,7 +1,7 @@
 import { View, Text, StyleSheet, FlatList, Image } from "react-native";
 import { Entypo, Ionicons } from "@expo/vector-icons";
 import BakeryPost from "@/components/bakery/BakeryPost";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 import { Colors } from "@/constants/Colors";
 import Modal from "react-native-modal";
 import { router, useFocusEffect, useLocalSearchParams } from "expo-router";

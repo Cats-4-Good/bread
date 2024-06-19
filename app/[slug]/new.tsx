@@ -1,6 +1,5 @@
 import {
   View,
-  Text,
   StyleSheet,
   TextInput,
   TouchableOpacity,
@@ -14,14 +13,13 @@ import { CameraView, useCameraPermissions } from "expo-camera";
 import { ThemedButton } from "@/components";
 import { useRef, useState } from "react";
 import { Colors } from "@/constants/Colors";
-import { getDownloadURL, getStorage, ref, uploadBytes, uploadBytesResumable } from "firebase/storage";
+import { getDownloadURL, getStorage, ref, uploadBytesResumable } from "firebase/storage";
 import uuid from "react-native-uuid";
 import { collection, addDoc, getFirestore, updateDoc, doc, increment } from "firebase/firestore";
 import { Post } from "@/types";
 import { useLocalSearchParams } from "expo-router";
 import { useUser } from "@/hooks";
 import { router } from "expo-router";
-import { Ionicons } from "@expo/vector-icons";
 
 export default function NewPost() {
   const { slug, ...params } = useLocalSearchParams();
