@@ -16,22 +16,26 @@ export const useUserStorage = (): [
   (id: string, username: string) => Promise<void>,
 ] => {
   const [userStorage, setUserStorage] = useState<UserStorage | null>(null);
+  const [shouldRefresh, setShouldRefresh] = useState(true);
 
   useEffect(() => {
+    if (!shouldRefresh) return;
+    setShouldRefresh(false);
     storage
       .load({
         key: "user",
         autoSync: true,
         syncInBackground: true,
       })
-      .then((res) => {
+      .then((res: UserStorage | null) => {
         setUserStorage(res);
-        console.log(res.username);
+        if (!res) console.log("No user stored");
+        else console.log(`Loaded id ${res.id} ${res.username} from storage`);
       })
       .catch((err) => {
         console.log(err.message);
       });
-  }, [userStorage]);
+  }, [shouldRefresh]);
 
   const updateUserStorage = async (id: string, username: string) => {
     const data: UserStorage = { id, username };
@@ -40,6 +44,7 @@ export const useUserStorage = (): [
       data,
     });
     setUserStorage(null);
+    setShouldRefresh(true);
   };
 
   const logOut = async () => {
@@ -47,6 +52,7 @@ export const useUserStorage = (): [
     await storage.remove({
       key: "user",
     });
+    setUserStorage(null);
   };
 
   return [userStorage, updateUserStorage];
