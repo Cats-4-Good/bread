@@ -1,17 +1,17 @@
 import { View, Text, StyleSheet, FlatList, Image } from "react-native";
 import { Entypo, Ionicons } from "@expo/vector-icons";
 import BakeryPost from "@/components/bakery/BakeryPost";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Colors } from "@/constants/Colors";
 import Modal from "react-native-modal";
-import { router, useLocalSearchParams } from "expo-router";
+import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
 import { query, where, getDocs, getFirestore, collection, orderBy } from "firebase/firestore";
 import { ThemedButton, ThemedText } from "@/components";
 import { Post } from "@/types";
 
 export default function BakeryPosts() {
   const [modalVisible, setModalVisible] = useState(false);
-  const params = useLocalSearchParams();
+  const { slug, ...params } = useLocalSearchParams();
 
   const [posts, setPosts] = useState<Post[]>([]);
 
@@ -41,17 +41,27 @@ export default function BakeryPosts() {
     }
   };
 
-  useEffect(() => {
-    setPosts([]); // for when change posts
-    (async () => {
-      try {
-        const posts = await getBakeryPosts(params.place_id as string);
-        setPosts(posts);
-      } catch (error) {
-        console.error("Error fetching data:", error);
+  // use focus so that when route back from new post it rerenders tho this is not optimized
+  useFocusEffect(
+    useCallback(() => {
+      let isActive = true;
+      // i don't know how to fix the flashing
+      const fetchPosts = async () => {
+        try {
+          const posts = await getBakeryPosts(params.place_id as string);
+          if (isActive) {
+            setPosts(posts);
+          }
+        } catch (error) {
+          console.error("Error fetching data:", error);
+        }
       }
-    })();
-  }, [params.place_id]);
+      fetchPosts();
+      return () => {
+        isActive = false;
+      };
+    }, [params.place_id])
+  );
 
   return (
     <View style={styles.content}>

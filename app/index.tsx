@@ -50,7 +50,7 @@ export default function Map() {
           status: listing.business_status,
           lat: listing.geometry.location.lat,
           lng: listing.geometry.location.lng,
-          name: listing.name,
+          name: listing.name.replace("/", " or "),
           place_id: listing.place_id,
           rating: listing.rating,
           user_ratings_total: listing.user_ratings_total,
@@ -85,9 +85,9 @@ export default function Map() {
     const a =
       Math.sin(dLat / 2) * Math.sin(dLat / 2) +
       Math.cos(toRadians(lat1)) *
-        Math.cos(toRadians(lat2)) *
-        Math.sin(dLon / 2) *
-        Math.sin(dLon / 2);
+      Math.cos(toRadians(lat2)) *
+      Math.sin(dLon / 2) *
+      Math.sin(dLon / 2);
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
     let distance = R * c; // in kilometers
 

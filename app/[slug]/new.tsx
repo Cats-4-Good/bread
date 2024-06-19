@@ -21,7 +21,7 @@ import { useUser } from "@/hooks";
 import { router } from "expo-router";
 
 export default function NewPost() {
-  const params = useLocalSearchParams();
+  const { slug, ...params } = useLocalSearchParams();
 
   const [permission, requestPermission] = useCameraPermissions();
   const [description, setDescription] = useState("");
@@ -39,13 +39,14 @@ export default function NewPost() {
 
   const createPost = async () => {
     let image = null;
+    if (!uri && !description) return console.log("Nothing to post");
     if (uri) {
       const blob = (await new Promise((resolve, reject) => {
         const xhr = new XMLHttpRequest();
-        xhr.onload = function () {
+        xhr.onload = function() {
           resolve(xhr.response);
         };
-        xhr.onerror = function (e) {
+        xhr.onerror = function(e) {
           console.log(e);
           reject(new TypeError("Network request failed"));
         };
@@ -81,14 +82,8 @@ export default function NewPost() {
 
     setDescription("");
 
-    // Redirect to the bakery posts page with the updated listing
-    router.push({
-      pathname: `/${params.slug}`,
-      params: {
-        place_id: params.place_id,
-        name: params.slug,
-      },
-    });
+    // Redirect to the bakery posts page 
+    router.back();
   };
 
   if (!permission) {
