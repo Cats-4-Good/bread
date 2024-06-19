@@ -74,6 +74,7 @@ export default function Map() {
       );
       listings.sort((a, b) => a.distance - b.distance);
       setListings(listings);
+      return listings;
     } catch (error) {
       console.error("Error fetching data:", error);
     }
@@ -152,6 +153,7 @@ export default function Map() {
     const newBakeriesStats = Object.fromEntries(
       idsToFetch.map((k, i) => [k, bakeriesStatsArray[i]])
     );
+    // fix this
     setBakeriesStats({
       ...bakeriesStats,
       ...newBakeriesStats,
@@ -265,7 +267,7 @@ export default function Map() {
         <View style={styles.listContainer}>
           <FlatList
             data={listings}
-            renderItem={({ item }) => <BakeryView item={item} />}
+            renderItem={({ item }) => <BakeryView bakery={item} />}
             keyExtractor={(_, index) => index.toString()}
           />
         </View>
@@ -292,10 +294,10 @@ export default function Map() {
               });
             }}
           >
-            View bakery posts
+            View bakery lobangs
           </ThemedButton>
           <Text style={{ fontWeight: "300", alignSelf: "center" }}>
-            {3} live posts, {50} archived posts
+            {3} live lobangs, {50} archived lobangs
           </Text>
         </View>
       </Modal>
@@ -310,15 +312,14 @@ const styles = StyleSheet.create({
     paddingTop: Constants.statusBarHeight + 8,
   },
   topContainer: {
-    flex: 1,
+    height: 50,
     flexDirection: "row",
   },
   mapContainer: {
-    flex: 12,
+    flex: 1,
   },
   listContainer: {
-    flex: 12,
-    marginHorizontal: 20,
+    flex: 1,
     width: "auto",
     marginTop: 20,
   },

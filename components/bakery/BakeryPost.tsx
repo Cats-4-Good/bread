@@ -157,9 +157,7 @@ export default function BakeryPost({ post, showBakeryName }: { post: Post, showB
       <ThemedText type="defaultSemiBold" style={styles.munches}>
         {munches} bread lovers have munched this
       </ThemedText>
-      <ThemedText type="default">{post.description}</ThemedText>
-      <ThemedText type="default">Munches: {munches}</ThemedText>
-      <ThemedText type="default">Food saved: {post.foodSaved}</ThemedText>
+      <ThemedText type="default" style={styles.description}>{post.description}</ThemedText>
       {showBakeryName && <ThemedText type="default">Bakery Name: {post.bakeryName}</ThemedText>}
     </View>
   );
@@ -167,15 +165,10 @@ export default function BakeryPost({ post, showBakeryName }: { post: Post, showB
 
 const styles = StyleSheet.create({
   listItem: {
-    padding: 15,
-    marginBottom: 10,
-    marginHorizontal: 20,
+    paddingVertical: 10,
+    paddingHorizontal: 24,
     backgroundColor: Colors.white,
-    borderRadius: 15,
-    shadowOffset: { height: 3, width: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 1,
-    elevation: 3,
+    paddingBottom: 20,
   },
   listItemProfile: {
     justifyContent: "center",
@@ -208,7 +201,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     flexDirection: "row",
     justifyContent: "space-between",
-    marginBottom: 5,
+    marginBottom: 10,
   },
   profileAndTimeContainer: {
     flexDirection: "row",
@@ -219,6 +212,10 @@ const styles = StyleSheet.create({
   },
   munches: {
     color: Colors.gray,
+    fontSize: 14,
+  },
+  description: {
+    marginTop: 10,
   },
   munchButton: {
     paddingVertical: 9,

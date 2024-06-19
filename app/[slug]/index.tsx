@@ -84,9 +84,7 @@ export default function BakeryPosts() {
               <ThemedText type="defaultSemiBold" style={{ textAlign: "right" }}>
                 {params.vicinity}
               </ThemedText>
-              <ThemedText type="default" style={{ textAlign: "right" }}>
-                {params.status}
-              </ThemedText>
+              <ThemedText type="default" style={{ textAlign: "right" }}>{params.status === "CLOSED_TEMPORARILY" ? "CLOSED" : (params.status === "OPERATIONAL" ? "OPEN" : params.status)}</ThemedText>
             </View>
           </View>
         }

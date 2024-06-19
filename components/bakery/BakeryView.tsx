@@ -1,52 +1,53 @@
 import { View, StyleSheet, Image, TouchableOpacity } from "react-native";
 import { Colors } from "@/constants/Colors";
 import { ThemedText } from "../ThemedText";
-import { GoogleListing } from "@/types";
+import { Bakery, GoogleListing } from "@/types";
 import { router } from "expo-router";
 
-export default function BakeryView({ item }: { item: GoogleListing }) {
+export default function BakeryView({ bakery }: { bakery: GoogleListing }) {
+  // const { listing, stats } = bakery;
+  const listing = bakery;
   return (
     <TouchableOpacity
       onPress={() => {
         router.push({
-          pathname: `/${item?.name}`,
-          params: { ...item },
+          pathname: `/${listing?.name}`,
+          params: { ...listing },
         });
       }}
     >
       <View style={styles.listItem}>
         <Image
           source={{
-            uri: `${
-              item.image
-                ? item.image
-                : "https://www.shutterstock.com/image-photo/3d-render-cafe-bar-restaurant-600nw-1415138246.jpg"
-            }`,
+            uri: `${listing.image
+              ? listing.image
+              : "https://www.shutterstock.com/image-photo/3d-render-cafe-bar-restaurant-600nw-1415138246.jpg"
+              }`,
           }}
           style={styles.listItemImage}
         />
         <View style={styles.listItemTextContainer}>
-          <ThemedText type="defaultSemiBold">{item.name}</ThemedText>
-          <ThemedText type="default">{item.vicinity}</ThemedText>
-          <ThemedText type="default">{item.status}</ThemedText>
-          <ThemedText type="default">~{item.distance}m away</ThemedText>
+          <ThemedText type="defaultSemiBold" numberOfLines={1}>{listing.name}</ThemedText>
+          <ThemedText type="default" numberOfLines={1}>{listing.vicinity}</ThemedText>
+          <ThemedText type="default">{listing.status === "CLOSED_TEMPORARILY" ? "CLOSED" : (listing.status === "OPERATIONAL" ? "OPEN" : listing.status)}</ThemedText>
+          <ThemedText type="default">~{listing.distance}m away</ThemedText>
         </View>
       </View>
     </TouchableOpacity>
   );
+  // <View>
+  //   <ThemedText type="default">{stats?.livePostsCount ?? 0} live posts</ThemedText>
+  //   <ThemedText type="default">{stats?.totalPosts ?? 0} total posts</ThemedText>
+  // </View>
 }
 
 const styles = StyleSheet.create({
   listItem: {
     flexDirection: "row",
     padding: 13,
-    marginBottom: 10,
+    borderWidth: 1,
+    borderColor: Colors.grayLight,
     backgroundColor: Colors.white,
-    borderRadius: 15,
-    shadowOffset: { height: 3, width: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 1,
-    elevation: 3,
   },
   listItemImage: {
     width: "35%",
@@ -58,6 +59,6 @@ const styles = StyleSheet.create({
   },
   listItemTextContainer: {
     width: "65%",
-    padding: 2,
+    padding: 6,
   },
 });

@@ -43,7 +43,6 @@ export const useUserStorage = (): [
       key: "user",
       data,
     });
-    setUserStorage(null);
     setShouldRefresh(true);
   };
 

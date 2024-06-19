@@ -19,7 +19,7 @@ export default function MapNearbyNewPostButton({ listings }: Props) {
     setModalOpen(false);
     router.push({
       pathname: `/${listing.name}/new`,
-      params: { place_id: listing.place_id, name: listing.name },
+      params: { ...listing },
     });
   };
 
@@ -31,7 +31,7 @@ export default function MapNearbyNewPostButton({ listings }: Props) {
 
       <Modal isVisible={modalOpen} onBackdropPress={() => setModalOpen(false)} hasBackdrop>
         <View style={styles.modalView}>
-          <ThemedText type="title">Select your current location to make a post!</ThemedText>
+          <ThemedText type="title">Select your current location to share a lobang!</ThemedText>
           <FlatList
             data={listings}
             keyExtractor={(item) => item.place_id}
@@ -63,6 +63,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 4,
     elevation: 3,
+    backgroundColor: Colors.secondary,
   },
   modalView: {
     backgroundColor: Colors.white,

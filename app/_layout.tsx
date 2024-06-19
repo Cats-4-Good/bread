@@ -50,7 +50,7 @@ export default function TabLayout() {
     const curTime = Date.now();
     const elapsed = curTime - parseInt(user.lastMunch.time);
     const secondsElapsed = Math.floor(elapsed / 1000);
-    const minMinutesAgo = 0.1; // CHANGE THIS IN FUTURE
+    const minMinutesAgo = 1; // CHANGE THIS IN FUTURE
     if (minMinutesAgo * 60 <= secondsElapsed) {
       const postRef = doc(db, "posts", user.lastMunch.postId);
       try {
@@ -74,8 +74,8 @@ export default function TabLayout() {
   }, [user?.lastMunch]);
 
   const handleSuccess = async () => {
-    setLastMunchPost(null);
     if (!user?.lastMunch) return;
+    setLastMunchPost(null);
     const postRef = doc(db, "posts", user.lastMunch.postId);
     const userRef = doc(db, "users", user.id);
     const posterRef = doc(db, "users", user.lastMunch.posterId);
@@ -85,6 +85,7 @@ export default function TabLayout() {
         updateDoc(userRef, { totalFoodSaved: increment(1), lastMunch: null }), // update user
         updateDoc(posterRef, { totalFoodSaved: increment(1) }) // update poster
       ]);
+      console.log("hello");
     } catch (err) {
       console.log("Failed rejection remove user last munch", err);
     }
@@ -166,7 +167,7 @@ export default function TabLayout() {
         hasBackdrop
       >
         <View style={styles.modalView}>
-          <Text style={styles.modalTitle}>Did you recently munch this?</Text>
+          <Text style={styles.modalTitle}>Did you purchase this item you munched on?</Text>
           {lastMunchPost && <BakeryPost post={lastMunchPost} showBakeryName />}
           <View style={styles.buttonView}>
             <TouchableOpacity style={styles.button} onPress={handleSuccess}>
