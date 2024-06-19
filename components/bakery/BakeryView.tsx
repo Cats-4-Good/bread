@@ -1,12 +1,11 @@
 import { View, StyleSheet, Image, TouchableOpacity } from "react-native";
 import { Colors } from "@/constants/Colors";
 import { ThemedText } from "../ThemedText";
-import { Bakery, GoogleListing } from "@/types";
+import { Bakery } from "@/types";
 import { router } from "expo-router";
 
-export default function BakeryView({ bakery }: { bakery: GoogleListing }) {
-  // const { listing, stats } = bakery;
-  const listing = bakery;
+export default function BakeryView({ bakery }: { bakery: Bakery }) {
+  const { listing, stats } = bakery;
   return (
     <TouchableOpacity
       onPress={() => {
@@ -27,13 +26,29 @@ export default function BakeryView({ bakery }: { bakery: GoogleListing }) {
           style={styles.listItemImage}
         />
         <View style={styles.listItemTextContainer}>
-          <ThemedText type="defaultSemiBold" numberOfLines={1}>{listing.name}</ThemedText>
-          <ThemedText type="default" numberOfLines={1}>{listing.vicinity}</ThemedText>
-          <ThemedText type="default">{listing.status === "CLOSED_TEMPORARILY" ? "CLOSED" : (listing.status === "OPERATIONAL" ? "OPEN" : listing.status)}</ThemedText>
+          <ThemedText type="subtitle" numberOfLines={1}>{listing.name}</ThemedText>
+          <ThemedText type="default" style={{ color: Colors.gray }} numberOfLines={1}>{listing.vicinity}</ThemedText>
+          <ThemedText type="default" style={{
+            color: listing.status === "CLOSED_TEMPORARILY"
+              ? Colors.red
+              : (listing.status === "OPERATIONAL"
+                ? Colors.green
+                : "#000")
+          }}>
+            {listing.status === "CLOSED_TEMPORARILY"
+              ? "CLOSED"
+              : (listing.status === "OPERATIONAL"
+                ? "OPEN"
+                : listing.status)}
+          </ThemedText>
           <ThemedText type="default">~{listing.distance}m away</ThemedText>
+          <View style={{ flexDirection: "row", alignItems: "flex-end", marginTop: 10 }}>
+            <ThemedText type="default" style={{ fontSize: 17, fontWeight: "bold" }}>{Math.max(0, stats?.livePostsCount ?? 0)}</ThemedText>
+            <ThemedText type="default"> live lobangs</ThemedText>
+          </View>
         </View>
       </View>
-    </TouchableOpacity>
+    </TouchableOpacity >
   );
   // <View>
   //   <ThemedText type="default">{stats?.livePostsCount ?? 0} live posts</ThemedText>
@@ -44,10 +59,12 @@ export default function BakeryView({ bakery }: { bakery: GoogleListing }) {
 const styles = StyleSheet.create({
   listItem: {
     flexDirection: "row",
-    padding: 13,
+    paddingVertical: 8,
+    paddingHorizontal: 16,
     borderWidth: 1,
     borderColor: Colors.grayLight,
     backgroundColor: Colors.white,
+    alignItems: "center",
   },
   listItemImage: {
     width: "35%",
@@ -60,5 +77,6 @@ const styles = StyleSheet.create({
   listItemTextContainer: {
     width: "65%",
     padding: 6,
+    gap: 4,
   },
 });

@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { StyleSheet, View, Platform, Text, TouchableOpacity, Image, FlatList } from "react-native";
+import { StyleSheet, View, Platform, Text, TouchableOpacity, FlatList } from "react-native";
 import MapView, { Marker, Region } from "react-native-maps";
 import * as Location from "expo-location";
 import MapCentraliseButton from "@/components/map/MapCentraliseButton";
@@ -19,11 +19,7 @@ export default function Map() {
 
   const mapRef = useRef(null);
 
-  const [selectedListing, setSelectedListing] = useState<GoogleListing | null>(null);
-  const [listings, setListings] = useState<GoogleListing[]>([]);
-  const [bakeriesStats, setBakeriesStats] = useState<{
-    [id: string]: BakeryStats | undefined;
-  }>({});
+  const [selectedBakery, setSelectedBakery] = useState<Bakery | null>(null);
   const [bakeries, setBakeries] = useState<Bakery[]>([]);
   const [location, setLocation] = useState<Location.LocationObjectCoords>();
   const [initialRegion, setInitialRegion] = useState<Region>();
@@ -73,7 +69,6 @@ export default function Map() {
         })
       );
       listings.sort((a, b) => a.distance - b.distance);
-      setListings(listings);
       return listings;
     } catch (error) {
       console.error("Error fetching data:", error);
@@ -145,19 +140,10 @@ export default function Map() {
       });
   };
 
-  const getBakeriesStats = async () => {
-    const idsToFetch = listings
-      .filter((listing) => !(listing.place_id in bakeriesStats))
-      .map((listing) => listing.place_id);
-    const bakeriesStatsArray = await Promise.all(idsToFetch.map((newId) => getBakeryStats(newId))); // this is to prevent repeated calls on same bakeries when moving map around
-    const newBakeriesStats = Object.fromEntries(
-      idsToFetch.map((k, i) => [k, bakeriesStatsArray[i]])
-    );
-    // fix this
-    setBakeriesStats({
-      ...bakeriesStats,
-      ...newBakeriesStats,
-    });
+  const getBakeriesStats = async (listings: GoogleListing[]) => {
+    const idsToFetch = listings.map((listing) => listing.place_id);
+    const bakeriesStats = await Promise.all(idsToFetch.map((newId) => getBakeryStats(newId)));
+    return bakeriesStats;
   };
 
   useEffect(() => {
@@ -179,11 +165,11 @@ export default function Map() {
       });
 
       // Get bakeries
-      await getListings(loc.coords.latitude, loc.coords.longitude);
-      await getBakeriesStats();
-      const finalBakeries = listings.map((listing) => {
+      const listings = await getListings(loc.coords.latitude, loc.coords.longitude) ?? [];
+      const bakeriesStats = await getBakeriesStats(listings);
+      const finalBakeries = listings.map((listing, i) => {
         const id = listing.place_id;
-        const stats = bakeriesStats[id];
+        const stats = bakeriesStats[i];
         const bakery: Bakery = { id, listing, stats };
         return bakery;
       });
@@ -244,19 +230,22 @@ export default function Map() {
             onRegionChangeComplete={handleRegionChangeComplete}
             userInterfaceStyle="dark"
           >
-            {listings.length > 0 &&
-              listings.map((marker) => (
-                <Marker
-                  coordinate={{
-                    latitude: marker.lat,
-                    longitude: marker.lng,
-                  }}
-                  key={marker.place_id}
-                  tracksViewChanges={false}
-                  image={require("@/assets/images/map-icon-light.png")}
-                  onPress={() => setSelectedListing(marker)}
-                />
-              ))}
+            {bakeries.length > 0 &&
+              bakeries.map((bakery) => {
+                const marker = bakery.listing;
+                return (
+                  <Marker
+                    coordinate={{
+                      latitude: marker.lat,
+                      longitude: marker.lng,
+                    }}
+                    key={marker.place_id}
+                    tracksViewChanges={false}
+                    image={require("@/assets/images/map-icon-light.png")}
+                    onPress={() => setSelectedBakery(bakery)}
+                  />
+                );
+              })}
           </MapView>
           {location && (
             <MapCentraliseButton mapRef={mapRef} location={location} getMarkers={getListings} />
@@ -266,38 +255,38 @@ export default function Map() {
       {selectedButton === "list" && (
         <View style={styles.listContainer}>
           <FlatList
-            data={listings}
+            data={bakeries}
             renderItem={({ item }) => <BakeryView bakery={item} />}
             keyExtractor={(_, index) => index.toString()}
           />
         </View>
       )}
 
-      <MapNearbyNewPostButton listings={listings.slice(0, 5)} />
+      <MapNearbyNewPostButton bakeries={bakeries.slice(0, 5)} />
 
       <Modal
-        isVisible={!!selectedListing}
-        onBackdropPress={() => setSelectedListing(null)}
+        isVisible={!!selectedBakery}
+        onBackdropPress={() => setSelectedBakery(null)}
         hasBackdrop
       >
         <View style={styles.modalView}>
-          <Text style={styles.modalTitle}>{selectedListing?.name}</Text>
-          <Text style={styles.modalText}>{selectedListing?.vicinity}</Text>
+          <Text style={styles.modalTitle}>{selectedBakery?.listing.name}</Text>
+          <Text style={styles.modalText}>{selectedBakery?.listing.vicinity}</Text>
           <ThemedButton
             type="primary"
             style={{ paddingVertical: 16 }}
             onPress={() => {
-              setSelectedListing(null);
+              setSelectedBakery(null);
               router.push({
-                pathname: `/${selectedListing?.name}`,
-                params: { ...selectedListing },
+                pathname: `/${selectedBakery?.listing.name}`,
+                params: { ...selectedBakery?.listing },
               });
             }}
           >
-            View bakery lobangs
+            View bakery posts
           </ThemedButton>
           <Text style={{ fontWeight: "300", alignSelf: "center" }}>
-            {3} live lobangs, {50} archived lobangs
+            {selectedBakery?.stats?.livePostsCount ?? 0} live lobangs, {(selectedBakery?.stats?.totalPosts ?? 0) - (selectedBakery?.stats?.livePostsCount ?? 0)} archived lobangs
           </Text>
         </View>
       </Modal>

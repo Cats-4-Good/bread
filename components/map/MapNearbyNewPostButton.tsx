@@ -3,16 +3,16 @@ import { Entypo } from "@expo/vector-icons";
 import { useState } from "react";
 import { ThemedButton } from "../ThemedButton";
 import { ThemedText } from "../ThemedText";
-import { GoogleListing } from "@/types";
+import { Bakery, GoogleListing } from "@/types";
 import Modal from "react-native-modal";
 import { router } from "expo-router";
 import { Colors } from "@/constants/Colors";
 
 interface Props {
-  listings: GoogleListing[];
+  bakeries: Bakery[];
 }
 
-export default function MapNearbyNewPostButton({ listings }: Props) {
+export default function MapNearbyNewPostButton({ bakeries }: Props) {
   const [modalOpen, setModalOpen] = useState<boolean>(false);
 
   const handleSelectListing = (listing: GoogleListing) => {
@@ -33,13 +33,13 @@ export default function MapNearbyNewPostButton({ listings }: Props) {
         <View style={styles.modalView}>
           <ThemedText type="title">Select your current location to share a lobang!</ThemedText>
           <FlatList
-            data={listings}
-            keyExtractor={(item) => item.place_id}
+            data={bakeries}
+            keyExtractor={(item) => item.listing.place_id}
             renderItem={({ item }) => (
-              <TouchableOpacity onPress={() => handleSelectListing(item)}>
+              <TouchableOpacity onPress={() => handleSelectListing(item.listing)}>
                 <View style={styles.listItem}>
-                  <ThemedText type="defaultSemiBold">{item.name}</ThemedText>
-                  <ThemedText type="default">{item.vicinity}</ThemedText>
+                  <ThemedText type="defaultSemiBold">{item.listing.name}</ThemedText>
+                  <ThemedText type="default">{item.listing.vicinity}</ThemedText>
                 </View>
               </TouchableOpacity>
             )}

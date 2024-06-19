@@ -32,6 +32,7 @@ export default function BakeryPost({ post, showBakeryName }: { post: Post, showB
   const [user, setUser] = useUser();
   const [hasMunchedBefore, setHasMunchedBefore] = useState(false);
   const [justMunched, setJustMunched] = useState(false);
+  const [changedIsLive, setChangedIsLive] = useState(false);
   const db = getFirestore();
 
   const checkHasMunchedBefore = async () => {
@@ -58,7 +59,8 @@ export default function BakeryPost({ post, showBakeryName }: { post: Post, showB
       const elapsed = currentTime - parseInt(post.createdAt);
       const secondsElapsed = Math.floor(elapsed / 1000);
       // if more than 5 hours passed, post is likely irrelevant
-      if (post.isLive && secondsElapsed >= 60 * 60 * 5) {
+      if (!changedIsLive && post.isLive && secondsElapsed >= 60 * 60 * 5) {
+        setChangedIsLive(true);
         const postRef = doc(db, "posts", post.id);
         const bakeryRef = doc(db, "bakeries", post.bakeryId);
         try {

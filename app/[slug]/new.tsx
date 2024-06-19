@@ -106,11 +106,11 @@ export default function NewPost() {
             const docRef = await addDoc(collection(db, "posts"), data);
             console.log("Document written with ID: ", docRef.id);
 
-            // const bakeryRef = doc(db, "bakeries", data.bakeryId);
-            // await updateDoc(bakeryRef, {
-            //   livePostsCount: increment(1),
-            //   totalPosts: increment(1),
-            // });
+            const bakeryRef = doc(db, "bakeries", data.bakeryId);
+            await updateDoc(bakeryRef, {
+              livePostsCount: increment(1),
+              totalPosts: increment(1),
+            });
             setDescription("");
 
             router.back();
