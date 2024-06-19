@@ -55,6 +55,7 @@ export interface User {
   totalFoodSaved: number;
   lastMunch: {
     postId: string;
+    posterId: string;
     time: string;
   } | null;
   munchedPostIds: string[]; // in firestore this will be a collection of all postIds, but in state will be empty array that will be populated with postids whenever user munches

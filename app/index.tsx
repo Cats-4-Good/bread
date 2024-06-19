@@ -12,6 +12,7 @@ import { Bakery, BakeryStats, GoogleListing } from "@/types";
 import { doc, getDoc, getFirestore, setDoc } from "firebase/firestore";
 import BakeryView from "@/components/bakery/BakeryView";
 import MapNearbyNewPostButton from "@/components/map/MapNearbyNewPostButton";
+import Constants from "expo-constants";
 
 export default function Map() {
   const GOOGLE_API = "AIzaSyBo-YlhvMVibmBKfXKXuDVf--a92s3yGpY";
@@ -306,6 +307,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: Colors.primary,
+    paddingTop: Constants.statusBarHeight + 8,
   },
   topContainer: {
     flex: 1,

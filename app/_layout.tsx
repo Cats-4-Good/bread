@@ -10,7 +10,12 @@ import "react-native-reanimated";
 import { initializeApp } from "firebase/app";
 import RegisterScreen from "@/components/fake-auth/register";
 import { useUser } from "@/hooks";
-import { StyleSheet } from "react-native";
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import Modal from "react-native-modal";
+import { ThemedButton } from "@/components";
+import { Post } from "@/types";
+import { doc, getDoc, getFirestore, increment, updateDoc } from "firebase/firestore";
+import BakeryPost from "@/components/bakery/BakeryPost";
 
 const firebaseConfig = {
   apiKey: "AIzaSyBnyCgXhkgDBr0WXQWisQ1m6HRW00RN1Qg",
@@ -32,26 +37,66 @@ export default function TabLayout() {
   // this font shit still doesn't work
   const [loaded] = useFonts({ Inter: require("@/assets/fonts/Inter-Regular.ttf") });
   const [user, _setUser] = useUser();
-  const [showMunchResponse, setShowMunchResponse] = useState(false);
+  const [rejected, setRejected] = useState(false);
+  const [lastMunchPost, setLastMunchPost] = useState<Post | null>(null);
+  const db = getFirestore();
 
   useEffect(() => {
     if (loaded) SplashScreen.hideAsync();
   }, [loaded]);
 
   useEffect(() => {
-    // check every 10 seconds if their last munch time was at least 15 mins ago
-    const interval = setInterval(() => {
-      if (!user?.lastMunch?.time) return;
+    // check if their last munch time was at least 15 mins ago
+    (async () => {
+      if (!user?.lastMunch || lastMunchPost || rejected) return;
       const curTime = Date.now();
       const elapsed = curTime - parseInt(user.lastMunch.time);
       const secondsElapsed = Math.floor(elapsed / 1000);
       const minMinutesAgo = 15;
       if (minMinutesAgo * 60 <= secondsElapsed) {
-        setShowMunchResponse(true);
+        const postRef = doc(db, "posts", user.lastMunch.postId);
+        try {
+          const res = await getDoc(postRef);
+          const data = {
+            id: res.id,
+            ...res.data(),
+          } as Post;
+          setLastMunchPost(data);
+        } catch (err) {
+          console.log("Failed to get last munch post", err);
+        }
       }
-    }, 1000 * 10);
-    return () => clearInterval(interval);
-  }, []);
+    })();
+  }, [user?.lastMunch]);
+
+  const handleSuccess = async () => {
+    setLastMunchPost(null);
+    if (!user?.lastMunch) return;
+    const postRef = doc(db, "posts", user.lastMunch.postId);
+    const userRef = doc(db, "users", user.id);
+    const posterRef = doc(db, "users", user.lastMunch.postId)
+    try {
+      await Promise.all([
+        updateDoc(postRef, { foodSaved: increment(1) }), // update post
+        updateDoc(userRef, { totalFoodSaved: increment(1), lastMunch: null }), // update user
+        updateDoc(posterRef, { totalFoodSaved: increment(1) }) // update poster
+      ]);
+    } catch (err) {
+      console.log("Failed rejection remove user last munch", err);
+    }
+  };
+
+  const handleReject = async () => {
+    setRejected(true);
+    setLastMunchPost(null);
+    if (!user?.lastMunch) return;
+    const userRef = doc(db, "users", user.id);
+    try {
+      await updateDoc(userRef, { lastMunch: null });
+    } catch (err) {
+      console.log("Failed rejection remove user last munch", err);
+    }
+  };
 
   if (!loaded) return null;
   if (!user) return <RegisterScreen />;
@@ -110,6 +155,25 @@ export default function TabLayout() {
           }}
         />
       </Tabs>
+
+      <Modal
+        isVisible={!!lastMunchPost}
+        onBackdropPress={handleReject}
+        hasBackdrop
+      >
+        <View style={styles.modalView}>
+          <Text style={styles.modalTitle}>Did you recently munch this?</Text>
+          {lastMunchPost && <BakeryPost post={lastMunchPost} showBakeryName />}
+          <View style={styles.buttonView}>
+            <TouchableOpacity style={styles.button} onPress={handleSuccess}>
+              <Text style={styles.buttonText}>Yes</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.button} onPress={handleReject}>
+              <Text style={styles.buttonText}>No</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </ThemeProvider >
   );
 };
@@ -119,11 +183,10 @@ const styles = StyleSheet.create({
     marginVertical: "auto",
     marginHorizontal: "auto",
     width: 340,
-    gap: 14,
+    paddingTop: 20,
+    gap: 10,
     backgroundColor: "white",
     borderRadius: 20,
-    paddingVertical: 20,
-    paddingHorizontal: 25,
     shadowColor: Colors.black,
     shadowOffset: {
       width: 0,
@@ -132,12 +195,31 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 4,
     elevation: 5,
+    overflow: "hidden", // for buttons
   },
   modalTitle: {
     fontSize: 20,
     fontWeight: "bold",
+    paddingLeft: 20,
+    marginBottom: 10,
   },
   modalText: {
     fontSize: 16,
+  },
+  buttonView: {
+    flexDirection: 'row',
+  },
+  button: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderColor: Colors.grayLight,
+    borderWidth: 1,
+    paddingVertical: 16,
+  },
+  buttonText: {
+    fontSize: 18,
+    fontWeight: '500',
+    color: Colors.accentDark,
   },
 });

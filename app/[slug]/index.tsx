@@ -12,9 +12,7 @@ import { Post } from "@/types";
 export default function BakeryPosts() {
   const [modalVisible, setModalVisible] = useState(false);
   const { slug, ...params } = useLocalSearchParams();
-
   const [posts, setPosts] = useState<Post[]>([]);
-
   const db = getFirestore();
 
   const getBakeryPosts = async (bakeryId: string): Promise<Post[]> => {
@@ -65,14 +63,14 @@ export default function BakeryPosts() {
 
   return (
     <View style={styles.content}>
-      {posts.length > 0 ? (
-        <FlatList
-          data={posts}
-          renderItem={({ item }) => <BakeryPost post={item} showBakeryName={false} />}
-          keyExtractor={(_, index) => index.toString()}
-          style={styles.list}
-          ListHeaderComponent={
-            <View>
+      <FlatList
+        data={posts}
+        renderItem={({ item }) => <BakeryPost post={item} showBakeryName={false} />}
+        keyExtractor={(_, index) => index.toString()}
+        style={styles.list}
+        ListHeaderComponent={
+          <View style={styles.header}>
+            <View style={styles.imageView}>
               <Image
                 source={{
                   uri: `${params.image ??
@@ -81,22 +79,23 @@ export default function BakeryPosts() {
                 }}
                 style={styles.bakeryImage}
               />
-              <View style={{ paddingRight: 18, paddingVertical: 5 }}>
-                <ThemedText type="defaultSemiBold" style={{ textAlign: "right" }}>
-                  {params.vicinity}
-                </ThemedText>
-                <ThemedText type="default" style={{ textAlign: "right" }}>
-                  {params.status}
-                </ThemedText>
-              </View>
             </View>
-          }
-        />
-      ) : (
-        <ThemedText style={styles.noPostFoundText}>
-          No posts found... Be the first to make a difference!
-        </ThemedText>
-      )}
+            <View style={{ paddingRight: 18, paddingVertical: 5 }}>
+              <ThemedText type="defaultSemiBold" style={{ textAlign: "right" }}>
+                {params.vicinity}
+              </ThemedText>
+              <ThemedText type="default" style={{ textAlign: "right" }}>
+                {params.status}
+              </ThemedText>
+            </View>
+          </View>
+        }
+        ListEmptyComponent={
+          <ThemedText style={styles.noPostFoundText}>
+            No posts found... Be the first to make a difference!
+          </ThemedText>
+        }
+      />
 
       <Modal
         isVisible={modalVisible}
@@ -142,10 +141,18 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: Colors.primary,
   },
+  header: {
+    gap: 8,
+    marginBottom: 10,
+  },
+  imageView: {
+    width: '100%',
+    maxHeight: 300,
+    overflow: 'hidden',
+  },
   bakeryImage: {
-    width: "100%",
-    aspectRatio: 2,
-    maxHeight: 200,
+    width: '100%',
+    aspectRatio: 1,
   },
   newPostButton: {
     alignSelf: "flex-start",

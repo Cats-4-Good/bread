@@ -85,6 +85,7 @@ export default function BakeryPost({ post, showBakeryName }: { post: Post, showB
 
       const lastMunch: User["lastMunch"] = {
         postId: post.id,
+        posterId: post.uid,
         time: new Date().getTime().toString(),
       };
       await Promise.all([
