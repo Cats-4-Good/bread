@@ -7,11 +7,12 @@ export const useUser = (): [
   User | null,
   Dispatch<SetStateAction<User | null>>,
 ] => {
-  const [userStorage, _updateUserStorage] = useUserStorage();
+  const [userStorage, _] = useUserStorage();
   const [user, setUser] = useState<User | null>(null);
   const db = getFirestore();
 
   useEffect(() => {
+    console.log(userStorage);
     if (!userStorage) return;
     const userRef = doc(db, "users", userStorage.id);
     // i think it might be subscribing multiple times but idts also?

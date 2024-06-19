@@ -14,17 +14,18 @@ import { useEffect, useState } from "react";
 import { ThemedText, ThemedButton } from "@/components";
 import BakeryPost from "@/components/bakery/BakeryPost";
 import { useLocalSearchParams } from "expo-router";
-import { useUser } from "@/hooks";
+import { useUser, useUserStorage } from "@/hooks";
 
 export default function ProfileScreen() {
   const params = useLocalSearchParams();
+  const [_, { remove }] = useUserStorage();
   const [currentUser, _setCurrentUser] = useUser();
   const [user, setUser] = useState<{ id: string; username: string } | null>(null);
   const [posts, setPosts] = useState<Post[]>([]);
 
   const db = getFirestore();
 
-  const logoutHandler = () => {
+  const logoutHandler = async () => {
     console.log("Logging out...");
     // TODO: redirect to login screen
   };

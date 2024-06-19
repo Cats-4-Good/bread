@@ -7,14 +7,14 @@ import uuid from "react-native-uuid";
 import { useUserStorage } from "@/hooks";
 
 export default function RegisterScreen() {
-  const [_userStorage, updateUserStorage] = useUserStorage();
+  const [_userStorage, { save }] = useUserStorage();
   const [username, setUsername] = useState<string>("");
 
   const register = async () => {
     if (!username.replaceAll(" ", ""))
       return Alert.alert("Error", "Invalid username");
     const id = uuid.v4().toString();
-    updateUserStorage(id, username);
+    save({ id, username });
     console.log("Registered");
   };
 

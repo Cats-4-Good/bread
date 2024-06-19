@@ -13,46 +13,48 @@ const storage = new Storage({
 
 export const useUserStorage = (): [
   UserStorage | null,
-  (id: string, username: string) => Promise<void>,
+  { remove: () => Promise<void>, save: (data: UserStorage) => Promise<void> }
 ] => {
   const [userStorage, setUserStorage] = useState<UserStorage | null>(null);
-  const [shouldRefresh, setShouldRefresh] = useState(true);
 
   useEffect(() => {
-    if (!shouldRefresh) return;
-    setShouldRefresh(false);
-    storage
-      .load({
-        key: "user",
-        autoSync: true,
-        syncInBackground: true,
-      })
-      .then((res: UserStorage | null) => {
-        setUserStorage(res);
-        if (!res) console.log("No user stored");
-        else console.log(`Loaded id ${res.id} ${res.username} from storage`);
-      })
-      .catch((err) => {
-        console.log(err.message);
-      });
-  }, [shouldRefresh]);
+    (async () => {
+      await load();
+    })();
+  }, []);
 
-  const updateUserStorage = async (id: string, username: string) => {
-    const data: UserStorage = { id, username };
-    await storage.save({
-      key: "user",
-      data,
-    });
-    setShouldRefresh(true);
+  const load = async () => {
+    try {
+      const res: UserStorage | null = await storage
+        .load({
+          key: "user",
+          autoSync: true,
+          syncInBackground: true,
+        })
+      setUserStorage(res);
+      if (!res) console.log("No user stored");
+      else console.log(`Loaded id ${res.id} ${res.username} from storage`);
+    } catch (err) {
+      console.log(err);
+    };
   };
 
-  const logOut = async () => {
+  const remove = async () => {
     // remove user data from storage
     await storage.remove({
       key: "user",
     });
     setUserStorage(null);
+    console.log("removed");
   };
 
-  return [userStorage, updateUserStorage];
+  const save = async (data: UserStorage) => {
+    await storage.save({
+      key: "user",
+      data,
+    });
+    await load();
+  };
+
+  return [userStorage, { save, remove }];
 };

@@ -1,7 +1,7 @@
-import { View, Text, StyleSheet, FlatList, Image } from "react-native";
+import { View, Text, StyleSheet, FlatList, Image, ActivityIndicator } from "react-native";
 import { Entypo, Ionicons } from "@expo/vector-icons";
 import BakeryPost from "@/components/bakery/BakeryPost";
-import { useCallback, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import { Colors } from "@/constants/Colors";
 import Modal from "react-native-modal";
 import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
@@ -13,6 +13,7 @@ export default function BakeryPosts() {
   const [modalVisible, setModalVisible] = useState(false);
   const { slug, ...params } = useLocalSearchParams();
   const [posts, setPosts] = useState<Post[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
   const db = getFirestore();
 
   const getBakeryPosts = async (bakeryId: string): Promise<Post[]> => {
@@ -39,61 +40,63 @@ export default function BakeryPosts() {
     }
   };
 
-  // use focus so that when route back from new post it rerenders tho this is not optimized
+  // use focus so that when route back from new post to the same slug it rerenders tho this is not optimized
+  // i don't know how to fix the flashing
   useFocusEffect(
     useCallback(() => {
       let isActive = true;
-      // i don't know how to fix the flashing
-      const fetchPosts = async () => {
-        try {
-          const posts = await getBakeryPosts(params.place_id as string);
+      setIsLoading(true);
+      getBakeryPosts(params.place_id as string)
+        .then(posts => {
           if (isActive) {
             setPosts(posts);
+            setIsLoading(false);
           }
-        } catch (error) {
-          console.error("Error fetching data:", error);
-        }
-      }
-      fetchPosts();
+        })
+        .catch(error => console.error("Error fetching data:", error));
       return () => {
         isActive = false;
+        setIsLoading(true); // this is very weird but need to set state here, possibly might break
       };
     }, [params.place_id])
   );
 
   return (
     <View style={styles.content}>
-      <FlatList
-        data={posts}
-        renderItem={({ item }) => <BakeryPost post={item} showBakeryName={false} />}
-        keyExtractor={(_, index) => index.toString()}
-        style={styles.list}
-        ListHeaderComponent={
-          <View style={styles.header}>
-            <View style={styles.imageView}>
-              <Image
-                source={{
-                  uri: `${params.image ??
-                    "https://www.shutterstock.com/image-photo/3d-render-cafe-bar-restaurant-600nw-1415138246.jpg"
-                    }`,
-                }}
-                style={styles.bakeryImage}
-              />
+      {isLoading
+        ? <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
+          <ActivityIndicator size="large" />
+        </View>
+        : <FlatList
+          data={posts}
+          renderItem={({ item }) => <BakeryPost post={item} showBakeryName={false} />}
+          keyExtractor={(_, index) => index.toString()}
+          style={styles.list}
+          ListHeaderComponent={
+            <View style={styles.header}>
+              <View style={styles.imageView}>
+                <Image
+                  source={{
+                    uri: `${params.image ??
+                      "https://www.shutterstock.com/image-photo/3d-render-cafe-bar-restaurant-600nw-1415138246.jpg"
+                      }`,
+                  }}
+                  style={styles.bakeryImage}
+                />
+              </View>
+              <View style={{ paddingRight: 18, paddingVertical: 5 }}>
+                <ThemedText type="defaultSemiBold" style={{ textAlign: "right" }}>
+                  {params.vicinity}
+                </ThemedText>
+                <ThemedText type="default" style={{ textAlign: "right" }}>{params.status === "CLOSED_TEMPORARILY" ? "CLOSED" : (params.status === "OPERATIONAL" ? "OPEN" : params.status)}</ThemedText>
+              </View>
             </View>
-            <View style={{ paddingRight: 18, paddingVertical: 5 }}>
-              <ThemedText type="defaultSemiBold" style={{ textAlign: "right" }}>
-                {params.vicinity}
-              </ThemedText>
-              <ThemedText type="default" style={{ textAlign: "right" }}>{params.status === "CLOSED_TEMPORARILY" ? "CLOSED" : (params.status === "OPERATIONAL" ? "OPEN" : params.status)}</ThemedText>
-            </View>
-          </View>
-        }
-        ListEmptyComponent={
-          <ThemedText style={styles.noPostFoundText}>
+          }
+          ListEmptyComponent={<ThemedText style={styles.noPostFoundText}>
             No posts found... Be the first to make a difference!
-          </ThemedText>
-        }
-      />
+          </ThemedText>}
+        />
+      }
 
       <Modal
         isVisible={modalVisible}
