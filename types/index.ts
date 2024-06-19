@@ -52,7 +52,7 @@ export interface User {
   username: string;
   totalViews: number; // (all these total are the aggregate amounts they've received from all posts)
   totalMunches: number;
-  totalMovement: number;
+  totalFoodSaved: number;
   lastMunch: {
     postId: string;
     time: string;

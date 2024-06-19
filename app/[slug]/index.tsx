@@ -42,9 +42,9 @@ export default function BakeryPosts() {
   };
 
   useEffect(() => {
+    setPosts([]); // for when change posts
     (async () => {
       try {
-        setPosts([]); // for when change posts
         const posts = await getBakeryPosts(params.place_id as string);
         setPosts(posts);
       } catch (error) {
@@ -65,10 +65,9 @@ export default function BakeryPosts() {
             <View>
               <Image
                 source={{
-                  uri: `${
-                    params.image ??
+                  uri: `${params.image ??
                     "https://www.shutterstock.com/image-photo/3d-render-cafe-bar-restaurant-600nw-1415138246.jpg"
-                  }`,
+                    }`,
                 }}
                 style={styles.bakeryImage}
               />
@@ -105,7 +104,7 @@ export default function BakeryPosts() {
           <ThemedButton
             type="secondary"
             style={{ width: "100%", marginTop: 10 }}
-            onPress={() => {}}
+            onPress={() => { }}
           >
             View post
           </ThemedButton>

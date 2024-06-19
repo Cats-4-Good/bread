@@ -31,31 +31,32 @@ const getTimeAgo = (epochTime: string): string => {
 export default function BakeryPost({ post, showBakeryName }: { post: Post, showBakeryName: boolean }) {
   const [user, setUser] = useUser();
   const [hasMunchedBefore, setHasMunchedBefore] = useState(false);
+  const [justMunched, setJustMunched] = useState(false);
   const db = getFirestore();
 
-  const checkHasMunchedBefore = () => {
+  const checkHasMunchedBefore = async () => {
     if (!user) return false;
     const foundPostInMunches = !!user.munchedPostIds.find((e) => e === post.id);
     if (foundPostInMunches) return true;
 
     const userMunchedPostIdsDocRef = doc(db, "users", user.id, "munchedPostIds", post.id);
-    getDoc(userMunchedPostIdsDocRef)
-      .then((res) => {
-        if (res.exists()) {
-          setUser({
-            ...user,
-            munchedPostIds: [...user.munchedPostIds, post.id],
-          });
-          return true;
-        }
-        console.log("Checked munch in firestore");
-      })
-      .catch((err) => console.error("Failed finding postId in user's munchedPostIds", err));
+    const res = await getDoc(userMunchedPostIdsDocRef)
+    if (res.exists()) {
+      setUser({
+        ...user,
+        munchedPostIds: [...user.munchedPostIds, post.id],
+      });
+      return true;
+    }
+    console.log("Checked munch in firestore");
     return false;
   };
 
   useEffect(() => {
-    setHasMunchedBefore(checkHasMunchedBefore());
+    (async () => {
+      const res = await checkHasMunchedBefore();
+      setHasMunchedBefore(res);
+    })();
   }, [user]);
 
   if (!user) return null;
@@ -74,6 +75,14 @@ export default function BakeryPost({ post, showBakeryName }: { post: Post, showB
     const userMunchedPostIdsDocRef = doc(db, "users", user.id, "munchedPostIds", post.id);
     const userRef = doc(db, "users", user.id);
     try {
+      // update state first before api calls for no lag
+      setUser({
+        ...user,
+        munchedPostIds: [...user.munchedPostIds, post.id],
+      });
+      setJustMunched(true);
+      setHasMunchedBefore(true);
+
       const lastMunch: User["lastMunch"] = {
         postId: post.id,
         time: new Date().getTime().toString(),
@@ -84,15 +93,14 @@ export default function BakeryPost({ post, showBakeryName }: { post: Post, showB
         setDoc(userRef, { lastMunch }),
         setDoc(userMunchedPostIdsDocRef, {}), // add to collection
       ]);
-      setUser({
-        ...user,
-        munchedPostIds: [...user.munchedPostIds, post.id],
-      }); // update state
       console.log("Munch success");
     } catch (err) {
       console.error("Everything just broke when munch", err);
     }
   };
+
+
+  const munches = post.munches + Number(justMunched);
 
   return (
     <View style={styles.listItem}>
@@ -125,10 +133,10 @@ export default function BakeryPost({ post, showBakeryName }: { post: Post, showB
       </View>
       {post.image && <Image source={{ uri: `${post.image}` }} style={styles.listItemImage} />}
       <ThemedText type="defaultSemiBold" style={styles.munches}>
-        {post.munches} bread lovers have munched this
+        {munches} bread lovers have munched this
       </ThemedText>
       <ThemedText type="default">{post.description}</ThemedText>
-      <ThemedText type="default">Munches: {post.munches}</ThemedText>
+      <ThemedText type="default">Munches: {munches}</ThemedText>
       <ThemedText type="default">Food saved: {post.foodSaved}</ThemedText>
       {showBakeryName && <ThemedText type="default">Bakery Name: {post.bakeryName}</ThemedText>}
     </View>
