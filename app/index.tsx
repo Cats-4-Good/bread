@@ -1,5 +1,12 @@
 import { useState, useEffect, useRef, useCallback } from "react";
-import { StyleSheet, View, Platform, Text, TouchableOpacity, FlatList } from "react-native";
+import {
+  StyleSheet,
+  View,
+  Platform,
+  Text,
+  TouchableOpacity,
+  FlatList,
+} from "react-native";
 import MapView, { Marker, Region } from "react-native-maps";
 import * as Location from "expo-location";
 import MapCentraliseButton from "@/components/map/MapCentraliseButton";
@@ -13,6 +20,7 @@ import { doc, getDoc, getFirestore, setDoc } from "firebase/firestore";
 import BakeryView from "@/components/bakery/BakeryView";
 import MapNearbyNewPostButton from "@/components/map/MapNearbyNewPostButton";
 import Constants from "expo-constants";
+import BlinkingGPSIcon from "@/components/map/BlinkingGPS";
 
 export default function Map() {
   // OLD
@@ -324,6 +332,8 @@ export default function Map() {
           </Text>
         </View>
       </Modal>
+
+      <BlinkingGPSIcon />
     </View>
   );
 }
@@ -333,6 +343,10 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: Colors.primary,
     paddingTop: Constants.statusBarHeight + 8,
+  },
+  image: {
+    justifyContent: "center",
+    height: 150,
   },
   topContainer: {
     height: 50,

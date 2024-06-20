@@ -161,13 +161,17 @@ export default function BakeryPost({
         </ThemedButton>
       </View>
       {post.image && <Image source={{ uri: `${post.image}` }} style={styles.listItemImage} />}
+      {showBakeryName && (
+        <ThemedText type="defaultSemiBold" style={styles.munches}>
+          {post.bakeryName}
+        </ThemedText>
+      )}
       <ThemedText type="defaultSemiBold" style={styles.munches}>
         {munches} bread lovers have munched this
       </ThemedText>
       <ThemedText type="default" style={styles.description}>
         {post.description}
       </ThemedText>
-      {showBakeryName && <ThemedText type="default">Bakery Name: {post.bakeryName}</ThemedText>}
     </View>
   );
 }
