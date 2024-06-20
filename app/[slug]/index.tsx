@@ -102,7 +102,7 @@ export default function BakeryPosts() {
         onPress={() => {
           router.push({
             pathname: `/${params.name}/new`,
-            params: { place_id: params.place_id, name: params.name },
+            params,
           });
         }}
       >

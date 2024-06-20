@@ -111,7 +111,12 @@ export default function NewPost() {
             });
             setDescription("");
 
-            router.back();
+            // redirect to bakery posts
+            router.dismissAll();
+            router.replace({
+              pathname: `/${params.name}`,
+              params,
+            });
           } catch (e) {
             console.error("Failed to make post", e);
           }
@@ -155,7 +160,7 @@ export default function NewPost() {
           placeholderTextColor={Colors.gray}
           style={styles.description}
         />
-        <ThemedButton type="primary" disabled={isLoading} onPress={createPost}>
+        <ThemedButton type="primary" style={isLoading && { backgroundColor: Colors.accentLight }} disabled={isLoading} onPress={createPost}>
           {isLoading ? "Submitting..." : "Submit"}
         </ThemedButton>
       </KeyboardAvoidingView>
