@@ -84,7 +84,6 @@ export default function TabLayout() {
         updateDoc(userRef, { totalFoodSaved: increment(1), lastMunch: null }), // update user
         updateDoc(posterRef, { totalFoodSaved: increment(1) }) // update poster
       ]);
-      console.log("hello");
     } catch (err) {
       console.log("Failed rejection remove user last munch", err);
     }

@@ -5,7 +5,7 @@ import * as Location from "expo-location";
 import MapCentraliseButton from "@/components/map/MapCentraliseButton";
 import { ThemedButton, ThemedText } from "@/components";
 import Modal from "react-native-modal";
-import { router } from "expo-router";
+import { router, useFocusEffect } from "expo-router";
 import { Colors } from "@/constants/Colors";
 import axios from "axios";
 import { Bakery, BakeryStats, GoogleListing } from "@/types";
@@ -13,9 +13,14 @@ import { doc, getDoc, getFirestore, setDoc } from "firebase/firestore";
 import BakeryView from "@/components/bakery/BakeryView";
 import MapNearbyNewPostButton from "@/components/map/MapNearbyNewPostButton";
 import Constants from "expo-constants";
+import { useCallback } from "react";
 
 export default function Map() {
-  const GOOGLE_API = "AIzaSyBo-YlhvMVibmBKfXKXuDVf--a92s3yGpY";
+  // OLD
+  // const GOOGLE_API = "AIzaSyBo-YlhvMVibmBKfXKXuDVf--a92s3yGpY";
+
+  // NEW
+  const GOOGLE_API = "AIzaSyCVJO8VtUL7eZ9dsvB_mHl8q_aPzPR1v5g";
 
   const mapRef = useRef(null);
 
@@ -148,8 +153,8 @@ export default function Map() {
     return bakeriesStats;
   };
 
-  useEffect(() => {
-    (async () => {
+  const loadInitialData = async () => {
+    try {
       let { status } = await Location.requestForegroundPermissionsAsync();
       if (status !== "granted") return setIsError(true);
       let loc = await Location.getCurrentPositionAsync({
@@ -176,8 +181,17 @@ export default function Map() {
         return bakery;
       });
       setBakeries(finalBakeries);
-    })();
-  }, []);
+    } catch (error) {
+      console.error("Error loading initial data:", error);
+      setIsError(true);
+    }
+  };
+
+  useFocusEffect(
+    useCallback(() => {
+      loadInitialData();
+    }, [])
+  );
 
   const handleRegionChangeComplete = (region: Region) => {
     // run after 500ms to prevent excessive api calls
