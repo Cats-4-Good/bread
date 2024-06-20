@@ -28,7 +28,13 @@ const getTimeAgo = (epochTime: string): string => {
   }
 };
 
-export default function BakeryPost({ post, showBakeryName }: { post: Post, showBakeryName: boolean }) {
+export default function BakeryPost({
+  post,
+  showBakeryName,
+}: {
+  post: Post;
+  showBakeryName: boolean;
+}) {
   const [user, setUser] = useUser();
   const [hasMunchedBefore, setHasMunchedBefore] = useState(false);
   const [justMunched, setJustMunched] = useState(false);
@@ -41,7 +47,7 @@ export default function BakeryPost({ post, showBakeryName }: { post: Post, showB
     if (foundPostInMunches) return true;
 
     const userMunchedPostIdsDocRef = doc(db, "users", user.id, "munchedPostIds", post.id);
-    const res = await getDoc(userMunchedPostIdsDocRef)
+    const res = await getDoc(userMunchedPostIdsDocRef);
     if (res.exists()) {
       setUser({
         ...user,
@@ -66,7 +72,7 @@ export default function BakeryPost({ post, showBakeryName }: { post: Post, showB
         try {
           await Promise.all([
             updateDoc(postRef, { isLive: false }),
-            updateDoc(bakeryRef, { livePostsCount: increment(-1) }) // RACE CONDITION
+            updateDoc(bakeryRef, { livePostsCount: increment(-1) }), // RACE CONDITION
           ]);
         } catch (err) {
           console.log("Failed update live post and bakery count", err);
@@ -123,25 +129,24 @@ export default function BakeryPost({ post, showBakeryName }: { post: Post, showB
     }
   };
 
-
   const munches = post.munches + Number(justMunched);
 
   return (
     <View style={styles.listItem}>
       <View style={styles.listHeader}>
         <View style={styles.profileAndTimeContainer}>
-          <TouchableWithoutFeedback
+          {/* <TouchableWithoutFeedback
             onPress={() => {
               router.push({
                 pathname: "/profile",
                 params: { userId: post.uid },
               });
             }}
-          >
-            <View style={styles.listItemProfile}>
-              <ThemedText type="small">{post.username.slice(0, 2).toUpperCase()}</ThemedText>
-            </View>
-          </TouchableWithoutFeedback>
+          > */}
+          <View style={styles.listItemProfile}>
+            <ThemedText type="small">{post.username.slice(0, 2).toUpperCase()}</ThemedText>
+          </View>
+          {/* </TouchableWithoutFeedback> */}
           <ThemedText type="default" style={styles.timeText}>
             {getTimeAgo(post.createdAt)}
           </ThemedText>
@@ -159,7 +164,9 @@ export default function BakeryPost({ post, showBakeryName }: { post: Post, showB
       <ThemedText type="defaultSemiBold" style={styles.munches}>
         {munches} bread lovers have munched this
       </ThemedText>
-      <ThemedText type="default" style={styles.description}>{post.description}</ThemedText>
+      <ThemedText type="default" style={styles.description}>
+        {post.description}
+      </ThemedText>
       {showBakeryName && <ThemedText type="default">Bakery Name: {post.bakeryName}</ThemedText>}
     </View>
   );

@@ -1,21 +1,22 @@
-import { useState } from "react";
+// RegisterScreen.tsx
+import { useState, useEffect } from "react";
 import { StyleSheet, View, TextInput, Alert } from "react-native";
 import { Colors } from "@/constants/Colors";
 import { ThemedButton } from "@/components/ThemedButton";
 import { ThemedText } from "@/components";
 import uuid from "react-native-uuid";
 import { useUserStorage } from "@/hooks";
+import { useRouter } from "expo-router";
 
 export default function RegisterScreen() {
-  const [_userStorage, { save }] = useUserStorage();
+  const [userStorage, { save }] = useUserStorage();
   const [username, setUsername] = useState<string>("");
+  const router = useRouter();
 
   const register = async () => {
-    if (!username.replaceAll(" ", ""))
-      return Alert.alert("Error", "Invalid username");
+    if (!username.replaceAll(" ", "")) return Alert.alert("Error", "Invalid username");
     const id = uuid.v4().toString();
-    save({ id, username });
-    console.log("Registered");
+    await save({ id, username })
   };
 
   return (
@@ -29,11 +30,7 @@ export default function RegisterScreen() {
         placeholderTextColor={"black"}
         autoCorrect={false}
       />
-      <ThemedButton
-        type="primary"
-        onPress={register}
-        style={styles.registerButton}
-      >
+      <ThemedButton type="primary" onPress={register} style={styles.registerButton}>
         Register
       </ThemedButton>
     </View>

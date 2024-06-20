@@ -82,9 +82,9 @@ export default function Map() {
     const a =
       Math.sin(dLat / 2) * Math.sin(dLat / 2) +
       Math.cos(toRadians(lat1)) *
-      Math.cos(toRadians(lat2)) *
-      Math.sin(dLon / 2) *
-      Math.sin(dLon / 2);
+        Math.cos(toRadians(lat2)) *
+        Math.sin(dLon / 2) *
+        Math.sin(dLon / 2);
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
     let distance = R * c; // in kilometers
 
@@ -108,12 +108,14 @@ export default function Map() {
   };
 
   const getGooglePicture = async (listing: GoogleListing) => {
-    if (listing.photoReferences.length === 0) return undefined;
-    const response = await fetch(
-      `https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photo_reference=${listing.photoReferences[0]}&key=${GOOGLE_API}`
-    );
-    const blob = await response.blob();
-    return (await blobToData(blob)) as string;
+    // comment out to reduce api calls for now...
+    // if (listing.photoReferences.length === 0) return undefined;
+    // const response = await fetch(
+    //   `https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photo_reference=${listing.photoReferences[0]}&key=${GOOGLE_API}`
+    // );
+    // const blob = await response.blob();
+    // return (await blobToData(blob)) as string;
+    return "https://www.shutterstock.com/image-photo/3d-render-cafe-bar-restaurant-600nw-1415138246.jpg";
   };
 
   const getBakeryStats = async (bakeryId: string): Promise<BakeryStats | undefined> => {
@@ -165,7 +167,7 @@ export default function Map() {
       });
 
       // Get bakeries
-      const listings = await getListings(loc.coords.latitude, loc.coords.longitude) ?? [];
+      const listings = (await getListings(loc.coords.latitude, loc.coords.longitude)) ?? [];
       const bakeriesStats = await getBakeriesStats(listings);
       const finalBakeries = listings.map((listing, i) => {
         const id = listing.place_id;
@@ -286,7 +288,10 @@ export default function Map() {
             View bakery posts
           </ThemedButton>
           <Text style={{ fontWeight: "300", alignSelf: "center" }}>
-            {selectedBakery?.stats?.livePostsCount ?? 0} live lobangs, {(selectedBakery?.stats?.totalPosts ?? 0) - (selectedBakery?.stats?.livePostsCount ?? 0)} archived lobangs
+            {selectedBakery?.stats?.livePostsCount ?? 0} live lobangs,{" "}
+            {(selectedBakery?.stats?.totalPosts ?? 0) -
+              (selectedBakery?.stats?.livePostsCount ?? 0)}{" "}
+            archived lobangs
           </Text>
         </View>
       </Modal>

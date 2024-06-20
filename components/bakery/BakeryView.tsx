@@ -18,42 +18,55 @@ export default function BakeryView({ bakery }: { bakery: Bakery }) {
       <View style={styles.listItem}>
         <Image
           source={{
-            uri: `${listing.image
-              ? listing.image
-              : "https://www.shutterstock.com/image-photo/3d-render-cafe-bar-restaurant-600nw-1415138246.jpg"
-              }`,
+            uri: `${
+              listing.image
+                ? listing.image
+                : "https://www.shutterstock.com/image-photo/3d-render-cafe-bar-restaurant-600nw-1415138246.jpg"
+            }`,
           }}
           style={styles.listItemImage}
         />
         <View style={styles.listItemTextContainer}>
-          <ThemedText type="subtitle" numberOfLines={1}>{listing.name}</ThemedText>
-          <ThemedText type="default" style={{ color: Colors.gray }} numberOfLines={1}>{listing.vicinity}</ThemedText>
-          <ThemedText type="default" style={{
-            color: listing.status === "CLOSED_TEMPORARILY"
-              ? Colors.red
-              : (listing.status === "OPERATIONAL"
-                ? Colors.green
-                : "#000")
-          }}>
-            {listing.status === "CLOSED_TEMPORARILY"
-              ? "CLOSED"
-              : (listing.status === "OPERATIONAL"
-                ? "OPEN"
-                : listing.status)}
+          <ThemedText type="subtitle" style={styles.text}>
+            {listing.name}
           </ThemedText>
-          <ThemedText type="default">~{listing.distance}m away</ThemedText>
-          <View style={{ flexDirection: "row", alignItems: "flex-end", marginTop: 10 }}>
-            <ThemedText type="default" style={{ fontSize: 17, fontWeight: "bold" }}>{Math.max(0, stats?.livePostsCount ?? 0)}</ThemedText>
+          <ThemedText type="default" style={styles.text}>
+            {listing.vicinity}
+          </ThemedText>
+          <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
+            <ThemedText
+              type="default"
+              numberOfLines={1}
+              style={{
+                color:
+                  listing.status === "CLOSED_TEMPORARILY"
+                    ? Colors.red
+                    : listing.status === "OPERATIONAL"
+                    ? Colors.green
+                    : "#000",
+                ...styles.text,
+              }}
+            >
+              {listing.status === "CLOSED_TEMPORARILY"
+                ? "CLOSED"
+                : listing.status === "OPERATIONAL"
+                ? "OPEN"
+                : listing.status}
+            </ThemedText>
+            <ThemedText type="default" numberOfLines={1} style={styles.text}>
+              ~{listing.distance}m away
+            </ThemedText>
+          </View>
+          <View style={{ flexDirection: "row", alignItems: "flex-end" }}>
+            <ThemedText type="default" style={{ fontSize: 17, fontWeight: "bold" }}>
+              {Math.max(0, stats?.livePostsCount ?? 0)}
+            </ThemedText>
             <ThemedText type="default"> live lobangs</ThemedText>
           </View>
         </View>
       </View>
-    </TouchableOpacity >
+    </TouchableOpacity>
   );
-  // <View>
-  //   <ThemedText type="default">{stats?.livePostsCount ?? 0} live posts</ThemedText>
-  //   <ThemedText type="default">{stats?.totalPosts ?? 0} total posts</ThemedText>
-  // </View>
 }
 
 const styles = StyleSheet.create({
@@ -75,8 +88,11 @@ const styles = StyleSheet.create({
     borderWidth: 1,
   },
   listItemTextContainer: {
-    width: "65%",
+    flex: 1,
     padding: 6,
     gap: 4,
+  },
+  text: {
+    flexWrap: "wrap",
   },
 });

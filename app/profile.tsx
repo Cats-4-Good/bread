@@ -15,6 +15,7 @@ import { ThemedText, ThemedButton } from "@/components";
 import BakeryPost from "@/components/bakery/BakeryPost";
 import { useLocalSearchParams } from "expo-router";
 import { useUser, useUserStorage } from "@/hooks";
+import { router } from "expo-router";
 
 export default function ProfileScreen() {
   const params = useLocalSearchParams();
@@ -28,6 +29,8 @@ export default function ProfileScreen() {
   const logoutHandler = async () => {
     console.log("Logging out...");
     // TODO: redirect to login screen
+    await remove();
+    router.replace("/");
   };
 
   const getBakeryPostsByUser = async (userId: string): Promise<Post[]> => {
@@ -57,11 +60,13 @@ export default function ProfileScreen() {
   useEffect(() => {
     (async () => {
       try {
-        const userId = (params.userId as string) || currentUser?.id;
+        // const userId = (params.userId as string) || currentUser?.id;
+        const userId = currentUser?.id;
         if (!userId) {
           return;
         }
-        setUser({ id: userId, username: currentUser?.username ?? "User's Name" }); // Fetch the username based on userId if needed
+        console.log(currentUser);
+        setUser({ id: userId, username: currentUser?.username ?? "user" });
         const posts = await getBakeryPostsByUser(userId);
         setPosts(posts);
       } catch (error) {
@@ -72,9 +77,27 @@ export default function ProfileScreen() {
 
   return (
     <View style={styles.content}>
-      {user && (
+      {user && currentUser && (
         <View style={{ alignItems: "center", marginVertical: 40 }}>
           <ThemedText type="title">{user.username}</ThemedText>
+          <View style={styles.statsContainer}>
+            <View style={styles.statBox}>
+              <ThemedText type="title" style={styles.statNumber}>
+                {currentUser.totalMunches ? currentUser.totalMunches : 0}
+              </ThemedText>
+              <ThemedText type="default" style={styles.statLabel}>
+                Munches
+              </ThemedText>
+            </View>
+            <View style={styles.statBox}>
+              <ThemedText type="title" style={styles.statNumber}>
+                {currentUser.totalFoodSaved ? currentUser.totalFoodSaved : 0}
+              </ThemedText>
+              <ThemedText type="default" style={styles.statLabel}>
+                Food Saved
+              </ThemedText>
+            </View>
+          </View>
           <ThemedButton
             type="primary"
             onPress={logoutHandler}
@@ -105,6 +128,28 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
     backgroundColor: Colors.primary,
+  },
+  statsContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    width: "80%",
+    marginTop: 20,
+  },
+  statBox: {
+    backgroundColor: Colors.accent,
+    padding: 16,
+    borderRadius: 10,
+    alignItems: "center",
+    width: "45%",
+  },
+  statNumber: {
+    fontSize: 24,
+    fontWeight: "bold",
+    color: Colors.white,
+  },
+  statLabel: {
+    fontSize: 14,
+    color: Colors.white,
   },
   list: {
     width: "auto",
