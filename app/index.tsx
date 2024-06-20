@@ -1,12 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from "react";
-import {
-  StyleSheet,
-  View,
-  Platform,
-  Text,
-  TouchableOpacity,
-  FlatList,
-} from "react-native";
+import { StyleSheet, View, Platform, Text, TouchableOpacity, FlatList } from "react-native";
 import MapView, { Marker, Region } from "react-native-maps";
 import * as Location from "expo-location";
 import MapCentraliseButton from "@/components/map/MapCentraliseButton";
@@ -24,10 +17,10 @@ import BlinkingGPSIcon from "@/components/map/BlinkingGPS";
 
 export default function Map() {
   // OLD
-  const GOOGLE_API = "AIzaSyBo-YlhvMVibmBKfXKXuDVf--a92s3yGpY";
+  // const GOOGLE_API = "AIzaSyBo-YlhvMVibmBKfXKXuDVf--a92s3yGpY";
 
   // NEW
-  // const GOOGLE_API = "AIzaSyCVJO8VtUL7eZ9dsvB_mHl8q_aPzPR1v5g";
+  const GOOGLE_API = "AIzaSyCVJO8VtUL7eZ9dsvB_mHl8q_aPzPR1v5g";
 
   const mapRef = useRef(null);
 
@@ -154,13 +147,13 @@ export default function Map() {
 
   const getGooglePicture = async (listing: GoogleListing) => {
     // comment out to reduce api calls for now...
-    // if (listing.photoReferences.length === 0) return undefined;
-    // const response = await fetch(
-    //   `https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photo_reference=${listing.photoReferences[0]}&key=${GOOGLE_API}`
-    // );
-    // const blob = await response.blob();
-    // return (await blobToData(blob)) as string;
-    return "https://www.shutterstock.com/image-photo/3d-render-cafe-bar-restaurant-600nw-1415138246.jpg";
+    if (listing.photoReferences.length === 0) return undefined;
+    const response = await fetch(
+      `https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photo_reference=${listing.photoReferences[0]}&key=${GOOGLE_API}`
+    );
+    const blob = await response.blob();
+    return (await blobToData(blob)) as string;
+    // return "https://www.shutterstock.com/image-photo/3d-render-cafe-bar-restaurant-600nw-1415138246.jpg";
   };
 
   const loadInitialData = async () => {
@@ -287,17 +280,29 @@ export default function Map() {
       )}
       {selectedButton === "list" && (
         <View style={styles.listContainer}>
-          {bakeries.length > 0 ? (
-            <FlatList
-              data={bakeries}
-              renderItem={({ item }) => <BakeryView bakery={item} />}
-              keyExtractor={(_, index) => index.toString()}
+          <View style={styles.mapPreviewContainer}>
+            <MapView
+              ref={mapRef}
+              style={styles.mapPreview}
+              initialRegion={initialRegion}
+              showsUserLocation={false}
+              userInterfaceStyle="dark"
+              scrollEnabled={false}
             />
-          ) : (
-            <ThemedText type="default" style={{ textAlign: "center" }}>
-              Using current location to find nearby bakeries...
+            <ThemedText type="title" style={styles.mapTitle}>
+              Explore bakeries near you
             </ThemedText>
-          )}
+            <TouchableOpacity style={styles.visitButton} onPress={() => setSelectedButton("map")}>
+              <ThemedText style={styles.visitButtonText} type="defaultSemiBold">
+                View map
+              </ThemedText>
+            </TouchableOpacity>
+          </View>
+          <FlatList
+            data={bakeries}
+            renderItem={({ item }) => <BakeryView bakery={item} />}
+            keyExtractor={(_, index) => index.toString()}
+          />
         </View>
       )}
 
@@ -344,10 +349,6 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.primary,
     paddingTop: Constants.statusBarHeight + 8,
   },
-  image: {
-    justifyContent: "center",
-    height: 150,
-  },
   topContainer: {
     height: 50,
     flexDirection: "row",
@@ -355,11 +356,33 @@ const styles = StyleSheet.create({
   mapContainer: {
     flex: 1,
   },
+  mapPreviewContainer: {
+    height: "25%",
+  },
+  mapPreview: {
+    ...StyleSheet.absoluteFillObject,
+  },
+  mapTitle: {
+    marginTop: 30,
+    marginLeft: 10,
+    color: Colors.white,
+  },
+  visitButton: {
+    marginTop: 5,
+    marginLeft: 10,
+    backgroundColor: Colors.accent,
+    padding: 8,
+    borderRadius: 25,
+    width: 150,
+  },
+  visitButtonText: {
+    textAlign: "center",
+    color: Colors.white,
+  },
   listContainer: {
-    flex: 1,
-    width: "auto",
+    flex: 3,
+    width: "100%",
     marginTop: 20,
-    justifyContent: "center",
   },
   map: {
     ...StyleSheet.absoluteFillObject,
