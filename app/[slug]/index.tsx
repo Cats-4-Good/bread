@@ -10,7 +10,6 @@ import { ThemedButton, ThemedText } from "@/components";
 import { Post } from "@/types";
 
 export default function BakeryPosts() {
-  const [modalVisible, setModalVisible] = useState(false);
   const { slug, ...params } = useLocalSearchParams();
   const [posts, setPosts] = useState<Post[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -93,33 +92,10 @@ export default function BakeryPosts() {
             </View>
           }
           ListEmptyComponent={<ThemedText style={styles.noPostFoundText}>
-            No posts found... Be the first to make a difference!
+            No lobangs found... Be the first to make a difference!
           </ThemedText>}
         />
       }
-
-      <Modal
-        isVisible={modalVisible}
-        onBackdropPress={() => {
-          setModalVisible(false);
-        }}
-        hasBackdrop
-      >
-        <View style={[styles.modalView, { alignItems: "center", gap: 10 }]}>
-          <Ionicons name="checkmark-circle" size={40} color={Colors.green} />
-          <View style={{ alignItems: "center", gap: 6 }}>
-            <Text style={styles.modalTitle}>Post published</Text>
-            <Text style={[styles.modalText, { fontWeight: "300" }]}>+20 points</Text>
-          </View>
-          <ThemedButton
-            type="secondary"
-            style={{ width: "100%", marginTop: 10 }}
-            onPress={() => { }}
-          >
-            View post
-          </ThemedButton>
-        </View>
-      </Modal>
 
       <ThemedButton
         type="round"
