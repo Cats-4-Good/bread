@@ -283,7 +283,7 @@ export default function Map() {
               });
             }}
           >
-            View bakery posts
+            View bakery lobangs
           </ThemedButton>
           <Text style={{ fontWeight: "300", alignSelf: "center" }}>
             {selectedBakery?.stats?.livePostsCount ?? 0} live lobangs, {(selectedBakery?.stats?.totalPosts ?? 0) - (selectedBakery?.stats?.livePostsCount ?? 0)} archived lobangs
@@ -310,7 +310,6 @@ const styles = StyleSheet.create({
   listContainer: {
     flex: 1,
     width: "auto",
-    marginTop: 20,
   },
   map: {
     ...StyleSheet.absoluteFillObject,

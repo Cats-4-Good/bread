@@ -94,7 +94,7 @@ export default function ProfileScreen() {
         />
       ) : (
         <ThemedText style={styles.noPostFoundText}>
-          No posts found... Start your first post to make a difference now!
+          No lobangs found... Be the first to make a difference!
         </ThemedText>
       )}
     </View>
