@@ -1,9 +1,8 @@
-import { View, Text, StyleSheet, FlatList, Image, ActivityIndicator } from "react-native";
-import { Entypo, Ionicons } from "@expo/vector-icons";
+import { View, StyleSheet, FlatList, Image, ActivityIndicator } from "react-native";
+import { Entypo } from "@expo/vector-icons";
 import BakeryPost from "@/components/bakery/BakeryPost";
 import { useCallback, useRef, useState } from "react";
 import { Colors } from "@/constants/Colors";
-import Modal from "react-native-modal";
 import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
 import { query, where, getDocs, getFirestore, collection, orderBy } from "firebase/firestore";
 import { ThemedButton, ThemedText } from "@/components";

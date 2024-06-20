@@ -49,7 +49,7 @@ export default function TabLayout() {
     const curTime = Date.now();
     const elapsed = curTime - parseInt(user.lastMunch.time);
     const secondsElapsed = Math.floor(elapsed / 1000);
-    const minMinutesAgo = 1; // CHANGE THIS IN FUTURE
+    const minMinutesAgo = 0.1; // CHANGE THIS IN FUTURE
     if (minMinutesAgo * 60 <= secondsElapsed) {
       const postRef = doc(db, "posts", user.lastMunch.postId);
       try {
@@ -74,16 +74,19 @@ export default function TabLayout() {
 
   const handleSuccess = async () => {
     if (!user?.lastMunch) return;
-    setLastMunchPost(null);
     const postRef = doc(db, "posts", user.lastMunch.postId);
     const userRef = doc(db, "users", user.id);
     const posterRef = doc(db, "users", user.lastMunch.posterId);
     try {
-      await Promise.all([
+      const promises = [
         updateDoc(postRef, { foodSaved: increment(1) }), // update post
         updateDoc(userRef, { totalFoodSaved: increment(1), lastMunch: null }), // update user
-        updateDoc(posterRef, { totalFoodSaved: increment(1) }) // update poster
-      ]);
+      ]
+      if (user.lastMunch.posterId !== user.id) {
+        promises.push(updateDoc(posterRef, { totalFoodSaved: increment(1) })) // update poster
+      }
+      await Promise.all(promises);
+      setLastMunchPost(null);
       console.log("hello");
     } catch (err) {
       console.log("Failed rejection remove user last munch", err);
