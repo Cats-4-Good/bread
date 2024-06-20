@@ -27,10 +27,10 @@ export default function BakeryView({ bakery }: { bakery: Bakery }) {
           style={styles.listItemImage}
         />
         <View style={styles.listItemTextContainer}>
-          <ThemedText type="subtitle" style={styles.text}>
+          <ThemedText type="subtitle" numberOfLines={1}>
             {listing.name}
           </ThemedText>
-          <ThemedText type="default" style={styles.text}>
+          <ThemedText type="default" numberOfLines={1}>
             {listing.vicinity}
           </ThemedText>
           <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
