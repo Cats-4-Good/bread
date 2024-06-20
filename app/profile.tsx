@@ -1,4 +1,4 @@
-import { View, StyleSheet, FlatList } from "react-native";
+import { View, StyleSheet, FlatList, TouchableOpacity } from "react-native";
 import { Colors } from "@/constants/Colors";
 import { Post } from "@/types";
 import {
@@ -16,6 +16,8 @@ import BakeryPost from "@/components/bakery/BakeryPost";
 import { useLocalSearchParams } from "expo-router";
 import { useUser, useUserStorage } from "@/hooks";
 import { router } from "expo-router";
+import Constants from "expo-constants";
+import { MaterialIcons } from "@expo/vector-icons";
 
 export default function ProfileScreen() {
   const params = useLocalSearchParams();
@@ -78,8 +80,13 @@ export default function ProfileScreen() {
   return (
     <View style={styles.content}>
       {user && currentUser && (
-        <View style={{ alignItems: "center", marginVertical: 40 }}>
-          <ThemedText type="title">{user.username}</ThemedText>
+        <View style={{ alignItems: "center", marginTop: Constants.statusBarHeight + 10, marginBottom: 20 }}>
+          <View style={{ position: "relative", width: "100%", alignItems: "center", justifyContent: "center" }}>
+            <ThemedText type="title">{user.username}</ThemedText>
+            <TouchableOpacity style={{ position: "absolute", right: 20 }} onPress={logoutHandler}>
+              <MaterialIcons name="logout" size={35} />
+            </TouchableOpacity>
+          </View>
           <View style={styles.statsContainer}>
             <View style={styles.statBox}>
               <ThemedText type="title" style={styles.statNumber}>
@@ -98,13 +105,6 @@ export default function ProfileScreen() {
               </ThemedText>
             </View>
           </View>
-          <ThemedButton
-            type="primary"
-            onPress={logoutHandler}
-            style={{ marginTop: 10, width: 150 }}
-          >
-            Logout
-          </ThemedButton>
         </View>
       )}
 
@@ -133,7 +133,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     width: "80%",
-    marginTop: 20,
+    marginTop: 10,
   },
   statBox: {
     backgroundColor: Colors.accent,

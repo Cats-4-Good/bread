@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { StyleSheet, View, Platform, Text, TouchableOpacity, FlatList } from "react-native";
 import MapView, { Marker, Region } from "react-native-maps";
 import * as Location from "expo-location";
@@ -13,13 +13,8 @@ import { doc, getDoc, getFirestore, setDoc } from "firebase/firestore";
 import BakeryView from "@/components/bakery/BakeryView";
 import MapNearbyNewPostButton from "@/components/map/MapNearbyNewPostButton";
 import Constants from "expo-constants";
-import { useCallback } from "react";
 
 export default function Map() {
-  // OLD
-  // const GOOGLE_API = "AIzaSyBo-YlhvMVibmBKfXKXuDVf--a92s3yGpY";
-
-  // NEW
   const GOOGLE_API = "AIzaSyCVJO8VtUL7eZ9dsvB_mHl8q_aPzPR1v5g";
 
   const mapRef = useRef(null);
@@ -27,13 +22,14 @@ export default function Map() {
   const [selectedBakery, setSelectedBakery] = useState<Bakery | null>(null);
   const [bakeries, setBakeries] = useState<Bakery[]>([]);
   const [location, setLocation] = useState<Location.LocationObjectCoords>();
+  const [latestRegion, setLatestRegion] = useState<Region>();
   const [initialRegion, setInitialRegion] = useState<Region>();
   const [selectedButton, setSelectedButton] = useState<"map" | "list">("list");
   const [isError, setIsError] = useState(false);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
   const db = getFirestore();
 
-  const getListings = async (latitude: number, longitude: number) => {
+  const getListings = async (latitude: number, longitude: number): Promise<Bakery[]> => {
     try {
       const response = await axios.get(
         "https://maps.googleapis.com/maps/api/place/nearbysearch/json",
@@ -48,7 +44,6 @@ export default function Map() {
       );
       const listings: GoogleListing[] =
         response.data.results.map((listing: any) => ({
-          // LOL imagine me choosing to use typescript but still being lazy xD
           status: listing.business_status,
           lat: listing.geometry.location.lat,
           lng: listing.geometry.location.lng,
@@ -66,21 +61,54 @@ export default function Map() {
           image: undefined,
         })) ?? [];
 
-      // apparently need to include html attributions in image, but dc for now
       await Promise.all(
         listings.map(async (listing) => {
           listing.image = await getGooglePicture(listing);
           listing.distance = haversineDistance(latitude, longitude, listing.lat, listing.lng);
         })
       );
-      listings.sort((a, b) => a.distance - b.distance);
-      return listings;
+
+      const bakeries = await getBakeriesWithStats(listings);
+      bakeries.sort((a, b) => a.listing.distance - b.listing.distance);
+
+      return bakeries;
     } catch (error) {
       console.error("Error fetching data:", error);
+      return [];
     }
   };
 
-  function haversineDistance(lat1: number, lon1: number, lat2: number, lon2: number): number {
+  const getBakeriesWithStats = async (listings: GoogleListing[]): Promise<Bakery[]> => {
+    const bakeries = await Promise.all(
+      listings.map(async (listing) => {
+        const stats = await getBakeryStats(listing.place_id);
+        const bakery: Bakery = { id: listing.place_id, listing, stats };
+        return bakery;
+      })
+    );
+    return bakeries;
+  };
+
+  const getBakeryStats = async (bakeryId: string): Promise<BakeryStats | undefined> => {
+    const docRef = doc(db, "bakeries", bakeryId);
+    try {
+      const res = await getDoc(docRef);
+      if (!res.exists()) {
+        const defaultBakery: BakeryStats = {
+          livePostsCount: 0,
+          totalPosts: 0,
+        };
+        await setDoc(docRef, defaultBakery);
+        return defaultBakery;
+      }
+      return res.data() as BakeryStats;
+    } catch (err) {
+      console.error("Failed to get bakery stats", err);
+      return undefined;
+    }
+  };
+
+  const haversineDistance = (lat1: number, lon1: number, lat2: number, lon2: number): number => {
     const R = 6371; // Radius of the Earth in kilometers
     const dLat = toRadians(lat2 - lat1);
     const dLon = toRadians(lon2 - lon1);
@@ -94,13 +122,13 @@ export default function Map() {
     let distance = R * c; // in kilometers
 
     distance = distance * 1000;
-    distance = Math.round(distance / 100) * 100;
+    distance = Math.round(distance / 100) * 100; // Round to nearest 100 meters
     return distance;
-  }
+  };
 
-  function toRadians(degrees: number): number {
+  const toRadians = (degrees: number): number => {
     return degrees * (Math.PI / 180);
-  }
+  };
 
   //* Convert blob to base64 for image
   const blobToData = (blob: Blob): Promise<string | ArrayBuffer | null> => {
@@ -123,83 +151,56 @@ export default function Map() {
     return "https://www.shutterstock.com/image-photo/3d-render-cafe-bar-restaurant-600nw-1415138246.jpg";
   };
 
-  const getBakeryStats = async (bakeryId: string): Promise<BakeryStats | undefined> => {
-    const docRef = doc(db, "bakeries", bakeryId);
-    return getDoc(docRef)
-      .then(async (res) => {
-        if (!res.exists()) {
-          const defaultBakery: BakeryStats = {
-            livePostsCount: 0,
-            totalPosts: 0,
-          };
-          try {
-            await setDoc(docRef, defaultBakery);
-            return await getBakeryStats(bakeryId);
-          } catch (err) {
-            console.error("failed to set default bakery", err);
-          }
-        }
-        return res.data() as BakeryStats;
-      })
-      .catch((err) => {
-        console.error("failed to get bakery", err);
-        return undefined;
-      });
-  };
-
-  const getBakeriesStats = async (listings: GoogleListing[]) => {
-    const idsToFetch = listings.map((listing) => listing.place_id);
-    const bakeriesStats = await Promise.all(idsToFetch.map((newId) => getBakeryStats(newId)));
-    return bakeriesStats;
-  };
-
   const loadInitialData = async () => {
-    try {
-      let { status } = await Location.requestForegroundPermissionsAsync();
-      if (status !== "granted") return setIsError(true);
-      let loc = await Location.getCurrentPositionAsync({
-        accuracy:
-          Platform.OS == "android"
-            ? Location.LocationAccuracy.Low
-            : Location.LocationAccuracy.Lowest,
-      });
-      setLocation(loc.coords);
-      setInitialRegion({
-        latitude: loc.coords.latitude,
-        longitude: loc.coords.longitude,
-        latitudeDelta: 0.005,
-        longitudeDelta: 0.005,
-      });
+    let { status } = await Location.requestForegroundPermissionsAsync();
+    if (status !== "granted") return setIsError(true);
+    let loc = await Location.getCurrentPositionAsync({
+      accuracy:
+        Platform.OS == "android" ? Location.LocationAccuracy.Low : Location.LocationAccuracy.Lowest,
+    });
+    setLocation(loc.coords);
 
-      // Get bakeries
-      const listings = (await getListings(loc.coords.latitude, loc.coords.longitude)) ?? [];
-      const bakeriesStats = await getBakeriesStats(listings);
-      const finalBakeries = listings.map((listing, i) => {
-        const id = listing.place_id;
-        const stats = bakeriesStats[i];
-        const bakery: Bakery = { id, listing, stats };
-        return bakery;
-      });
-      setBakeries(finalBakeries);
-    } catch (error) {
-      console.error("Error loading initial data:", error);
-      setIsError(true);
+    const region = {
+      latitude: loc.coords.latitude,
+      longitude: loc.coords.longitude,
+      latitudeDelta: 0.005,
+      longitudeDelta: 0.005,
+    };
+    setInitialRegion(region);
+    setLatestRegion(region);
+
+    // Get bakeries
+    const bakeries = (await getListings(loc.coords.latitude, loc.coords.longitude)) ?? [];
+    setBakeries(bakeries);
+  };
+
+  const reloadData = async () => {
+    if (latestRegion) {
+      const bakeries = (await getListings(latestRegion.latitude, latestRegion.longitude)) ?? [];
+      setBakeries(bakeries);
     }
   };
 
+  useEffect(() => {
+    loadInitialData();
+  }, []);
+
   useFocusEffect(
     useCallback(() => {
-      loadInitialData();
-    }, [])
+      reloadData();
+    }, [latestRegion])
   );
 
   const handleRegionChangeComplete = (region: Region) => {
     // run after 500ms to prevent excessive api calls
     if (timeoutRef.current) clearTimeout(timeoutRef.current);
-    timeoutRef.current = setTimeout(
-      async () => getListings(region.latitude, region.longitude),
-      500
-    );
+    console.log("I AM CALLED");
+
+    timeoutRef.current = setTimeout(async () => {
+      setLatestRegion(region);
+      // const bakeries = await getListings(region.latitude, region.longitude);
+      // setBakeries(bakeries);
+    }, 500);
   };
 
   if (isError) {
@@ -264,7 +265,7 @@ export default function Map() {
               })}
           </MapView>
           {location && (
-            <MapCentraliseButton mapRef={mapRef} location={location} getMarkers={getListings} />
+            <MapCentraliseButton mapRef={mapRef} location={location} setLatestRegion={setLatestRegion} />
           )}
         </View>
       )}
@@ -299,7 +300,7 @@ export default function Map() {
               });
             }}
           >
-            View bakery lobangs
+            View bakery posts
           </ThemedButton>
           <Text style={{ fontWeight: "300", alignSelf: "center" }}>
             {selectedBakery?.stats?.livePostsCount ?? 0} live lobangs,{" "}
@@ -329,6 +330,7 @@ const styles = StyleSheet.create({
   listContainer: {
     flex: 1,
     width: "auto",
+    marginTop: 20,
   },
   map: {
     ...StyleSheet.absoluteFillObject,

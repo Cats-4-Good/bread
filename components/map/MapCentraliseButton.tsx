@@ -1,20 +1,17 @@
 import { StyleSheet } from "react-native";
 import { FontAwesome5 } from "@expo/vector-icons";
 import { LocationObjectCoords } from "expo-location";
+import { Region } from "react-native-maps";
 
 import { ThemedButton } from "../ThemedButton";
 
 interface Props {
   mapRef: any;
   location: LocationObjectCoords;
-  getMarkers: (latitude: number, longitude: number) => void;
+  setLatestRegion: React.Dispatch<React.SetStateAction<Region | null>>;
 }
 
-export default function MapCentraliseButton({
-  mapRef,
-  location,
-  getMarkers,
-}: Props) {
+export default function MapCentraliseButton({ mapRef, location, setLatestRegion }: Props) {
   const handleCenterMap = async () => {
     if (mapRef.current && location) {
       mapRef.current.animateCamera({
@@ -25,16 +22,17 @@ export default function MapCentraliseButton({
         zoom: 2000,
         altitude: 2000,
       });
-      getMarkers(location.latitude, location.longitude);
+      setLatestRegion({
+        latitude: location.latitude,
+        longitude: location.longitude,
+        latitudeDelta: 0.005,
+        longitudeDelta: 0.005,
+      });
     }
   };
 
   return (
-    <ThemedButton
-      type="round"
-      style={styles.centerButton}
-      onPress={handleCenterMap}
-    >
+    <ThemedButton type="round" style={styles.centerButton} onPress={handleCenterMap}>
       <FontAwesome5 name="location-arrow" size={20} color="white" />
     </ThemedButton>
   );

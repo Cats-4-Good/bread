@@ -1,4 +1,4 @@
-import { View, StyleSheet, TouchableWithoutFeedback, Image } from "react-native";
+import { View, StyleSheet, Image } from "react-native";
 import { Colors } from "@/constants/Colors";
 import { ThemedText } from "../ThemedText";
 import { Post, User } from "@/types";
@@ -6,7 +6,6 @@ import { ThemedButton } from "../ThemedButton";
 import { doc, getDoc, getFirestore, increment, setDoc, updateDoc } from "firebase/firestore";
 import { useUser } from "@/hooks";
 import { useEffect, useState } from "react";
-import { router } from "expo-router";
 
 const getTimeAgo = (epochTime: string): string => {
   const currentTime = Date.now();
@@ -120,7 +119,7 @@ export default function BakeryPost({
       await Promise.all([
         updateDoc(postRef, { munches: increment(1) }),
         updateDoc(posterRef, { totalMunches: increment(1) }),
-        setDoc(userRef, { lastMunch }),
+        updateDoc(userRef, { lastMunch }),
         setDoc(userMunchedPostIdsDocRef, {}), // add to collection
       ]);
       console.log("Munch success");
