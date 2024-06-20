@@ -18,6 +18,7 @@ import { useUser, useUserStorage } from "@/hooks";
 import { router } from "expo-router";
 import Constants from "expo-constants";
 import { MaterialIcons } from "@expo/vector-icons";
+import Modal from "react-native-modal";
 
 export default function ProfileScreen() {
   const params = useLocalSearchParams();
@@ -25,12 +26,13 @@ export default function ProfileScreen() {
   const [currentUser, _setCurrentUser] = useUser();
   const [user, setUser] = useState<{ id: string; username: string } | null>(null);
   const [posts, setPosts] = useState<Post[]>([]);
+  const [isMunchesTooltipVisible, setMunchesTooltipVisible] = useState(false);
+  const [isFoodSavedTooltipVisible, setFoodSavedTooltipVisible] = useState(false);
 
   const db = getFirestore();
 
   const logoutHandler = async () => {
     console.log("Logging out...");
-    // TODO: redirect to login screen
     await remove();
     router.replace("/");
   };
@@ -62,14 +64,21 @@ export default function ProfileScreen() {
   useEffect(() => {
     (async () => {
       try {
-        // const userId = (params.userId as string) || currentUser?.id;
-        const userId = currentUser?.id;
-        if (!userId) {
-          return;
+        const paramId = params.userId as string;
+        const ownId = currentUser?.id;
+        let posts;
+
+        if (paramId && paramId !== ownId) {
+          setUser({ id: paramId, username: params.username as string });
+          posts = await getBakeryPostsByUser(paramId);
+        } else {
+          const userId = currentUser?.id;
+          if (!userId) {
+            return;
+          }
+          setUser({ id: userId, username: currentUser.username });
+          posts = await getBakeryPostsByUser(userId);
         }
-        console.log(currentUser);
-        setUser({ id: userId, username: currentUser?.username ?? "user" });
-        const posts = await getBakeryPostsByUser(userId);
         setPosts(posts);
       } catch (error) {
         console.error("Error fetching data:", error);
@@ -80,8 +89,21 @@ export default function ProfileScreen() {
   return (
     <View style={styles.content}>
       {user && currentUser && (
-        <View style={{ alignItems: "center", marginTop: Constants.statusBarHeight + 10, marginBottom: 20 }}>
-          <View style={{ position: "relative", width: "100%", alignItems: "center", justifyContent: "center" }}>
+        <View
+          style={{
+            alignItems: "center",
+            marginTop: Constants.statusBarHeight + 10,
+            marginBottom: 20,
+          }}
+        >
+          <View
+            style={{
+              position: "relative",
+              width: "100%",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
             <ThemedText type="title">{user.username}</ThemedText>
             <TouchableOpacity style={{ position: "absolute", right: 20 }} onPress={logoutHandler}>
               <MaterialIcons name="logout" size={35} />
@@ -92,17 +114,27 @@ export default function ProfileScreen() {
               <ThemedText type="title" style={styles.statNumber}>
                 {currentUser.totalMunches ? currentUser.totalMunches : 0}
               </ThemedText>
-              <ThemedText type="default" style={styles.statLabel}>
-                Munches
-              </ThemedText>
+              <View style={styles.labelContainer}>
+                <ThemedText type="default" style={styles.statLabel}>
+                  Munches
+                </ThemedText>
+                <TouchableOpacity onPress={() => setMunchesTooltipVisible(true)}>
+                  <MaterialIcons name="info-outline" size={20} color={Colors.white} />
+                </TouchableOpacity>
+              </View>
             </View>
             <View style={styles.statBox}>
               <ThemedText type="title" style={styles.statNumber}>
                 {currentUser.totalFoodSaved ? currentUser.totalFoodSaved : 0}
               </ThemedText>
-              <ThemedText type="default" style={styles.statLabel}>
-                Food Saved
-              </ThemedText>
+              <View style={styles.labelContainer}>
+                <ThemedText type="default" style={styles.statLabel}>
+                  Food Saved
+                </ThemedText>
+                <TouchableOpacity onPress={() => setFoodSavedTooltipVisible(true)}>
+                  <MaterialIcons name="info-outline" size={20} color={Colors.white} />
+                </TouchableOpacity>
+              </View>
             </View>
           </View>
         </View>
@@ -120,6 +152,51 @@ export default function ProfileScreen() {
           No lobangs found... Be the first to make a difference!
         </ThemedText>
       )}
+
+      <Modal
+        isVisible={isMunchesTooltipVisible}
+        onBackdropPress={() => setMunchesTooltipVisible(false)}
+        hasBackdrop
+      >
+        <View style={styles.modalView}>
+          <ThemedText style={styles.modalTitle}>Munches</ThemedText>
+          <ThemedText type="default" style={styles.modalText}>
+            Munches are the number of "I'm buying this!" indications. Treat it as a like or upvote
+            on your favourite social media platform!
+          </ThemedText>
+          <ThemedButton
+            type="primary"
+            style={{ paddingVertical: 16 }}
+            onPress={() => {
+              setMunchesTooltipVisible(false);
+            }}
+          >
+            Close
+          </ThemedButton>
+        </View>
+      </Modal>
+
+      <Modal
+        isVisible={isFoodSavedTooltipVisible}
+        onBackdropPress={() => setFoodSavedTooltipVisible(false)}
+        hasBackdrop
+      >
+        <View style={styles.modalView}>
+          <ThemedText style={styles.modalTitle}>Food Saved</ThemedText>
+          <ThemedText type="default" style={styles.modalText}>
+            Food saved is the number of food items you have saved from waste. YAYYY for saving the 🌍!
+          </ThemedText>
+          <ThemedButton
+            type="primary"
+            style={{ paddingVertical: 16 }}
+            onPress={() => {
+              setFoodSavedTooltipVisible(false);
+            }}
+          >
+            Close
+          </ThemedButton>
+        </View>
+      </Modal>
     </View>
   );
 }
@@ -150,6 +227,11 @@ const styles = StyleSheet.create({
   statLabel: {
     fontSize: 14,
     color: Colors.white,
+    paddingRight: 3,
+  },
+  labelContainer: {
+    flexDirection: "row",
+    alignItems: "center",
   },
   list: {
     width: "auto",
@@ -157,5 +239,36 @@ const styles = StyleSheet.create({
   noPostFoundText: {
     textAlign: "center",
     marginTop: 40,
+  },
+  tooltip: {
+    backgroundColor: Colors.white,
+    padding: 20,
+    borderRadius: 10,
+    alignItems: "center",
+  },
+  modalView: {
+    marginVertical: "auto",
+    marginHorizontal: "auto",
+    width: 340,
+    gap: 14,
+    backgroundColor: "white",
+    borderRadius: 20,
+    paddingVertical: 20,
+    paddingHorizontal: 25,
+    shadowColor: Colors.black,
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: "bold",
+  },
+  modalText: {
+    fontSize: 16,
   },
 });

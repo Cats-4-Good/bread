@@ -16,12 +16,13 @@ export default function RegisterScreen() {
   const register = async () => {
     if (!username.replaceAll(" ", "")) return Alert.alert("Error", "Invalid username");
     const id = uuid.v4().toString();
-    await save({ id, username })
+    await save({ id, username });
   };
 
   return (
     <View style={styles.content}>
-      <ThemedText type="title">Register</ThemedText>
+      <ThemedText type="title">Crumbs</ThemedText>
+      <ThemedText type="defaultSemiBold">Share deals, slash waste</ThemedText>
       <TextInput
         style={styles.input}
         placeholder="Username"
