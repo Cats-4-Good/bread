@@ -184,7 +184,8 @@ export default function ProfileScreen() {
         <View style={styles.modalView}>
           <ThemedText style={styles.modalTitle}>Food Saved</ThemedText>
           <ThemedText type="default" style={styles.modalText}>
-            Food saved is the number of food items you have saved from waste. YAYYY for saving the 🌍!
+            Food items saved estimates the amount of waste you've helped to prevent using your munch
+            count. Thank you for doing your part to fight food waste!
           </ThemedText>
           <ThemedButton
             type="primary"
