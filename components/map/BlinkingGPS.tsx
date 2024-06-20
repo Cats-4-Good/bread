@@ -7,8 +7,8 @@ import { ThemedText } from "../ThemedText";
 const { width, height } = Dimensions.get("window");
 
 const BlinkingGPSIcon = () => {
-  const [color, setColor] = useState(Colors.primary);
-  const [backgroundColor, setBackgroundColor] = useState("grey");
+  const [color, setColor] = useState(Colors.black);
+  const [backgroundColor, setBackgroundColor] = useState(Colors.grayLight);
 
   useEffect(() => {
     const interval = setInterval(() => {
