@@ -15,7 +15,11 @@ import MapNearbyNewPostButton from "@/components/map/MapNearbyNewPostButton";
 import Constants from "expo-constants";
 
 export default function Map() {
-  const GOOGLE_API = "AIzaSyCVJO8VtUL7eZ9dsvB_mHl8q_aPzPR1v5g";
+  // OLD
+  const GOOGLE_API = "AIzaSyBo-YlhvMVibmBKfXKXuDVf--a92s3yGpY";
+
+  // NEW
+  // const GOOGLE_API = "AIzaSyCVJO8VtUL7eZ9dsvB_mHl8q_aPzPR1v5g";
 
   const mapRef = useRef(null);
 
@@ -73,7 +77,7 @@ export default function Map() {
 
       return bakeries;
     } catch (error) {
-      console.error("Error fetching data:", error);
+      console.error("Error fetching data [1]:", error);
       return [];
     }
   };
@@ -176,8 +180,12 @@ export default function Map() {
 
   const reloadData = async () => {
     if (latestRegion) {
-      const bakeries = (await getListings(latestRegion.latitude, latestRegion.longitude)) ?? [];
-      setBakeries(bakeries);
+      try {
+        const bakeries = await getListings(latestRegion.latitude, latestRegion.longitude);
+        setBakeries(bakeries);
+      } catch (error) {
+        console.error("Error fetching data [2]:", error);
+      }
     }
   };
 
@@ -192,15 +200,11 @@ export default function Map() {
   );
 
   const handleRegionChangeComplete = (region: Region) => {
-    // run after 500ms to prevent excessive api calls
+    // run after 1000ms to prevent excessive api calls
     if (timeoutRef.current) clearTimeout(timeoutRef.current);
-    console.log("I AM CALLED");
-
-    timeoutRef.current = setTimeout(async () => {
+    timeoutRef.current = setTimeout(() => {
       setLatestRegion(region);
-      // const bakeries = await getListings(region.latitude, region.longitude);
-      // setBakeries(bakeries);
-    }, 500);
+    }, 1000);
   };
 
   if (isError) {
@@ -265,17 +269,27 @@ export default function Map() {
               })}
           </MapView>
           {location && (
-            <MapCentraliseButton mapRef={mapRef} location={location} setLatestRegion={setLatestRegion} />
+            <MapCentraliseButton
+              mapRef={mapRef}
+              location={location}
+              setLatestRegion={setLatestRegion}
+            />
           )}
         </View>
       )}
       {selectedButton === "list" && (
         <View style={styles.listContainer}>
-          <FlatList
-            data={bakeries}
-            renderItem={({ item }) => <BakeryView bakery={item} />}
-            keyExtractor={(_, index) => index.toString()}
-          />
+          {bakeries.length > 0 ? (
+            <FlatList
+              data={bakeries}
+              renderItem={({ item }) => <BakeryView bakery={item} />}
+              keyExtractor={(_, index) => index.toString()}
+            />
+          ) : (
+            <ThemedText type="default" style={{ textAlign: "center" }}>
+              Using current location to find nearby bakeries...
+            </ThemedText>
+          )}
         </View>
       )}
 
@@ -331,6 +345,7 @@ const styles = StyleSheet.create({
     flex: 1,
     width: "auto",
     marginTop: 20,
+    justifyContent: "center",
   },
   map: {
     ...StyleSheet.absoluteFillObject,

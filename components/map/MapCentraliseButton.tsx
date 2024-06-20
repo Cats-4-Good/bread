@@ -8,7 +8,7 @@ import { ThemedButton } from "../ThemedButton";
 interface Props {
   mapRef: any;
   location: LocationObjectCoords;
-  setLatestRegion: React.Dispatch<React.SetStateAction<Region | null>>;
+  setLatestRegion: React.Dispatch<React.SetStateAction<Region | undefined>>;
 }
 
 export default function MapCentraliseButton({ mapRef, location, setLatestRegion }: Props) {

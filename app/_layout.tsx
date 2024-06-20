@@ -81,10 +81,6 @@ export default function TabLayout() {
       const promises = [
         updateDoc(postRef, { foodSaved: increment(1) }), // update post
         updateDoc(userRef, { totalFoodSaved: increment(1), lastMunch: null }), // update user
-<<<<<<< HEAD
-        updateDoc(posterRef, { totalFoodSaved: increment(1) }) // update poster
-      ]);
-=======
       ]
       if (user.lastMunch.posterId !== user.id) {
         promises.push(updateDoc(posterRef, { totalFoodSaved: increment(1) })) // update poster
@@ -92,7 +88,6 @@ export default function TabLayout() {
       await Promise.all(promises);
       setLastMunchPost(null);
       console.log("hello");
->>>>>>> d1bde779b7f07901785173a13bdc637a4b022ad2
     } catch (err) {
       console.log("Failed rejection remove user last munch", err);
     }
