@@ -14,6 +14,7 @@ import BakeryView from "@/components/bakery/BakeryView";
 import MapNearbyNewPostButton from "@/components/map/MapNearbyNewPostButton";
 import Constants from "expo-constants";
 import BlinkingGPSIcon from "@/components/map/BlinkingGPS";
+import MapShowListButton from "@/components/map/MapShowListButton";
 
 export default function Map() {
   // OLD
@@ -147,27 +148,39 @@ export default function Map() {
 
   const getGooglePicture = async (listing: GoogleListing) => {
     // comment out to reduce api calls for now...
-    if (listing.photoReferences.length === 0) return undefined;
-    const response = await fetch(
-      `https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photo_reference=${listing.photoReferences[0]}&key=${GOOGLE_API}`
-    );
-    const blob = await response.blob();
-    return (await blobToData(blob)) as string;
-    // return "https://www.shutterstock.com/image-photo/3d-render-cafe-bar-restaurant-600nw-1415138246.jpg";
+    // if (listing.photoReferences.length === 0) return undefined;
+    // const response = await fetch(
+    //   `https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photo_reference=${listing.photoReferences[0]}&key=${GOOGLE_API}`
+    // );
+    // const blob = await response.blob();
+    // return (await blobToData(blob)) as string;
+    return "https://www.shutterstock.com/image-photo/3d-render-cafe-bar-restaurant-600nw-1415138246.jpg";
   };
 
   const loadInitialData = async () => {
-    let { status } = await Location.requestForegroundPermissionsAsync();
-    if (status !== "granted") return setIsError(true);
-    let loc = await Location.getCurrentPositionAsync({
-      accuracy:
-        Platform.OS == "android" ? Location.LocationAccuracy.Low : Location.LocationAccuracy.Lowest,
-    });
-    setLocation(loc.coords);
+    // let { status } = await Location.requestForegroundPermissionsAsync();
+    // if (status !== "granted") return setIsError(true);
+    // let loc = await Location.getCurrentPositionAsync({
+    //   accuracy:
+    //     Platform.OS == "android" ? Location.LocationAccuracy.Low : Location.LocationAccuracy.Lowest,
+    // });
+    // console.log(loc.coords);
+
+    const dummy = {
+      accuracy: 30.109974175518165,
+      altitude: 39.508697509765625,
+      altitudeAccuracy: 15.353239059448242,
+      heading: -1,
+      latitude: 1.2951306,
+      longitude: 103.8488897,
+      speed: -1,
+    };
+
+    setLocation(dummy);
 
     const region = {
-      latitude: loc.coords.latitude,
-      longitude: loc.coords.longitude,
+      latitude: dummy.latitude,
+      longitude: dummy.longitude,
       latitudeDelta: 0.005,
       longitudeDelta: 0.005,
     };
@@ -175,7 +188,7 @@ export default function Map() {
     setLatestRegion(region);
 
     // Get bakeries
-    const bakeries = (await getListings(loc.coords.latitude, loc.coords.longitude)) ?? [];
+    const bakeries = (await getListings(dummy.latitude, dummy.longitude)) ?? [];
     setBakeries(bakeries);
   };
 
@@ -218,30 +231,6 @@ export default function Map() {
 
   return (
     <View style={styles.container}>
-      <View style={styles.topContainer}>
-        <TouchableOpacity
-          style={[
-            styles.button,
-            selectedButton === "list" ? styles.buttonSelected : styles.buttonUnselected,
-          ]}
-          onPress={() => setSelectedButton("list")}
-        >
-          <Text style={[styles.buttonText, selectedButton === "list" && styles.buttonTextSelected]}>
-            List
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[
-            styles.button,
-            selectedButton === "map" ? styles.buttonSelected : styles.buttonUnselected,
-          ]}
-          onPress={() => setSelectedButton("map")}
-        >
-          <Text style={[styles.buttonText, selectedButton === "map" && styles.buttonTextSelected]}>
-            Map
-          </Text>
-        </TouchableOpacity>
-      </View>
       {selectedButton === "map" && (
         <View style={styles.mapContainer}>
           <MapView
@@ -269,6 +258,7 @@ export default function Map() {
                 );
               })}
           </MapView>
+          {location && <MapShowListButton setSelectedButton={setSelectedButton} />}
           {location && (
             <MapCentraliseButton
               mapRef={mapRef}
@@ -382,15 +372,9 @@ const styles = StyleSheet.create({
   listContainer: {
     flex: 3,
     width: "100%",
-    marginTop: 20,
   },
   map: {
     ...StyleSheet.absoluteFillObject,
-  },
-  button: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
   },
   buttonSelected: {
     backgroundColor: Colors.accent,
@@ -401,12 +385,6 @@ const styles = StyleSheet.create({
   buttonText: {
     fontSize: 16,
     fontWeight: "bold",
-  },
-  buttonTextSelected: {
-    color: Colors.white,
-  },
-  buttonTextUnSelected: {
-    color: Colors.black,
   },
   modalView: {
     marginVertical: "auto",
