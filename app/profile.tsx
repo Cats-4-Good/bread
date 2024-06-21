@@ -14,24 +14,17 @@ import { useEffect, useState } from "react";
 import { ThemedText, ThemedButton } from "@/components";
 import BakeryPost from "@/components/bakery/BakeryPost";
 import { useUser } from "@/hooks";
-import { router } from "expo-router";
 import Constants from "expo-constants";
 import { MaterialIcons } from "@expo/vector-icons";
 import Modal from "react-native-modal";
 
 export default function ProfileScreen() {
-  const [user, { setUserStorage }] = useUser();
+  const [user, _] = useUser();
   const [posts, setPosts] = useState<Post[]>([]);
   const [isMunchesTooltipVisible, setMunchesTooltipVisible] = useState(false);
   const [isFoodSavedTooltipVisible, setFoodSavedTooltipVisible] = useState(false);
 
   const db = getFirestore();
-
-  const logoutHandler = async () => {
-    console.log("Logging out...");
-    await setUserStorage(null);
-    router.replace("/");
-  };
 
   useEffect(() => {
     (async () => {
@@ -69,19 +62,7 @@ export default function ProfileScreen() {
           marginBottom: 20,
         }}
       >
-        <View
-          style={{
-            position: "relative",
-            width: "100%",
-            alignItems: "center",
-            justifyContent: "center",
-          }}
-        >
-          <ThemedText type="title">{user.username}</ThemedText>
-          <TouchableOpacity style={{ position: "absolute", right: 20 }} onPress={logoutHandler}>
-            <MaterialIcons name="logout" size={35} />
-          </TouchableOpacity>
-        </View>
+        <ThemedText type="title" style={{ alignSelf: "center" }}>{user.username}</ThemedText>
 
         <View style={styles.statsContainer}>
           <View style={styles.statBox}>

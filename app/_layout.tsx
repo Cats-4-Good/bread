@@ -8,7 +8,6 @@ import * as SplashScreen from "expo-splash-screen";
 import { useEffect, useState } from "react";
 import "react-native-reanimated";
 import { initializeApp } from "firebase/app";
-import RegisterScreen from "@/components/fake-auth/register";
 import { useUser } from "@/hooks";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import Modal from "react-native-modal";
@@ -141,12 +140,6 @@ export default function TabLayout() {
 
         <Tabs.Screen
           name="[slug]"
-          options={{
-            href: null,
-          }}
-        />
-        <Tabs.Screen
-          name="register"
           options={{
             href: null,
           }}

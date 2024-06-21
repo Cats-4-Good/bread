@@ -1,3 +1,6 @@
+FOR AUTH IN FUTURE
+https://docs.expo.dev/router/reference/authentication/
+
 https://docs.expo.dev/guides/environment-variables/
 
 Replace `API_GOOGLE` with API key in app.json
