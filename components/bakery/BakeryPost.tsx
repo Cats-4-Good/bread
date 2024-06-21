@@ -63,28 +63,28 @@ export default function BakeryPost({
     return false;
   };
 
-  useEffect(() => {
-    (async () => {
-      const currentTime = Date.now();
-      const elapsed = currentTime - post.createdAt;
-      const secondsElapsed = Math.floor(elapsed / 1000);
-      // if more than 5 hours passed, post is likely irrelevant
-      if (!changedIsLive && post.isLive && secondsElapsed >= 60 * 60 * 5) {
-        setChangedIsLive(true);
-        const postRef = doc(db, "posts", post.id);
-        const bakeryRef = doc(db, "bakeries", post.bakeryId);
-        try {
-          await Promise.all([
-            updateDoc(postRef, { isLive: false }),
-            updateDoc(bakeryRef, { livePostsCount: increment(-1) }), // RACE CONDITION
-          ]);
-        } catch (err) {
-          console.log("Failed update live post and bakery count", err);
-        }
-      }
-    })();
-  }, []);
-
+  // useEffect(() => {
+  //   (async () => {
+  //     const currentTime = Date.now();
+  //     const elapsed = currentTime - post.createdAt;
+  //     const secondsElapsed = Math.floor(elapsed / 1000);
+  //     // if more than 5 hours passed, post is likely irrelevant
+  //     if (!changedIsLive && post.isLive && secondsElapsed >= 60 * 60 * 5) {
+  //       setChangedIsLive(true);
+  //       const postRef = doc(db, "posts", post.id);
+  //       const bakeryRef = doc(db, "bakeries", post.bakeryId);
+  //       try {
+  //         await Promise.all([
+  //           updateDoc(postRef, { isLive: false }),
+  //           updateDoc(bakeryRef, { livePostsCount: increment(-1) }), // RACE CONDITION
+  //         ]);
+  //       } catch (err) {
+  //         console.log("Failed update live post and bakery count", err);
+  //       }
+  //     }
+  //   })();
+  // }, []);
+  //
   useEffect(() => {
     (async () => {
       const res = await checkHasMunchedBefore();
