@@ -4,8 +4,11 @@ import { Unsubscribe, doc, getFirestore, onSnapshot, setDoc } from "firebase/fir
 import * as Device from "expo-device";
 
 const deviceNameToId: { [deviceName: string]: string } = {
-  "Redmi Note 11": "0",
-  "iPhone": "2",
+  "2201117TG": "0",
+  "iPhone 14 Pro": "1",
+  "iPhone 12": "2",
+  "iPhone 14": "3",
+  "iPhone 11 Pro": "4"
 };
 
 const idToName: { [id: string]: string } = {
@@ -26,8 +29,8 @@ export const useUser = (): [
   useEffect(() => {
     let unsub: Unsubscribe | undefined;
     async function run() {
-      console.log(Device.deviceName);
-      const id = Device.deviceName ? (deviceNameToId[Device.deviceName] ?? "-1") : "-1";
+      console.log(Device.modelName);
+      const id = Device.modelName ? (deviceNameToId[Device.modelName] ?? "-1") : "-1";
       const userRef = doc(db, "users", id);
       // i think it might be subscribing multiple times but idts also?
       unsub = onSnapshot(userRef, async (doc) => {
