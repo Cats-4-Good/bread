@@ -62,15 +62,13 @@ export default function Map() {
           htmlAttributions: listing.photos
             ? listing.photos.map((obj: any) => obj.html_attributrions)
             : [],
-          photoReferences: listing.photos
-            ? listing.photos.map((obj: any) => obj.photo_reference)
-            : [],
-          image: undefined,
+          photoReference: listing.photos
+            ? listing.photos.map((obj: any) => obj.photo_reference)[0]
+            : undefined,
         })) ?? [];
 
       await Promise.all(
         listings.map(async (listing) => {
-          listing.image = await getGooglePicture(listing);
           listing.distance = haversineDistance(latitude, longitude, listing.lat, listing.lng);
         })
       );
@@ -135,27 +133,6 @@ export default function Map() {
 
   const toRadians = (degrees: number): number => {
     return degrees * (Math.PI / 180);
-  };
-
-  //* Convert blob to base64 for image
-  const blobToData = (blob: Blob): Promise<string | ArrayBuffer | null> => {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onloadend = () => resolve(reader.result);
-      reader.onerror = () => reject("fml");
-      reader.readAsDataURL(blob);
-    });
-  };
-
-  const getGooglePicture = async (listing: GoogleListing) => {
-    // comment out to reduce api calls for now...
-    if (listing.photoReferences.length === 0) return undefined;
-    const response = await fetch(
-      `https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photo_reference=${listing.photoReferences[0]}&key=${GOOGLE_API}`
-    );
-    const blob = await response.blob();
-    return (await blobToData(blob)) as string;
-    return "https://www.shutterstock.com/image-photo/3d-render-cafe-bar-restaurant-600nw-1415138246.jpg";
   };
 
   const loadInitialData = async () => {

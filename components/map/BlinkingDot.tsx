@@ -42,9 +42,9 @@ const BlinkingDot = ({ isMapView }: { isMapView?: boolean }) => {
   });
 
   return (
-    <View style={styles.container}>
-      <Animated.View style={[styles.wave, animatedWaveStyle]} />
-      <Animated.View style={[styles.dot, animatedDotStyle]} />
+    <View style={styles.container} pointerEvents="none">
+      <Animated.View style={[styles.wave, animatedWaveStyle]} pointerEvents="none" />
+      <Animated.View style={[styles.dot, animatedDotStyle]} pointerEvents="none" />
     </View>
   );
 };

@@ -10,8 +10,7 @@ export interface GoogleListing {
   user_ratings_total: number;
   vicinity: string;
   htmlAttributions: string[];
-  photoReferences: string[];
-  image?: string;
+  photoReference?: string;
   distance: number;
 }
 

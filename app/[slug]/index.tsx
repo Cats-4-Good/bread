@@ -6,10 +6,12 @@ import { Colors } from "@/constants/Colors";
 import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
 import { query, where, getDocs, getFirestore, collection, orderBy } from "firebase/firestore";
 import { ThemedButton, ThemedText } from "@/components";
-import { Post } from "@/types";
+import { GoogleListing, Post } from "@/types";
+import { useGooglePicture } from "@/hooks";
 
 export default function BakeryPosts() {
   const { slug, ...params } = useLocalSearchParams();
+  const image = useGooglePicture(params.place_id as string, params.photoReference as string | undefined);
   const [posts, setPosts] = useState<Post[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const db = getFirestore();
@@ -74,11 +76,7 @@ export default function BakeryPosts() {
             <View style={styles.header}>
               <View style={styles.imageView}>
                 <Image
-                  source={{
-                    uri: `${params.image ??
-                      "https://www.shutterstock.com/image-photo/3d-render-cafe-bar-restaurant-600nw-1415138246.jpg"
-                      }`,
-                  }}
+                  source={{ uri: image }}
                   style={styles.bakeryImage}
                 />
               </View>

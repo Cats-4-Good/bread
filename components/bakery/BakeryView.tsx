@@ -3,9 +3,12 @@ import { Colors } from "@/constants/Colors";
 import { ThemedText } from "../ThemedText";
 import { Bakery } from "@/types";
 import { router } from "expo-router";
+import { useGooglePicture } from "@/hooks";
 
 export default function BakeryView({ bakery }: { bakery: Bakery }) {
   const { listing, stats } = bakery;
+  const image = useGooglePicture(listing.place_id, listing.photoReference);
+
   return (
     <TouchableOpacity
       onPress={() => {
@@ -17,12 +20,7 @@ export default function BakeryView({ bakery }: { bakery: Bakery }) {
     >
       <View style={styles.listItem}>
         <Image
-          source={{
-            uri: `${listing.image
-              ? listing.image
-              : "https://www.shutterstock.com/image-photo/3d-render-cafe-bar-restaurant-600nw-1415138246.jpg"
-              }`,
-          }}
+          source={{ uri: image }}
           style={styles.listItemImage}
         />
         <View style={styles.listItemTextContainer}>
