@@ -150,12 +150,12 @@ export default function Map() {
 
   const getGooglePicture = async (listing: GoogleListing) => {
     // comment out to reduce api calls for now...
-    // if (listing.photoReferences.length === 0) return undefined;
-    // const response = await fetch(
-    //   `https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photo_reference=${listing.photoReferences[0]}&key=${GOOGLE_API}`
-    // );
-    // const blob = await response.blob();
-    // return (await blobToData(blob)) as string;
+    if (listing.photoReferences.length === 0) return undefined;
+    const response = await fetch(
+      `https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photo_reference=${listing.photoReferences[0]}&key=${GOOGLE_API}`
+    );
+    const blob = await response.blob();
+    return (await blobToData(blob)) as string;
     return "https://www.shutterstock.com/image-photo/3d-render-cafe-bar-restaurant-600nw-1415138246.jpg";
   };
 
@@ -249,8 +249,6 @@ export default function Map() {
       );
     });
 
-
-  if (!user) return null;
 
   return (
     <View style={styles.container}>

@@ -8,7 +8,11 @@ const deviceNameToId: { [deviceName: string]: string } = {
 };
 
 const idToName: { [id: string]: string } = {
-  "0": "Justin"
+  "0": "Justin",
+  "1": "Jessica",
+  "2": "Rui Heng",
+  "3": "Guan Quan",
+  "4": "Brian",
 }
 
 export const useUser = (): [
@@ -28,7 +32,7 @@ export const useUser = (): [
         if (!doc.exists()) {
           // create user if don't exist
           const defaultUser: Omit<User, "id" | "munchedPostIds"> = {
-            username: idToName[id] ?? "Brian",
+            username: idToName[id] ?? "Bob",
             totalViews: 0,
             userMunches: 0,
             userFoodSaved: 0,

@@ -52,8 +52,6 @@ export default function ProfileScreen() {
     })();
   }, [user]);
 
-  if (!user) return null;
-
   return (
     <View style={styles.content}>
       <View
