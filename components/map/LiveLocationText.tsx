@@ -31,8 +31,8 @@ const LiveLocationText = () => {
 const styles = StyleSheet.create({
   gpsIconContainer: {
     position: "absolute",
-    bottom: 4,
-    right: 10,
+    top: 10,
+    left: 10,
     flexDirection: "row",
     alignItems: "center",
     padding: 8,

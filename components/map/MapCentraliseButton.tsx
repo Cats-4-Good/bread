@@ -9,9 +9,10 @@ interface Props {
   mapRef: any;
   location: LocationObjectCoords;
   setLatestRegion: React.Dispatch<React.SetStateAction<Region | undefined>>;
+  style?: any;
 }
 
-export default function MapCentraliseButton({ mapRef, location, setLatestRegion }: Props) {
+export default function MapCentraliseButton({ mapRef, location, setLatestRegion, style }: Props) {
   const handleCenterMap = async () => {
     if (mapRef.current && location) {
       mapRef.current.animateCamera({
@@ -19,20 +20,18 @@ export default function MapCentraliseButton({ mapRef, location, setLatestRegion 
           latitude: location.latitude,
           longitude: location.longitude,
         },
-        zoom: 2000,
-        altitude: 2000,
       });
       setLatestRegion({
         latitude: location.latitude,
         longitude: location.longitude,
-        latitudeDelta: 0.005,
-        longitudeDelta: 0.005,
+        latitudeDelta: 0.02,
+        longitudeDelta: 0.02,
       });
     }
   };
 
   return (
-    <ThemedButton type="round" style={styles.centerButton} onPress={handleCenterMap}>
+    <ThemedButton type="round" style={[styles.centerButton, style]} onPress={handleCenterMap}>
       <FontAwesome5 name="location-arrow" size={20} color="white" />
     </ThemedButton>
   );

@@ -26,7 +26,6 @@ export default function Map() {
   // const GOOGLE_API = "AIzaSyCVJO8VtUL7eZ9dsvB_mHl8q_aPzPR1v5g";
 
   const mapRef = useRef(null);
-  const [user, _] = useUser();
   const [selectedBakery, setSelectedBakery] = useState<Bakery | null>(null);
   const [bakeries, setBakeries] = useState<Bakery[]>([]);
   const [location, setLocation] = useState<Location.LocationObjectCoords>();
@@ -296,19 +295,30 @@ export default function Map() {
 
               <LiveLocationText />
 
-              <View style={{ position: 'absolute', top: 6 }}>
+              <View style={{ position: 'absolute', top: 10, right: 10 }}>
                 <TouchableOpacity style={styles.visitButton} onPress={() => setSelectedButton("map")}>
                   <ThemedText style={styles.visitButtonText} type="defaultSemiBold">
                     View map
                   </ThemedText>
                 </TouchableOpacity>
               </View>
+
+              {location && <MapCentraliseButton
+                mapRef={mapRef}
+                location={location}
+                setLatestRegion={setLatestRegion}
+                style={{ bottom: 8 }}
+              />}
             </View>
           </View>
           <FlatList
             data={bakeries}
             renderItem={({ item }) => <BakeryView bakery={item} />}
             keyExtractor={(_, index) => index.toString()}
+            ListEmptyComponent={
+              <ThemedText type="default" style={{ alignSelf: "center", marginTop: 10 }}>
+                Fetching nearby bakeries...
+              </ThemedText>}
           />
         </View>
       )}
@@ -370,11 +380,9 @@ const styles = StyleSheet.create({
   mapTitle: {
     marginVertical: 8,
     marginLeft: 20,
-    color: Platform.OS === "ios" ? Colors.white : Colors.black,
+    color: Colors.black,
   },
   visitButton: {
-    marginTop: 5,
-    marginLeft: 10,
     backgroundColor: Colors.accent,
     padding: 8,
     borderRadius: 25,

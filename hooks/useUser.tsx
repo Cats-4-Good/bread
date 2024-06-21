@@ -5,6 +5,7 @@ import * as Device from "expo-device";
 
 const deviceNameToId: { [deviceName: string]: string } = {
   "Redmi Note 11": "0",
+  "iPhone": "2",
 };
 
 const idToName: { [id: string]: string } = {
@@ -25,6 +26,7 @@ export const useUser = (): [
   useEffect(() => {
     let unsub: Unsubscribe | undefined;
     async function run() {
+      console.log(Device.deviceName);
       const id = Device.deviceName ? (deviceNameToId[Device.deviceName] ?? "-1") : "-1";
       const userRef = doc(db, "users", id);
       // i think it might be subscribing multiple times but idts also?
