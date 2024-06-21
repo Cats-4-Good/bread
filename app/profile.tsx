@@ -10,13 +10,14 @@ import {
   orderBy,
   limit,
 } from "firebase/firestore";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { ThemedText, ThemedButton } from "@/components";
 import BakeryPost from "@/components/bakery/BakeryPost";
 import { useUser } from "@/hooks";
 import Constants from "expo-constants";
 import { MaterialIcons } from "@expo/vector-icons";
 import Modal from "react-native-modal";
+import { useFocusEffect } from "expo-router";
 
 export default function ProfileScreen() {
   const [user, _] = useUser();
@@ -26,7 +27,7 @@ export default function ProfileScreen() {
 
   const db = getFirestore();
 
-  useEffect(() => {
+  useFocusEffect(useCallback(() => {
     (async () => {
       if (!user?.id) return;
       try {
@@ -50,8 +51,9 @@ export default function ProfileScreen() {
         console.error("Failed to get posts of user", err);
       }
     })();
-  }, [user]);
+  }, [user]));
 
+  if (!user) return null;
   return (
     <View style={styles.content}>
       <View

@@ -9,7 +9,7 @@ import { useEffect, useState } from "react";
 import "react-native-reanimated";
 import { initializeApp } from "firebase/app";
 import { useUser } from "@/hooks";
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { ActivityIndicator, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import Modal from "react-native-modal";
 import { Post } from "@/types";
 import { doc, getDoc, getFirestore, increment, updateDoc } from "firebase/firestore";
@@ -37,6 +37,7 @@ export default function TabLayout() {
   const [user, _] = useUser();
   const [rejected, setRejected] = useState(false);
   const [lastMunchPost, setLastMunchPost] = useState<Post | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
   const db = getFirestore();
 
   useEffect(() => {
@@ -73,6 +74,7 @@ export default function TabLayout() {
 
   const handleSuccess = async () => {
     if (!user?.lastMunch) return;
+    setIsLoading(true);
     const postRef = doc(db, "posts", user.lastMunch.postId);
     const userRef = doc(db, "users", user.id);
     const posterRef = doc(db, "users", user.lastMunch.posterId);
@@ -82,11 +84,13 @@ export default function TabLayout() {
         updateDoc(userRef, { userFoodSaved: increment(1), lastMunch: null }), // update user
         updateDoc(posterRef, { postsFoodSaved: increment(1) }), // update poster
       ]);
-      setLastMunchPost(null);
+      setTimeout(() => setLastMunchPost(null), 1000);
       console.log("hello");
     } catch (err) {
       console.log("Failed rejection remove user last munch", err);
     }
+    setIsLoading(false);
+    setLastMunchPost(null);
   };
 
   const handleReject = async () => {
@@ -154,14 +158,16 @@ export default function TabLayout() {
         <View style={styles.modalView}>
           <Text style={styles.modalTitle}>Did you purchase this item you munched on?</Text>
           {lastMunchPost && <BakeryPost post={lastMunchPost} showBakeryName />}
-          <View style={styles.buttonView}>
-            <TouchableOpacity style={styles.button} onPress={handleSuccess}>
-              <Text style={styles.buttonText}>Yes</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.button} onPress={handleReject}>
-              <Text style={styles.buttonText}>No</Text>
-            </TouchableOpacity>
-          </View>
+          {isLoading
+            ? <ActivityIndicator size="large" style={{ alignSelf: "center", marginBottom: 10 }} />
+            : <View style={styles.buttonView}>
+              <TouchableOpacity style={styles.button} onPress={handleSuccess}>
+                <Text style={styles.buttonText}>Yes</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.button} onPress={handleReject}>
+                <Text style={styles.buttonText}>No</Text>
+              </TouchableOpacity>
+            </View>}
         </View>
       </Modal>
     </ThemeProvider >
