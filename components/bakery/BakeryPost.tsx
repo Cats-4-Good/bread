@@ -1,4 +1,4 @@
-import { View, StyleSheet, Image, TouchableWithoutFeedback } from "react-native";
+import { View, StyleSheet, Image, TouchableOpacity } from "react-native";
 import { Colors } from "@/constants/Colors";
 import { ThemedText } from "../ThemedText";
 import { Post, User } from "@/types";
@@ -6,11 +6,12 @@ import { ThemedButton } from "../ThemedButton";
 import { doc, getDoc, getFirestore, increment, setDoc, updateDoc } from "firebase/firestore";
 import { useUser } from "@/hooks";
 import { useEffect, useState } from "react";
-import { router } from "expo-router";
+import Modal from "react-native-modal";
+import { MaterialIcons } from "@expo/vector-icons";
 
-const getTimeAgo = (epochTime: string): string => {
+const getTimeAgo = (time: number): string => {
   const currentTime = Date.now();
-  const elapsed = currentTime - parseInt(epochTime);
+  const elapsed = currentTime - time;
 
   const seconds = Math.floor(elapsed / 1000);
   const minutes = Math.floor(seconds / 60);
@@ -31,14 +32,17 @@ const getTimeAgo = (epochTime: string): string => {
 export default function BakeryPost({
   post,
   showBakeryName,
+  isProfileView,
 }: {
   post: Post;
-  showBakeryName: boolean;
+  showBakeryName?: boolean;
+  isProfileView?: boolean;
 }) {
   const [user, setUser] = useUser();
   const [hasMunchedBefore, setHasMunchedBefore] = useState(false);
   const [justMunched, setJustMunched] = useState(false);
   const [changedIsLive, setChangedIsLive] = useState(false);
+  const [isMunchesTooltipVisible, setMunchesTooltipVisible] = useState(false);
   const db = getFirestore();
 
   const checkHasMunchedBefore = async () => {
@@ -62,7 +66,7 @@ export default function BakeryPost({
   useEffect(() => {
     (async () => {
       const currentTime = Date.now();
-      const elapsed = currentTime - parseInt(post.createdAt);
+      const elapsed = currentTime - post.createdAt;
       const secondsElapsed = Math.floor(elapsed / 1000);
       // if more than 5 hours passed, post is likely irrelevant
       if (!changedIsLive && post.isLive && secondsElapsed >= 60 * 60 * 5) {
@@ -115,12 +119,12 @@ export default function BakeryPost({
       const lastMunch: User["lastMunch"] = {
         postId: post.id,
         posterId: post.uid,
-        time: new Date().getTime().toString(),
+        time: Date.now(),
       };
       await Promise.all([
         updateDoc(postRef, { munches: increment(1) }),
-        updateDoc(posterRef, { totalMunches: increment(1) }),
-        updateDoc(userRef, { lastMunch }),
+        updateDoc(posterRef, { postsMunches: increment(1) }),
+        updateDoc(userRef, { userMunches: increment(1), lastMunch }),
         setDoc(userMunchedPostIdsDocRef, {}), // add to collection
       ]);
       console.log("Munch success");
@@ -151,14 +155,19 @@ export default function BakeryPost({
             {getTimeAgo(post.createdAt)}
           </ThemedText>
         </View>
-        <ThemedButton
-          type={hasMunchedBefore ? "secondary" : "primary"}
-          style={styles.munchButton}
-          disabled={hasMunchedBefore}
-          onPress={updateMunch}
-        >
-          {hasMunchedBefore ? "Munched!" : "Munch!"}
-        </ThemedButton>
+        <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
+          <ThemedButton
+            type={hasMunchedBefore ? "secondary" : "primary"}
+            style={styles.munchButton}
+            disabled={hasMunchedBefore}
+            onPress={updateMunch}
+          >
+            {hasMunchedBefore ? "Munched!" : "Munch!"}
+          </ThemedButton>
+          <TouchableOpacity onPress={() => setMunchesTooltipVisible(true)}>
+            <MaterialIcons name="info-outline" size={25} />
+          </TouchableOpacity>
+        </View>
       </View>
       {post.image && <Image source={{ uri: `${post.image}` }} style={styles.listItemImage} />}
       {showBakeryName && (
@@ -172,7 +181,30 @@ export default function BakeryPost({
       <ThemedText type="default" style={styles.description}>
         {post.description}
       </ThemedText>
-    </View>
+
+      <Modal
+        isVisible={isMunchesTooltipVisible}
+        onBackdropPress={() => setMunchesTooltipVisible(false)}
+        hasBackdrop
+      >
+        <View style={styles.modalView}>
+          <ThemedText style={styles.modalTitle}>Munch</ThemedText>
+          <ThemedText type="default" style={styles.modalText}>
+            indicates to everyone that "I'm buying this!"
+          </ThemedText>
+          <ThemedButton
+            type="primary"
+            style={{ paddingVertical: 16 }}
+            onPress={() => {
+              setMunchesTooltipVisible(false);
+            }}
+          >
+            Close
+          </ThemedButton>
+        </View>
+      </Modal >
+
+    </View >
   );
 }
 
@@ -234,5 +266,36 @@ const styles = StyleSheet.create({
     paddingVertical: 9,
     paddingHorizontal: 24,
     borderRadius: 15,
+  },
+  tooltip: {
+    backgroundColor: Colors.white,
+    padding: 20,
+    borderRadius: 10,
+    alignItems: "center",
+  },
+  modalView: {
+    marginVertical: "auto",
+    marginHorizontal: "auto",
+    width: 340,
+    gap: 14,
+    backgroundColor: "white",
+    borderRadius: 20,
+    paddingVertical: 20,
+    paddingHorizontal: 25,
+    shadowColor: Colors.black,
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: "bold",
+  },
+  modalText: {
+    fontSize: 16,
   },
 });

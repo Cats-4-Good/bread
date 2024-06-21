@@ -1,7 +1,7 @@
 import { View, StyleSheet, FlatList, Image, ActivityIndicator } from "react-native";
 import { Entypo } from "@expo/vector-icons";
 import BakeryPost from "@/components/bakery/BakeryPost";
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useState } from "react";
 import { Colors } from "@/constants/Colors";
 import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
 import { query, where, getDocs, getFirestore, collection, orderBy } from "firebase/firestore";
@@ -67,7 +67,7 @@ export default function BakeryPosts() {
         </View>
         : <FlatList
           data={posts}
-          renderItem={({ item }) => <BakeryPost post={item} showBakeryName={false} />}
+          renderItem={({ item }) => <BakeryPost post={item} />}
           keyExtractor={(_, index) => index.toString()}
           style={styles.list}
           ListHeaderComponent={

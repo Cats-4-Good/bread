@@ -47,7 +47,7 @@ export default function TabLayout() {
   const checkLastMunch = async () => {
     if (!user?.lastMunch || lastMunchPost || rejected) return;
     const curTime = Date.now();
-    const elapsed = curTime - parseInt(user.lastMunch.time);
+    const elapsed = curTime - user.lastMunch.time;
     const secondsElapsed = Math.floor(elapsed / 1000);
     const minMinutesAgo = 0.1; // CHANGE THIS IN FUTURE
     if (minMinutesAgo * 60 <= secondsElapsed) {
@@ -78,14 +78,11 @@ export default function TabLayout() {
     const userRef = doc(db, "users", user.id);
     const posterRef = doc(db, "users", user.lastMunch.posterId);
     try {
-      const promises = [
+      await Promise.all([
         updateDoc(postRef, { foodSaved: increment(1) }), // update post
-        updateDoc(userRef, { totalFoodSaved: increment(1), lastMunch: null }), // update user
-      ]
-      if (user.lastMunch.posterId !== user.id) {
-        promises.push(updateDoc(posterRef, { totalFoodSaved: increment(1) })) // update poster
-      }
-      await Promise.all(promises);
+        updateDoc(userRef, { userFoodSaved: increment(1), lastMunch: null }), // update user
+        updateDoc(posterRef, { postsFoodSaved: increment(1) }), // update poster
+      ]);
       setLastMunchPost(null);
       console.log("hello");
     } catch (err) {
@@ -125,18 +122,6 @@ export default function TabLayout() {
             tabBarIcon: ({ color, focused }) => (
               <TabBarIcon
                 name={focused ? "home" : "home-outline"}
-                color={color}
-              />
-            ),
-          }}
-        />
-        <Tabs.Screen
-          name="favourite"
-          options={{
-            title: "Favourite",
-            tabBarIcon: ({ color, focused }) => (
-              <TabBarIcon
-                name={focused ? "star" : "star-outline"}
                 color={color}
               />
             ),

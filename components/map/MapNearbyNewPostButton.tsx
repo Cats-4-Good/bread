@@ -82,6 +82,6 @@ const styles = StyleSheet.create({
   listItem: {
     paddingVertical: 10,
     borderBottomWidth: 1,
-    borderBottomColor: Colors.gray,
+    borderBottomColor: Colors.grayLight,
   },
 });

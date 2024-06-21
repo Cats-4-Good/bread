@@ -18,11 +18,10 @@ export default function BakeryView({ bakery }: { bakery: Bakery }) {
       <View style={styles.listItem}>
         <Image
           source={{
-            uri: `${
-              listing.image
-                ? listing.image
-                : "https://www.shutterstock.com/image-photo/3d-render-cafe-bar-restaurant-600nw-1415138246.jpg"
-            }`,
+            uri: `${listing.image
+              ? listing.image
+              : "https://www.shutterstock.com/image-photo/3d-render-cafe-bar-restaurant-600nw-1415138246.jpg"
+              }`,
           }}
           style={styles.listItemImage}
         />
@@ -30,7 +29,7 @@ export default function BakeryView({ bakery }: { bakery: Bakery }) {
           <ThemedText type="subtitle" numberOfLines={1}>
             {listing.name}
           </ThemedText>
-          <ThemedText type="default" numberOfLines={1}>
+          <ThemedText type="default" numberOfLines={1} style={{ color: Colors.gray }}>
             {listing.vicinity}
           </ThemedText>
           <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
@@ -42,16 +41,16 @@ export default function BakeryView({ bakery }: { bakery: Bakery }) {
                   listing.status === "CLOSED_TEMPORARILY"
                     ? Colors.red
                     : listing.status === "OPERATIONAL"
-                    ? Colors.green
-                    : "#000",
+                      ? Colors.green
+                      : "#000",
                 ...styles.text,
               }}
             >
               {listing.status === "CLOSED_TEMPORARILY"
                 ? "CLOSED"
                 : listing.status === "OPERATIONAL"
-                ? "OPEN"
-                : listing.status}
+                  ? "OPEN"
+                  : listing.status}
             </ThemedText>
             <ThemedText type="default" numberOfLines={1} style={styles.text}>
               ~{listing.distance}m away

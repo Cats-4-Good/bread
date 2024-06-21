@@ -33,7 +33,7 @@ export interface Post {
   bakeryId: string; // so this is place id
   uid: string; // uid here for future when want to click to go to poster's profile
   username: string; // will be inaccurate if user can change name but dc
-  createdAt: string;
+  createdAt: number;
   isLive: boolean; // used to mark if deducted from bakery's livePostsCount alr
   image?: string | null;
   description?: string | null;
@@ -51,12 +51,14 @@ export interface User {
   id: string;
   username: string;
   totalViews: number; // (all these total are the aggregate amounts they've received from all posts)
-  totalMunches: number;
-  totalFoodSaved: number;
+  userMunches: number;
+  userFoodSaved: number;
+  postsMunches: number;
+  postsFoodSaved: number;
   lastMunch: {
     postId: string;
     posterId: string;
-    time: string;
+    time: number;
   } | null;
   munchedPostIds: string[]; // in firestore this will be a collection of all postIds, but in state will be empty array that will be populated with postids whenever user munches
   // also can use set for this but nah

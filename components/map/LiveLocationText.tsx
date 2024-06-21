@@ -1,10 +1,9 @@
 import { useEffect, useState } from "react";
-import { View, StyleSheet, Dimensions } from "react-native";
+import { View, StyleSheet } from "react-native";
 import { Entypo } from "@expo/vector-icons";
 import { Colors } from "@/constants/Colors";
 import { ThemedText } from "../ThemedText";
 
-const { width, height } = Dimensions.get("window");
 
 const LiveLocationText = () => {
   const [color, setColor] = useState(Colors.black);
@@ -32,8 +31,8 @@ const LiveLocationText = () => {
 const styles = StyleSheet.create({
   gpsIconContainer: {
     position: "absolute",
-    bottom: 14,
-    right: 20,
+    bottom: 4,
+    right: 10,
     flexDirection: "row",
     alignItems: "center",
     padding: 8,

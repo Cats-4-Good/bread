@@ -182,8 +182,8 @@ export default function Map() {
     const region = {
       latitude: dummy.latitude,
       longitude: dummy.longitude,
-      latitudeDelta: 0.005,
-      longitudeDelta: 0.005,
+      latitudeDelta: 0.02,
+      longitudeDelta: 0.02,
     };
     setInitialRegion(region);
     setLatestRegion(region);
@@ -230,6 +230,26 @@ export default function Map() {
     );
   }
 
+  const markers =
+    bakeries.length > 0 &&
+    bakeries.map((bakery) => {
+      const marker = bakery.listing;
+      return (
+        <Marker
+          coordinate={{
+            latitude: marker.lat,
+            longitude: marker.lng,
+          }}
+          key={marker.place_id}
+          tracksViewChanges={false}
+          image={require("@/assets/images/map-icon-light.png")}
+          onPress={() => selectedButton === "map" ? setSelectedBakery(bakery) : {}}
+        />
+      );
+    });
+
+
+
   return (
     <View style={styles.container}>
       {selectedButton === "map" && (
@@ -242,22 +262,7 @@ export default function Map() {
             onRegionChangeComplete={handleRegionChangeComplete}
             userInterfaceStyle="dark"
           >
-            {bakeries.length > 0 &&
-              bakeries.map((bakery) => {
-                const marker = bakery.listing;
-                return (
-                  <Marker
-                    coordinate={{
-                      latitude: marker.lat,
-                      longitude: marker.lng,
-                    }}
-                    key={marker.place_id}
-                    tracksViewChanges={false}
-                    image={require("@/assets/images/map-icon-light.png")}
-                    onPress={() => setSelectedBakery(bakery)}
-                  />
-                );
-              })}
+            {markers}
           </MapView>
           <BlinkingDot isMapView />
           {location && <MapShowListButton setSelectedButton={setSelectedButton} />}
@@ -272,6 +277,9 @@ export default function Map() {
       )}
       {selectedButton === "list" && (
         <View style={styles.listContainer}>
+          <ThemedText type="title" style={styles.mapTitle}>
+            Explore bakeries near you
+          </ThemedText>
           <View style={styles.mapPreviewContainer}>
             <MapView
               ref={mapRef}
@@ -280,22 +288,21 @@ export default function Map() {
               showsUserLocation={false}
               userInterfaceStyle="dark"
               scrollEnabled={false}
-            />
+            >
+              {markers}
+            </MapView>
             <View style={{ flex: 1, position: 'relative', overflow: 'hidden' }}>
               <BlinkingDot />
 
-              <View style={{ position: 'absolute' }}>
-                <ThemedText type="title" style={styles.mapTitle}>
-                  Explore bakeries near you
-                </ThemedText>
+              <LiveLocationText />
+
+              <View style={{ position: 'absolute', top: 6 }}>
                 <TouchableOpacity style={styles.visitButton} onPress={() => setSelectedButton("map")}>
                   <ThemedText style={styles.visitButtonText} type="defaultSemiBold">
                     View map
                   </ThemedText>
                 </TouchableOpacity>
               </View>
-
-              <LiveLocationText />
             </View>
           </View>
           <FlatList
@@ -361,7 +368,7 @@ const styles = StyleSheet.create({
     ...StyleSheet.absoluteFillObject,
   },
   mapTitle: {
-    marginTop: 20,
+    marginVertical: 8,
     marginLeft: 20,
     color: Platform.OS === "ios" ? Colors.white : Colors.black,
   },

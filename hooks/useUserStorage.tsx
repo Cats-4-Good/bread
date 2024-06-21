@@ -34,6 +34,7 @@ export const useUserStorage = (): [
       setUserStorage(res);
       if (!res) console.log("No user stored");
       else console.log(`Loaded id ${res.id} ${res.username} from storage`);
+      console.log(userStorage);
     } catch (err) {
       console.log(err);
     };

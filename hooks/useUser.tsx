@@ -22,8 +22,10 @@ export const useUser = (): [
         const defaultUser: Omit<User, "id" | "munchedPostIds"> = {
           username: userStorage.username,
           totalViews: 0,
-          totalMunches: 0,
-          totalFoodSaved: 0,
+          userMunches: 0,
+          userFoodSaved: 0,
+          postsMunches: 0,
+          postsFoodSaved: 0,
           lastMunch: null,
         };
         try {

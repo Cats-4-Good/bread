@@ -91,7 +91,7 @@ export default function NewPost() {
             username: user.username,
             bakeryId: params.place_id as string,
             bakeryName: params.name as string,
-            createdAt: new Date().getTime().toString(),
+            createdAt: Date.now(),
             isLive: true,
             image: downloadURL,
             description,

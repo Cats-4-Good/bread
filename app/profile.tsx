@@ -13,7 +13,6 @@ import {
 import { useEffect, useState } from "react";
 import { ThemedText, ThemedButton } from "@/components";
 import BakeryPost from "@/components/bakery/BakeryPost";
-import { useLocalSearchParams } from "expo-router";
 import { useUser, useUserStorage } from "@/hooks";
 import { router } from "expo-router";
 import Constants from "expo-constants";
@@ -21,10 +20,8 @@ import { MaterialIcons } from "@expo/vector-icons";
 import Modal from "react-native-modal";
 
 export default function ProfileScreen() {
-  const params = useLocalSearchParams();
   const [_, { remove }] = useUserStorage();
-  const [currentUser, _setCurrentUser] = useUser();
-  const [user, setUser] = useState<{ id: string; username: string } | null>(null);
+  const [user, _setUser] = useUser();
   const [posts, setPosts] = useState<Post[]>([]);
   const [isMunchesTooltipVisible, setMunchesTooltipVisible] = useState(false);
   const [isFoodSavedTooltipVisible, setFoodSavedTooltipVisible] = useState(false);
@@ -37,113 +34,84 @@ export default function ProfileScreen() {
     router.replace("/");
   };
 
-  const getBakeryPostsByUser = async (userId: string): Promise<Post[]> => {
-    try {
-      const posts: Post[] = [];
-      const q = query(
-        collection(db, "posts"),
-        where("uid", "==", userId),
-        orderBy("createdAt", "desc"),
-        limit(10)
-      );
-      const querySnapshot = await getDocs(q);
-
-      querySnapshot.forEach((doc) => {
-        posts.push({
-          id: doc.id,
-          ...doc.data(),
-        } as Post);
-      });
-      return posts;
-    } catch (err) {
-      console.error("Failed to get posts of user", err);
-      return [];
-    }
-  };
-
   useEffect(() => {
     (async () => {
+      if (!user?.id) return;
       try {
-        const paramId = params.userId as string;
-        const ownId = currentUser?.id;
-        let posts;
+        const posts: Post[] = [];
+        const q = query(
+          collection(db, "posts"),
+          where("uid", "==", user.id),
+          orderBy("createdAt", "desc"),
+          limit(10)
+        );
+        const querySnapshot = await getDocs(q);
 
-        if (paramId && paramId !== ownId) {
-          setUser({ id: paramId, username: params.username as string });
-          posts = await getBakeryPostsByUser(paramId);
-        } else {
-          const userId = currentUser?.id;
-          if (!userId) {
-            return;
-          }
-          setUser({ id: userId, username: currentUser.username });
-          posts = await getBakeryPostsByUser(userId);
-        }
+        querySnapshot.forEach((doc) => {
+          posts.push({
+            id: doc.id,
+            ...doc.data(),
+          } as Post);
+        });
         setPosts(posts);
-      } catch (error) {
-        console.error("Error fetching data:", error);
+      } catch (err) {
+        console.error("Failed to get posts of user", err);
       }
     })();
-  }, [params.userId, currentUser]);
+  }, [user]);
+
+  if (!user) return null;
 
   return (
     <View style={styles.content}>
-      {user && currentUser && (
+      <View
+        style={{
+          marginTop: Constants.statusBarHeight + 10,
+          marginBottom: 20,
+        }}
+      >
         <View
           style={{
+            position: "relative",
+            width: "100%",
             alignItems: "center",
-            marginTop: Constants.statusBarHeight + 10,
-            marginBottom: 20,
+            justifyContent: "center",
           }}
         >
-          <View
-            style={{
-              position: "relative",
-              width: "100%",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-          >
-            <ThemedText type="title">{user.username}</ThemedText>
-            <TouchableOpacity style={{ position: "absolute", right: 20 }} onPress={logoutHandler}>
-              <MaterialIcons name="logout" size={35} />
-            </TouchableOpacity>
-          </View>
-          <View style={styles.statsContainer}>
-            <View style={styles.statBox}>
-              <ThemedText type="title" style={styles.statNumber}>
-                {currentUser.totalMunches ? currentUser.totalMunches : 0}
-              </ThemedText>
-              <View style={styles.labelContainer}>
-                <ThemedText type="default" style={styles.statLabel}>
-                  Munches
-                </ThemedText>
-                <TouchableOpacity onPress={() => setMunchesTooltipVisible(true)}>
-                  <MaterialIcons name="info-outline" size={20} color={Colors.white} />
-                </TouchableOpacity>
-              </View>
+          <ThemedText type="title">{user.username}</ThemedText>
+          <TouchableOpacity style={{ position: "absolute", right: 20 }} onPress={logoutHandler}>
+            <MaterialIcons name="logout" size={35} />
+          </TouchableOpacity>
+        </View>
+
+        <View style={styles.statsContainer}>
+          <View style={styles.statBox}>
+            <ThemedText type="default" style={styles.statLabel}>You munched on</ThemedText>
+            <ThemedText type="title" style={styles.statNumber}>{user.userMunches ?? 0}</ThemedText>
+            <View style={styles.tooltipView}>
+              <ThemedText type="default" style={styles.statLabel}>&nbsp;lobangs</ThemedText>
+              <TouchableOpacity onPress={() => setMunchesTooltipVisible(true)}>
+                <MaterialIcons name="info-outline" size={20} color={Colors.white} />
+              </TouchableOpacity>
             </View>
-            <View style={styles.statBox}>
-              <ThemedText type="title" style={styles.statNumber}>
-                {currentUser.totalFoodSaved ? currentUser.totalFoodSaved : 0}
-              </ThemedText>
-              <View style={styles.labelContainer}>
-                <ThemedText type="default" style={styles.statLabel}>
-                  Food Saved
-                </ThemedText>
-                <TouchableOpacity onPress={() => setFoodSavedTooltipVisible(true)}>
-                  <MaterialIcons name="info-outline" size={20} color={Colors.white} />
-                </TouchableOpacity>
-              </View>
+          </View>
+          <View style={styles.statBox}>
+            <ThemedText type="default" style={styles.statLabel}>Your lobangs saved</ThemedText>
+            <ThemedText type="title" style={styles.statNumber}>{user.postsFoodSaved ?? 0}</ThemedText>
+            <View style={styles.tooltipView}>
+              <ThemedText type="default" style={styles.statLabel}>&nbsp;food items</ThemedText>
+              <TouchableOpacity onPress={() => setFoodSavedTooltipVisible(true)}>
+                <MaterialIcons name="info-outline" size={20} color={Colors.white} />
+              </TouchableOpacity>
             </View>
           </View>
         </View>
-      )}
+      </View>
 
       {posts.length > 0 ? (
         <FlatList
           data={posts}
-          renderItem={({ item }) => <BakeryPost post={item} showBakeryName={true} />}
+          renderItem={({ item }) => <BakeryPost post={item} showBakeryName isProfileView />}
           keyExtractor={(_, index) => index.toString()}
           style={styles.list}
         />
@@ -160,10 +128,7 @@ export default function ProfileScreen() {
       >
         <View style={styles.modalView}>
           <ThemedText style={styles.modalTitle}>Munches</ThemedText>
-          <ThemedText type="default" style={styles.modalText}>
-            Munches are the number of "I'm buying this!" indications. Treat it as a like or upvote
-            on your favourite social media platform!
-          </ThemedText>
+          <ThemedText type="default" style={styles.modalText}>are the number of "I'm buying this!" indications.</ThemedText>
           <ThemedButton
             type="primary"
             style={{ paddingVertical: 16 }}
@@ -182,11 +147,9 @@ export default function ProfileScreen() {
         hasBackdrop
       >
         <View style={styles.modalView}>
-          <ThemedText style={styles.modalTitle}>Food Saved</ThemedText>
-          <ThemedText type="default" style={styles.modalText}>
-            Food items saved estimates the amount of waste you've helped to prevent using your munch
-            count. Thank you for doing your part to fight food waste!
-          </ThemedText>
+          <ThemedText style={styles.modalTitle}>Food items saved</ThemedText>
+          <ThemedText type="default" style={styles.modalText}>estimates the total food waste your lobangs have helped save.</ThemedText>
+          <ThemedText type="default" style={styles.modalText}>Your lobangs have spurred {user.postsFoodSaved} clearance purchases preventing food waste!</ThemedText>
           <ThemedButton
             type="primary"
             style={{ paddingVertical: 16 }}
@@ -209,16 +172,16 @@ const styles = StyleSheet.create({
   },
   statsContainer: {
     flexDirection: "row",
-    justifyContent: "space-between",
-    width: "80%",
     marginTop: 10,
+    marginHorizontal: 20,
+    gap: 10,
   },
   statBox: {
     backgroundColor: Colors.accent,
     padding: 16,
     borderRadius: 10,
+    flex: 1,
     alignItems: "center",
-    width: "45%",
   },
   statNumber: {
     fontSize: 24,
@@ -228,7 +191,10 @@ const styles = StyleSheet.create({
   statLabel: {
     fontSize: 14,
     color: Colors.white,
-    paddingRight: 3,
+  },
+  tooltipView: {
+    flexDirection: "row",
+    gap: 3,
   },
   labelContainer: {
     flexDirection: "row",
@@ -241,17 +207,11 @@ const styles = StyleSheet.create({
     textAlign: "center",
     marginTop: 40,
   },
-  tooltip: {
-    backgroundColor: Colors.white,
-    padding: 20,
-    borderRadius: 10,
-    alignItems: "center",
-  },
   modalView: {
     marginVertical: "auto",
     marginHorizontal: "auto",
     width: 340,
-    gap: 14,
+    gap: 10,
     backgroundColor: "white",
     borderRadius: 20,
     paddingVertical: 20,
