@@ -13,15 +13,16 @@ import { doc, getDoc, getFirestore, setDoc } from "firebase/firestore";
 import BakeryView from "@/components/bakery/BakeryView";
 import MapNearbyNewPostButton from "@/components/map/MapNearbyNewPostButton";
 import Constants from "expo-constants";
-import BlinkingGPSIcon from "@/components/map/BlinkingGPS";
+import LiveLocationText from "@/components/map/LiveLocationText";
 import MapShowListButton from "@/components/map/MapShowListButton";
+import BlinkingDot from "@/components/map/BlinkingDot";
 
 export default function Map() {
   // OLD
-  // const GOOGLE_API = "AIzaSyBo-YlhvMVibmBKfXKXuDVf--a92s3yGpY";
+  const GOOGLE_API = "AIzaSyBo-YlhvMVibmBKfXKXuDVf--a92s3yGpY";
 
   // NEW
-  const GOOGLE_API = "AIzaSyCVJO8VtUL7eZ9dsvB_mHl8q_aPzPR1v5g";
+  // const GOOGLE_API = "AIzaSyCVJO8VtUL7eZ9dsvB_mHl8q_aPzPR1v5g";
 
   const mapRef = useRef(null);
 
@@ -121,9 +122,9 @@ export default function Map() {
     const a =
       Math.sin(dLat / 2) * Math.sin(dLat / 2) +
       Math.cos(toRadians(lat1)) *
-        Math.cos(toRadians(lat2)) *
-        Math.sin(dLon / 2) *
-        Math.sin(dLon / 2);
+      Math.cos(toRadians(lat2)) *
+      Math.sin(dLon / 2) *
+      Math.sin(dLon / 2);
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
     let distance = R * c; // in kilometers
 
@@ -237,7 +238,7 @@ export default function Map() {
             ref={mapRef}
             style={styles.map}
             initialRegion={initialRegion}
-            showsUserLocation={true}
+            showsUserLocation={false}
             onRegionChangeComplete={handleRegionChangeComplete}
             userInterfaceStyle="dark"
           >
@@ -258,6 +259,7 @@ export default function Map() {
                 );
               })}
           </MapView>
+          <BlinkingDot isMapView />
           {location && <MapShowListButton setSelectedButton={setSelectedButton} />}
           {location && (
             <MapCentraliseButton
@@ -279,14 +281,22 @@ export default function Map() {
               userInterfaceStyle="dark"
               scrollEnabled={false}
             />
-            <ThemedText type="title" style={styles.mapTitle}>
-              Explore bakeries near you
-            </ThemedText>
-            <TouchableOpacity style={styles.visitButton} onPress={() => setSelectedButton("map")}>
-              <ThemedText style={styles.visitButtonText} type="defaultSemiBold">
-                View map
-              </ThemedText>
-            </TouchableOpacity>
+            <View style={{ flex: 1, position: 'relative', overflow: 'hidden' }}>
+              <BlinkingDot />
+
+              <View style={{ position: 'absolute' }}>
+                <ThemedText type="title" style={styles.mapTitle}>
+                  Explore bakeries near you
+                </ThemedText>
+                <TouchableOpacity style={styles.visitButton} onPress={() => setSelectedButton("map")}>
+                  <ThemedText style={styles.visitButtonText} type="defaultSemiBold">
+                    View map
+                  </ThemedText>
+                </TouchableOpacity>
+              </View>
+
+              <LiveLocationText />
+            </View>
           </View>
           <FlatList
             data={bakeries}
@@ -327,8 +337,6 @@ export default function Map() {
           </Text>
         </View>
       </Modal>
-
-      <BlinkingGPSIcon />
     </View>
   );
 }
@@ -353,9 +361,9 @@ const styles = StyleSheet.create({
     ...StyleSheet.absoluteFillObject,
   },
   mapTitle: {
-    marginTop: 30,
-    marginLeft: 10,
-    color: Colors.white,
+    marginTop: 20,
+    marginLeft: 20,
+    color: Platform.OS === "ios" ? Colors.white : Colors.black,
   },
   visitButton: {
     marginTop: 5,

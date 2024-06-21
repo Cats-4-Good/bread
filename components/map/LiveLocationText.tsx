@@ -6,7 +6,7 @@ import { ThemedText } from "../ThemedText";
 
 const { width, height } = Dimensions.get("window");
 
-const BlinkingGPSIcon = () => {
+const LiveLocationText = () => {
   const [color, setColor] = useState(Colors.black);
   const [backgroundColor, setBackgroundColor] = useState(Colors.grayLight);
 
@@ -33,13 +33,21 @@ const styles = StyleSheet.create({
   gpsIconContainer: {
     position: "absolute",
     bottom: 14,
-    left: width / 2 - 75,
+    right: 20,
     flexDirection: "row",
     alignItems: "center",
-    padding: 5,
+    padding: 8,
     borderRadius: 20,
     borderColor: Colors.grayLight,
     borderWidth: 1,
+    shadowColor: Colors.black,
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
   },
   gpsText: {
     fontSize: 12,
@@ -48,4 +56,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default BlinkingGPSIcon;
+export default LiveLocationText;
