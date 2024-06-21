@@ -13,15 +13,14 @@ import {
 import { useEffect, useState } from "react";
 import { ThemedText, ThemedButton } from "@/components";
 import BakeryPost from "@/components/bakery/BakeryPost";
-import { useUser, useUserStorage } from "@/hooks";
+import { useUser } from "@/hooks";
 import { router } from "expo-router";
 import Constants from "expo-constants";
 import { MaterialIcons } from "@expo/vector-icons";
 import Modal from "react-native-modal";
 
 export default function ProfileScreen() {
-  const [_, { remove }] = useUserStorage();
-  const [user, _setUser] = useUser();
+  const [user, { setUserStorage }] = useUser();
   const [posts, setPosts] = useState<Post[]>([]);
   const [isMunchesTooltipVisible, setMunchesTooltipVisible] = useState(false);
   const [isFoodSavedTooltipVisible, setFoodSavedTooltipVisible] = useState(false);
@@ -30,7 +29,7 @@ export default function ProfileScreen() {
 
   const logoutHandler = async () => {
     console.log("Logging out...");
-    await remove();
+    await setUserStorage(null);
     router.replace("/");
   };
 

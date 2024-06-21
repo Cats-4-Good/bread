@@ -16,6 +16,7 @@ import Constants from "expo-constants";
 import LiveLocationText from "@/components/map/LiveLocationText";
 import MapShowListButton from "@/components/map/MapShowListButton";
 import BlinkingDot from "@/components/map/BlinkingDot";
+import { useUser } from "@/hooks";
 
 export default function Map() {
   // OLD
@@ -25,7 +26,7 @@ export default function Map() {
   // const GOOGLE_API = "AIzaSyCVJO8VtUL7eZ9dsvB_mHl8q_aPzPR1v5g";
 
   const mapRef = useRef(null);
-
+  const [user, _] = useUser();
   const [selectedBakery, setSelectedBakery] = useState<Bakery | null>(null);
   const [bakeries, setBakeries] = useState<Bakery[]>([]);
   const [location, setLocation] = useState<Location.LocationObjectCoords>();
@@ -249,6 +250,7 @@ export default function Map() {
     });
 
 
+  if (!user) return null;
 
   return (
     <View style={styles.container}>
@@ -379,6 +381,14 @@ const styles = StyleSheet.create({
     padding: 8,
     borderRadius: 25,
     width: 150,
+    shadowColor: Colors.black,
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
   },
   visitButtonText: {
     textAlign: "center",

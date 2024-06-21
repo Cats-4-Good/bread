@@ -38,7 +38,7 @@ export default function BakeryPost({
   showBakeryName?: boolean;
   isProfileView?: boolean;
 }) {
-  const [user, setUser] = useUser();
+  const [user, { setUser }] = useUser();
   const [hasMunchedBefore, setHasMunchedBefore] = useState(false);
   const [justMunched, setJustMunched] = useState(false);
   const [changedIsLive, setChangedIsLive] = useState(false);

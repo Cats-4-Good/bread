@@ -35,7 +35,7 @@ SplashScreen.preventAutoHideAsync();
 export default function TabLayout() {
   // this font shit still doesn't work
   const [loaded] = useFonts({ Inter: require("@/assets/fonts/Inter-Regular.ttf") });
-  const [user, _setUser] = useUser();
+  const [user, _] = useUser();
   const [rejected, setRejected] = useState(false);
   const [lastMunchPost, setLastMunchPost] = useState<Post | null>(null);
   const db = getFirestore();
@@ -103,7 +103,6 @@ export default function TabLayout() {
   };
 
   if (!loaded) return null;
-  if (!user) return <RegisterScreen />;
 
   return (
     <ThemeProvider value={DefaultTheme}>
@@ -142,6 +141,12 @@ export default function TabLayout() {
 
         <Tabs.Screen
           name="[slug]"
+          options={{
+            href: null,
+          }}
+        />
+        <Tabs.Screen
+          name="register"
           options={{
             href: null,
           }}

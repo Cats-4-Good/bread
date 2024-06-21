@@ -1,22 +1,26 @@
-// RegisterScreen.tsx
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { StyleSheet, View, TextInput, Alert } from "react-native";
 import { Colors } from "@/constants/Colors";
 import { ThemedButton } from "@/components/ThemedButton";
 import { ThemedText } from "@/components";
 import uuid from "react-native-uuid";
-import { useUserStorage } from "@/hooks";
-import { useRouter } from "expo-router";
+import { useUser } from "@/hooks";
+import { router } from "expo-router";
 
-export default function RegisterScreen() {
-  const [userStorage, { save }] = useUserStorage();
+export default function Register() {
+  const [user, { setUserStorage }] = useUser();
   const [username, setUsername] = useState<string>("");
-  const router = useRouter();
+
+  useEffect(() => {
+    if (user) {
+      router.replace("/");
+    }
+  }, [user]);
 
   const register = async () => {
     if (!username.replaceAll(" ", "")) return Alert.alert("Error", "Invalid username");
     const id = uuid.v4().toString();
-    await save({ id, username });
+    await setUserStorage({ id, username });
   };
 
   return (

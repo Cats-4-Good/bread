@@ -29,7 +29,7 @@ export default function NewPost() {
   const [uri, setUri] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const camera = useRef<CameraView | null>(null);
-  const [user, _setUser] = useUser();
+  const [user, _] = useUser();
   const storage = getStorage();
   const db = getFirestore();
 
