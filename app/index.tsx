@@ -20,10 +20,10 @@ import { useUser } from "@/hooks";
 
 export default function Map() {
   // OLD
-  const GOOGLE_API = "AIzaSyBo-YlhvMVibmBKfXKXuDVf--a92s3yGpY";
+  // const GOOGLE_API = "AIzaSyBo-YlhvMVibmBKfXKXuDVf--a92s3yGpY";
 
   // NEW
-  // const GOOGLE_API = "AIzaSyCVJO8VtUL7eZ9dsvB_mHl8q_aPzPR1v5g";
+  const GOOGLE_API = "AIzaSyCVJO8VtUL7eZ9dsvB_mHl8q_aPzPR1v5g";
 
   const mapRef = useRef(null);
   const [selectedBakery, setSelectedBakery] = useState<Bakery | null>(null);

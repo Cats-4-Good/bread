@@ -14,6 +14,7 @@ import Modal from "react-native-modal";
 import { Post } from "@/types";
 import { doc, getDoc, getFirestore, increment, updateDoc } from "firebase/firestore";
 import BakeryPost from "@/components/bakery/BakeryPost";
+import { ThemedText } from "@/components";
 
 const firebaseConfig = {
   apiKey: "AIzaSyBnyCgXhkgDBr0WXQWisQ1m6HRW00RN1Qg",
@@ -158,6 +159,7 @@ export default function TabLayout() {
         <View style={styles.modalView}>
           <Text style={styles.modalTitle}>Did you purchase this item you munched on?</Text>
           {lastMunchPost && <BakeryPost post={lastMunchPost} showBakeryName />}
+          <ThemedText type="small" style={{ alignSelf: "center", marginHorizontal: 10 }}>Every positive response lets lobangs sharers know about their impact on food items saved!</ThemedText>
           {isLoading
             ? <ActivityIndicator size="large" style={{ alignSelf: "center", marginBottom: 10 }} />
             : <View style={styles.buttonView}>
